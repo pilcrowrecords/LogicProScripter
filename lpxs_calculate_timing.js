@@ -13,3 +13,12 @@ function ProcessMIDI() {
 	// know when in a new Bar
 	var Bar = timingInfo.currBlockStart % timingInfo.meterNumerator
 }
+
+function convertMsToBeat ( ms , tempo ) {
+	// 60000 = 60 seconds in milliseconds
+	return ms / ( 60000 / tempo );
+}
+
+function convertBeatToMs( beat , tempo ) {
+	return Math.round( beat * (60000. / tempo));
+}
