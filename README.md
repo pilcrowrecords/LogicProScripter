@@ -1,6 +1,6 @@
 # LogicProScripter
-JavaScript snippets and scripts for Logic Pro's Scripter
+JavaScript snippets and scripts for Logic Pro's Scripter. This code is originally offered as a free supplement to The Complete Guide to Logic Pro's Scripter by Philip Regan, (to be) published March 1, 2022 exclusively on Apple Books.
 
 Files with the "lpxs" prefix are examples scripts specific to certain aspects of Scripter. Files with the "oc" prefix are complete scripts which expand upon the Apple's supplied scripts in Logic Pro.
 
-This repo is licensed for re-use and sharing. Most pull requests are welcome.
+This repo is licensed for re-use and sharing under the MIT License. Pull requests are welcome.
