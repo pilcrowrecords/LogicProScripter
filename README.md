@@ -7,8 +7,8 @@ This repo is licensed for re-use and sharing under the MIT License. Pull request
 
 Script repos found on Github (licenses may vary, but all are declared open source):
 
-https://github.com/lehenbauer/logic-pro-x-scripts
-https://github.com/f-pimentel-work/Logic-Pro-X-JS-Scripts
-https://github.com/joe-robot/Logic-Scripter---Random-Melody-Generator/
-https://github.com/kabirnagral/LPXscripts
-https://github.com/djtech42/Logic-Pro-X-MIDI-Scripts
+* https://github.com/lehenbauer/logic-pro-x-scripts
+* https://github.com/f-pimentel-work/Logic-Pro-X-JS-Scripts
+* https://github.com/joe-robot/Logic-Scripter---Random-Melody-Generator/
+* https://github.com/kabirnagral/LPXscripts
+* https://github.com/djtech42/Logic-Pro-X-MIDI-Scripts
