@@ -1,25 +1,14 @@
 /****************************************************************************
 Name: Live Humanize
 Author(s): Philip Regan
-Purpose: Randomize pitch beatPos, detune, and tempo during play
+Purpose: Randomize pitch beatPos, velocity, detune and pitchbend during play
 Information:
 	* Less is more. Go for subtlety first.
-	* Detune 
-		* Only works with Apple-sourced synths, except Hammond B3
-		* Detune is in cents by default. Cents in Scripter can go beyond 
-		bounds of synth controls, typ. >50; 100 cents = 1 semitone
-		* Adding any detune enriches the sound; almost like another oscilator 
-		is created on top the one in the synth
-		* In Alchemy, only works on Oscillator 1
-		* In RetroSynth, another oscillator is added to the synth and is 
-		manipulated even if there is no detune for the particular mode. This 
-		is separate from the global RetroSynth settings
-	* Studio Strings and Horns
-		* Gets a heavy chorus effect when played as chords 
-	even with single-digit detune shifts.
-		* Break chords into individual tracks to reduce chorus and improve 
-		richness of sound.
-		* Studio Strings and Brass do not get the same added voice when activated
+	* Detune only works with Apple-sourced synths, except Hammond B3
+	* PitchBend works on all synths which support it
+
+Enhancements:
+	* Make pitch bend glide between changes
 
 Bugs:
 	* None
@@ -38,6 +27,8 @@ Change History:
 	21_11_09_01_06_01:	Fixed a couple bugs
 						Updated probability sliders to align to same values
 						Updated rInt() to include negative numbers
+	21_11_09_01_06_02:	Updated detune to allow for 100 ticks across all 127 pitches
+	22_02_27_01_07_00:	Added PitchBend to ProcessMIDI()
 ****************************************************************************/
 
 /*
@@ -107,18 +98,38 @@ var velocityShiftMax = VELOCITY_SHIFT_MAX;
 // detune
 
 const DETUNE_SHIFT_DEF = 0;
-const DETUNE_SHIFT_STEPS = 400;
+const DETUNE_SHIFT_STEPS = 25400;
 
-const DETUNE_SHIFT_MIN = -200;
+const DETUNE_SHIFT_MIN = -12700;
 const DETUNE_SHIFT_MIN_PCNAME = "Detune Shift Min";
 var detuneShiftMin = DETUNE_SHIFT_DEF;
 
-const DETUNE_SHIFT_MAX = 200;
+const DETUNE_SHIFT_MAX = 12700;
 const DETUNE_SHIFT_MAX_PCNAME = "Detune Shift Max";
 var detuneShiftMax = DETUNE_SHIFT_DEF;
 
 const DETUNE_PROB_PCNAME = "Detune Shift % Chance";
 var detuneProb = PROBABILITY_SLIDER_DEF;
+
+// pitch bend
+
+const PITCHBEND_SHIFT_DEF = 0;
+const PITCHBEND_SHIFT_STEPS = 16383;
+
+const PITCHBEND_SHIFT_MIN = -8192;
+const PITCHBEND_SHIFT_MIN_PCNAME = "PitchBend Min";
+var pitchBendMin = PITCHBEND_SHIFT_DEF;
+
+const PITCHBEND_SHIFT_MAX = 8191;
+const PITCHBEND_SHIFT_MAX_PCNAME = "PitchBend Max";
+var pitchBendMax = PITCHBEND_SHIFT_DEF;
+
+const PITCHBEND_EVENT_TRIGGER_VALUES = ["One New NoteOn", "On New Process Block", "On Both New NoteOn and ProcessBlock"];
+const PITCHBEND_EVENT_TRIGGER_PCNAME = "PitchBend Event Triggers";
+const pitchBendEventValue = 0;
+
+const PITCHBEND_PROB_PCNAME = "PitchBend % Chance";
+var pitchBendProb = PROBABILITY_SLIDER_DEF;
 
 /*
 SCRIPTER FUNCTIONS
@@ -136,6 +147,15 @@ function HandleMIDI( event ) {
 		
 	}
 	
+	if ( pitchBendEventValue = 0 || pitchBendEventValue == 2 ) {
+		var pitchBendValue = getRandomPitchBend();
+		if ( pitchBendValue != 0 ) {
+			var pitchBend = new PitchBend();
+			pitchBend.value = pitchBendValue;
+			pitchBend.send();
+		}
+	}
+	
 	event.send();
 
 	
@@ -144,7 +164,15 @@ function HandleMIDI( event ) {
 function ProcessMIDI() {
 	var timingInfo = GetTimingInfo();
 	if ( timingInfo.playing ) {
-		// do nothing
+	
+		if ( pitchBendEventValue = 1 || pitchBendEventValue == 2 ) {
+		var pitchBendValue = getRandomPitchBend();
+		if ( pitchBendValue != 0 ) {
+			var pitchBend = new PitchBend();
+			pitchBend.value = pitchBendValue;
+			pitchBend.send();
+		}
+	}
 	} else {
 		MIDI.allNotesOff();
 	}
@@ -179,6 +207,17 @@ function ParameterChanged( param, value ) {
 		case 8:
 			detuneShiftMax = value;
 			break;
+		case 9:
+			detuneProb = value;
+			break;
+		case 10:
+			detuneShiftMin = value;
+			break;
+		case 11:
+			detuneShiftMax = value;
+			break;
+		case 12:
+			pitchBendEventValue = value;
 		default:
 			Trace("ERROR: ParameterChanged");
 	}
@@ -216,6 +255,17 @@ function getRandomDetuneShift( originalDetune ) {
 	}
 	return originalDetune;
 }
+
+// pitch bend is a simple value application
+function getRandomPitchBend() {
+	var prob = rInt( PROBABILITY_MIN, PROBABILITY_MAX );
+	if ( prob <= pitchBendProb ) {
+		var r = rInt( pitchBendMin, pitchBendMax );
+		return r;
+	}
+	return 0;
+}
+
 
 function normalizeDetune( detune ) {
 	if ( detune > DETUNE_SHIFT_MAX ) {
@@ -327,4 +377,41 @@ PluginParameters.push({
 	defaultValue: DETUNE_SHIFT_DEF,
 	numberOfSteps: DETUNE_SHIFT_STEPS,
 	unit:"Integer"
-});  
+});
+
+PluginParameters.push({
+	name: PITCHBEND_PROB_PCNAME,
+	type: "lin",
+	minValue: PROBABILITY_SLIDER_MIN,
+	maxValue: PROBABILITY_SLIDER_MAX,
+	defaultValue: PROBABILITY_SLIDER_DEF,
+	numberOfSteps: PROBABILITY_SLIDER_STEPS,
+	unit:"%"
+});
+
+PluginParameters.push({
+	name: PITCHBEND_SHIFT_MIN_PCNAME,
+	type: "lin",
+	minValue: PITCHBEND_SHIFT_MIN,
+	maxValue: PITCHBEND_SHIFT_MAX,
+	defaultValue: PITCHBEND_SHIFT_DEF,
+	numberOfSteps: PITCHBEND_SHIFT_STEPS,
+	unit:"Integer"
+});
+
+PluginParameters.push({
+	name: PITCHBEND_SHIFT_MAX_PCNAME,
+	type: "lin",
+	minValue: PITCHBEND_SHIFT_MIN,
+	maxValue: PITCHBEND_SHIFT_MAX,
+	defaultValue: PITCHBEND_SHIFT_DEF,
+	numberOfSteps: PITCHBEND_SHIFT_STEPS,
+	unit:"Integer"
+});
+
+PluginParameters.push({
+	name: PITCHBEND_EVENT_TRIGGER_PCNAME,
+	type: "menu",
+	valueStrings: PITCHBEND_EVENT_TRIGGER_VALUES,
+	defaultValue: 1
+});
