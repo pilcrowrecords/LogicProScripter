@@ -33,3 +33,8 @@ Caveats
 * The Cycle start and end are measured in neatly divisible units like those calculate in `note_lengths.js`. 
 * Process blocks are mostly predictable but have some randomness to them. 
 * Process blocks may begin before or after the beginning of a cycle, regardless of the cycle's position, and may end before or after the end of a cycle, regardless of position. * That shifting in process block dimensions may be different depending on whether or not the track is cycling.
+
+Example Scripts
+
+* Cresswell Random Melody Generator is the spark of the idea, but I added features to the script to give more control to the user. This script has more elaborate code, and it riffs off of Apple's own code fairly closely but I think it's pretty much unmaintainable. 
+* The other two Apple prefixed scripts are the only two which take into consideration cycling bounds, and I don't think take into account note values which are longer than the bounds of the cycle. Honestly, I think I need to review their code and see if I can make that work because it's cleaner than what I remember.
