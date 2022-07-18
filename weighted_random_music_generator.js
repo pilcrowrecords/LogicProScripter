@@ -188,6 +188,11 @@ const CURSOR_INCREMENT = 0.001; // smallest note length = 0.125
 // currently set up to only track one played note at a time.
 var ACTIVE_NOTES = [];
 
+var OUTPUT_NOTES_TO_CONSOLE = false;
+var VERBOSE = false;
+
+var LAST_TIMING_INFO = {};
+
 /*
 SCRIPTER FUNCTIONS
 */
@@ -214,7 +219,17 @@ function ProcessMIDI() {
 	var lookAheadEnd = timing_info.blockEndBeat;
 	var cursor = timing_info.blockStartBeat;
 	if ( TRIGGER == RESET_VALUE ) {
-		TRIGGER = cursor;
+		TRIGGER = timing_info.blockStartBeat;
+	}
+
+	// trigger can get stuck outside of cycle causing whole cycle loss of music
+	if ( timing_info.cycling && ( !TRIGGER || TRIGGER > timing_info.rightCycleBeat ) ) {
+		TRIGGER = ( timing_info.rightCycleBeat > timing_info.blockEndBeat ? timing_info.rightCycleBeat : timing_info.blockEndBeat ); 
+		// Assumes the cycle is on a whole number (quarter beat/bottom denominator in time sig);
+		if ( TRIGGER == timing_info.rightCycleBeat && Math.trunc(cursor) == timing_info.leftCycleBeat ) {
+			TRIGGER = timing_info.blockStartBeat;
+		}
+			
 	}
 
     // cycling the playhead cretes buffers which need to be managed
@@ -260,18 +275,21 @@ function ProcessMIDI() {
                 // adjust for the cycle buffers
 				if ( timing_info.cycling && new_trigger_beat >= timing_info.rightCycleBeat ) {
 					while ( new_trigger_beat >= timing_info.rightCycleBeat ) {
-						new_trigger_beat -= cycleBeats;
+						new_trigger_beat -= (timing_info.rightCycleBeat - timing_info.leftCycleBeat);
 					}
 				}
 
 				TRIGGER = new_trigger_beat;
+
+				if ( OUTPUT_NOTES_TO_CONSOLE ) {
+					Trace( "Rest    " + "---" + "    " + event_length );
+				}
 			
 			} else {
                 // if it's a played note, build and send the NoteOn and NoteOff events
 				var note_on = new NoteOn();
 				note_on.pitch = event_pitch;
 				note_on.velocity = 100;
-
 
 				note_on.sendAtBeat( TRIGGER ); 
 				ACTIVE_NOTES.push( note_on );
@@ -283,12 +301,18 @@ function ProcessMIDI() {
 				if ( timing_info.cycling && note_off_beat >= timing_info.rightCycleBeat ) {
 					while ( note_off_beat >= timing_info.rightCycleBeat ) {
 						note_off_beat -= cycleBeats;
+						// ERROR: note_off_beat = null
+						// ATTEMPT: chaning cycleBeats to actual calc crams events at the end of the cycle
 					}
 				}
 
 				note_off.sendAtBeat( note_off_beat );
 
 				TRIGGER = note_off_beat;
+
+				if ( OUTPUT_NOTES_TO_CONSOLE ) {
+					Trace( "Note    " + event_pitch + "    " + event_length );
+				}
 
 		}
 
@@ -301,6 +325,8 @@ function ProcessMIDI() {
 		}
 	}
 	
+	LAST_TIMING_INFO = timing_info;
+
 }
 
 function ParameterChanged( param, value ) {
@@ -384,6 +410,14 @@ function ParameterChanged( param, value ) {
         case 51:
 			updateRestLengthPool( param , value );
             break;
+		case 52:
+			OUTPUT_NOTES_TO_CONSOLE = value;
+			Trace( "Output notes to console is " + ( value == 1 ? "true" : "false" ) );
+			break;
+		case 53:
+			VERBOSE = value;
+			Trace( "Verbosity is " + ( value == 1 ? "true" : "false" ) );
+			break;
 		default:
 			Trace("ERROR: ParameterChanged("+ param + "," + value + ")");
 	}
@@ -774,4 +808,16 @@ NOTE_LENGTH_KEYS.forEach( element => {
 		defaultValue:default_length}
 	);
 	index++;
+});
+
+PluginParameters.push({
+	name:"Output Notes to Console", 
+	type:"checkbox", 
+	defaultValue:0
+});
+
+PluginParameters.push({
+	name:"Verbose for Troubleshooting", 
+	type:"checkbox", 
+	defaultValue:0
 });
