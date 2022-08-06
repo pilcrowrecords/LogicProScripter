@@ -34,7 +34,7 @@ Limitations
 * x Warranty
 
 Conditions
-! License and copyright notice
+* License and copyright notice
 
 MIT License
 
