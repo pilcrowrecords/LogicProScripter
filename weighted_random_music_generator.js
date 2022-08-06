@@ -6,6 +6,8 @@ Purpose:
 rest lengths
 * Contains examples of the following:
     * Modeling scales
+	* Modeling chords
+    * Capturing notes dueing live play
     * Random selection of weighted values (useful for music generation without 
 	using pre-existing notes in the track)
     * Tracking playhead and beats locations across process blocks and loops
@@ -48,7 +50,6 @@ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 ****************************************************************************/
 
 /*
@@ -80,7 +81,6 @@ const PITCH_RECORD_KEY_WEIGHT = "w";
 const PITCH_RECORD_KEY_TYPE = "t";
 // stores the scale as calculated
 var SCALE_MAP = {}
-const PITCH_CONTROL_OFFSET = 4;
 // the store from which pitches are selected
 var NOTE_PITCH_POOL = [];
 
@@ -111,32 +111,180 @@ const PITCH_TYPE_ROOT = 'root';
 const PITCH_TYPE_DIATONIC = 'diatonic';
 const PITCH_TYPE_NONDIATONIC = 'non-diatonic';
 
-/* length params */
+/* chords */
 
-const NOTE_LENGTH_MAX = 24.0;
-const NOTE_DIVISION_MIN = 32.0;
-const NOTE_INCREMENT_MIN = 0.125;
- 
-const NOTE_LENGTHS_LIB = {
-    "1/32" : (NOTE_LENGTH_MAX / 32.0), 
-    "1/32d" : (NOTE_LENGTH_MAX / 32.0) + (NOTE_LENGTH_MAX / 32.0) / 2.0, 
-    "1/32t" : (NOTE_LENGTH_MAX / 32.0) / 3.0, 
-    "1/16" : (NOTE_LENGTH_MAX / 16.0) , 
-    "1/16d" : (NOTE_LENGTH_MAX / 16.0) + (NOTE_LENGTH_MAX / 16.0) / 2.0, 
-    "1/16t" : (NOTE_LENGTH_MAX / 16.0) / 3.0, 
-    "1/8" : (NOTE_LENGTH_MAX / 8.0), 
-    "1/8d" : (NOTE_LENGTH_MAX / 8.0) + (NOTE_LENGTH_MAX / 8.0) / 2.0,   
-    "1/8t" : (NOTE_LENGTH_MAX / 8.0) / 3.0, 
-    "1/4" : (NOTE_LENGTH_MAX / 4.0), 
-    "1/4d" : (NOTE_LENGTH_MAX / 4.0) + (NOTE_LENGTH_MAX / 4.0) / 2.0, 
-    "1/4t" : (NOTE_LENGTH_MAX / 4.0) / 3.0, 
-    "1/2" : (NOTE_LENGTH_MAX / 2.0), 
-    "1/2d" : (NOTE_LENGTH_MAX / 2.0) + (NOTE_LENGTH_MAX / 2.0) / 2.0, 
-    "1/2t" : (NOTE_LENGTH_MAX / 2.0) / 3.0 , 
-    "1" : (NOTE_LENGTH_MAX), 
-    "1t" : (NOTE_LENGTH_MAX / 3.0)
+const INTERVAL_KEY_PER_UNI = "1 - Perfect Unison - 0";
+const INTERVAL_KEY_MIN_2ND = "b2 - Minor 2nd - 1";
+const INTERVAL_KEY_MAJ_2ND = "2 - Major 2nd - 2";
+const INTERVAL_KEY_MIN_3RD = "b3 - Minor 3rd - 3";
+const INTERVAL_KEY_MAJ_3RD = "3 - Major 3rd - 4";
+const INTERVAL_KEY_PER_4TH = "4 - Perfect 4th - 5";
+const INTERVAL_KEY_AU4_DI5 = "#4/b5 - Aug 4th / Dim 5th - 6";
+const INTERVAL_KEY_PER_5TH = "5 - Perfect 5th - 7";
+const INTERVAL_KEY_MIN_6TH = "b6 - Minor 6th - 8";
+const INTERVAL_KEY_MAJ_6TH = "6 - Major 6th - 9";
+const INTERVAL_KEY_MIN_7TH = "b7 - Minor 7th - 10";
+const INTERVAL_KEY_MAJ_7TH = "7 - Major 7th - 11";
+const INTERVAL_KEY_PER_8TH = "8 - Perfect 8th / Octave - 12";
+
+const INTERVALS_LIB = {
+    "1 - Perfect Unison - 0" : 0,
+    "b2 - Minor 2nd - 1" : 1,
+    "2 - Major 2nd - 2" : 2,
+    "b3 - Minor 3rd - 3" : 3,
+    "3 - Major 3rd - 4" : 4,
+    "4 - Perfect 4th - 5" : 5,
+    "#4/b5 - Aug 4th / Dim 5th - 6" : 6,
+    "5 - Perfect 5th - 7" : 7,
+    "b6 - Minor 6th - 8" : 8,
+    "6 - Major 6th - 9" : 9,
+    "b7 - Minor 7th - 10" : 10,
+    "7 - Major 7th - 11" : 11,
+    "8 - Perfect 8th / Octave - 12" : 12
 };
 
+// we keep the scale degrees to make these easier to maintain
+// each element in the TEMPLATE is subtracted by 1 for the actual calc
+const CHORD_TEMPLATES_LIB = {
+    "Major: 1 3 5"    :   [   
+                                    INTERVALS_LIB[INTERVAL_KEY_PER_UNI], 
+                                    INTERVALS_LIB[INTERVAL_KEY_MAJ_3RD], 
+                                    INTERVALS_LIB[INTERVAL_KEY_PER_5TH],
+                                    null,
+                                    null,
+                                    null,
+                                    null
+                                ],
+    "Minor: 1 b3 5"    :   [   
+                                    INTERVALS_LIB[INTERVAL_KEY_PER_UNI], 
+                                    INTERVALS_LIB[INTERVAL_KEY_MIN_3RD], 
+                                    INTERVALS_LIB[INTERVAL_KEY_PER_5TH],
+                                    null,
+                                    null,
+                                    null,
+                                    null
+                                ],
+    "Augmented: 1 3 #5"      :   [   
+                                    INTERVALS_LIB[INTERVAL_KEY_PER_UNI], 
+                                    INTERVALS_LIB[INTERVAL_KEY_MAJ_3RD], 
+                                    INTERVALS_LIB[INTERVAL_KEY_MIN_6TH],
+                                    null,
+                                    null,
+                                    null,
+                                    null
+                                ],
+    "Diminished: 1 b3 b5"      :   [   
+                                    INTERVALS_LIB[INTERVAL_KEY_PER_UNI], 
+                                    INTERVALS_LIB[INTERVAL_KEY_MIN_3RD], 
+                                    INTERVALS_LIB[INTERVAL_KEY_AU4_DI5],
+                                    null,
+                                    null,
+                                    null,
+                                    null
+                                ]
+};
+
+const CHORD_PULLDOWN_LABELS = Object.keys( CHORD_TEMPLATES_LIB );
+
+// chord qualities
+
+const CHORD_QUAL_7TH_LIB = {
+    "None"  :   null, 
+    "7"     :   INTERVALS_LIB[INTERVAL_KEY_MIN_7TH], 
+    "M7"    :   INTERVALS_LIB[INTERVAL_KEY_MAJ_7TH], 
+    "add#7" :   INTERVALS_LIB[INTERVAL_KEY_PER_8TH]
+};
+const CHORD_QUAL_7TH_PULLDOWN_LABELS = Object.keys( CHORD_QUAL_7TH_LIB );
+[
+    CHORD_QUAL_7TH_PULLDOWN_LABELS[1],
+    CHORD_QUAL_7TH_PULLDOWN_LABELS[0],
+    CHORD_QUAL_7TH_PULLDOWN_LABELS[2],
+    CHORD_QUAL_7TH_PULLDOWN_LABELS[3]
+] = [
+    CHORD_QUAL_7TH_PULLDOWN_LABELS[0],
+    CHORD_QUAL_7TH_PULLDOWN_LABELS[1],
+    CHORD_QUAL_7TH_PULLDOWN_LABELS[2],
+    CHORD_QUAL_7TH_PULLDOWN_LABELS[3]
+];
+
+const CHORD_QUAL_9TH_LIB = {
+    "None"  :   null, 
+    "b9"    :   INTERVALS_LIB[INTERVAL_KEY_MIN_2ND], 
+    "9"     :   INTERVALS_LIB[INTERVAL_KEY_MAJ_2ND], 
+    "#9"    :   INTERVALS_LIB[INTERVAL_KEY_MIN_3RD]
+};
+const CHORD_QUAL_9TH_PULLDOWN_LABELS = Object.keys( CHORD_QUAL_9TH_LIB );
+[
+    CHORD_QUAL_9TH_PULLDOWN_LABELS[1],
+    CHORD_QUAL_9TH_PULLDOWN_LABELS[0],
+    CHORD_QUAL_9TH_PULLDOWN_LABELS[2],
+    CHORD_QUAL_9TH_PULLDOWN_LABELS[3]
+] = [
+    CHORD_QUAL_9TH_PULLDOWN_LABELS[0],
+    CHORD_QUAL_9TH_PULLDOWN_LABELS[1],
+    CHORD_QUAL_9TH_PULLDOWN_LABELS[2],
+    CHORD_QUAL_9TH_PULLDOWN_LABELS[3]
+];
+
+const CHORD_QUAL_11TH_LIB = {
+    "None"  :   null, 
+    "b11"   :   INTERVALS_LIB[INTERVAL_KEY_MAJ_3RD], 
+    "11"    :   INTERVALS_LIB[INTERVAL_KEY_PER_4TH], 
+    "#11"   :   INTERVALS_LIB[INTERVAL_KEY_AU4_DI5]
+};
+const CHORD_QUAL_11TH_PULLDOWN_LABELS = Object.keys( CHORD_QUAL_11TH_LIB );
+[
+    CHORD_QUAL_11TH_PULLDOWN_LABELS[1],
+    CHORD_QUAL_11TH_PULLDOWN_LABELS[0],
+    CHORD_QUAL_11TH_PULLDOWN_LABELS[2],
+    CHORD_QUAL_11TH_PULLDOWN_LABELS[3]
+] = [
+    CHORD_QUAL_11TH_PULLDOWN_LABELS[0],
+    CHORD_QUAL_11TH_PULLDOWN_LABELS[1],
+    CHORD_QUAL_11TH_PULLDOWN_LABELS[2],
+    CHORD_QUAL_11TH_PULLDOWN_LABELS[3]
+];
+
+const CHORD_QUAL_13TH_LIB = {
+    "None"  :   null, 
+    "b13"   :   INTERVALS_LIB[INTERVAL_KEY_MIN_6TH], 
+    "13"    :   INTERVALS_LIB[INTERVAL_KEY_MAJ_6TH], 
+    "#13"   :   INTERVALS_LIB[INTERVAL_KEY_MIN_7TH]
+};
+const CHORD_QUAL_13TH_PULLDOWN_LABELS = Object.keys(CHORD_QUAL_13TH_LIB);
+[
+    CHORD_QUAL_13TH_PULLDOWN_LABELS[1],
+    CHORD_QUAL_13TH_PULLDOWN_LABELS[0],
+    CHORD_QUAL_13TH_PULLDOWN_LABELS[2],
+    CHORD_QUAL_13TH_PULLDOWN_LABELS[3]
+] = [
+    CHORD_QUAL_13TH_PULLDOWN_LABELS[0],
+    CHORD_QUAL_13TH_PULLDOWN_LABELS[1],
+    CHORD_QUAL_13TH_PULLDOWN_LABELS[2],
+    CHORD_QUAL_13TH_PULLDOWN_LABELS[3]
+];
+
+/* length params */
+ 
+const NOTE_LENGTHS_LIB = {
+	"1/32"	:	0.75,
+	"1/32d"	:	1.125,
+	"1/32t"	:	0.25,
+	"1/16"	:	1.5,
+	"1/16d"	:	2.25,
+	"1/16t"	:	0.5,
+	"1/8" 	:	3.0,
+	"1/8d"	:	4.5,
+	"1/8t"	:	1.0,
+	"1/4" 	:	6.0,
+	"1/4d"	:	9.0,
+	"1/4t"	:	2.0,
+	"1/2" 	:	12.0,
+	"1/2d"	:	18.0,
+	"1/2t"	:	4.0,
+	"1"		:	24.0,
+	"1t"	:	8.0
+};
 var NOTE_LENGTH_KEYS = Object.keys( NOTE_LENGTHS_LIB );
 
 // the keys get sorted into an incorrect order, so this fixes them
@@ -145,13 +293,14 @@ var whole_triplet = NOTE_LENGTH_KEYS.pop();
 NOTE_LENGTH_KEYS.push( whole_note );
 NOTE_LENGTH_KEYS.push( whole_triplet );
 
+const POOL_SOURCE_OPTIONS = ["Scale" , "Chord" , "Live"];
+
 // Manage note length selections and pool
 var NOTE_LENGTH_SELECTIONS = [];
 var lengths = Object.keys(NOTE_LENGTHS_LIB);
 lengths.forEach( function ( l ) {
     NOTE_LENGTH_SELECTIONS.push(NOTE_PROB_CHROMATIC);
 });
-const LENGTH_CONTROL_OFFSET = 17;
 // weighted selection store,  built from values in store
 var NOTE_LENGTH_POOL = [];
 
@@ -161,7 +310,6 @@ var lengths = Object.keys(NOTE_LENGTHS_LIB);
 lengths.forEach( function ( l ) {
     REST_LENGTH_SELECTIONS.push(NOTE_PROB_CHROMATIC);
 });
-const REST_CONTROL_OFFSET = 35;
 // weighted selection store,  built from values in store
 var REST_LENGTH_POOL = [];
 
@@ -176,6 +324,10 @@ const POOL_TOTAL_KEY = "total";
 
 // prevents endless loop of control and map changes
 var UPDATING_CONTROLS = false;
+const PITCH_CONTROL_OFFSET = 11;
+const LENGTH_CONTROL_OFFSET = 24;
+const REST_CONTROL_OFFSET = 42;
+
 
 // the trigger variable is where the next note (or rest) is to be played
 // trigger is global to track it across process blocks
@@ -185,20 +337,39 @@ const RESET_VALUE = -1.0;
 var TRIGGER = RESET_VALUE;
 const CURSOR_INCREMENT = 0.001; // smallest note length = 0.125
 
-// currently set up to only track one played note at a time.
-var ACTIVE_NOTES = [];
-
 var OUTPUT_NOTES_TO_CONSOLE = false;
 var VERBOSE = false;
 
-var LAST_TIMING_INFO = {};
+// currently set up to only track one played note at a time.
+var ACTIVE_RGEN_NOTES = [];
+
+var ACTIVE_LIVE_NOTES = {};
 
 /*
 SCRIPTER FUNCTIONS
 */
 
 function HandleMIDI( event ) {
-	event.send();
+    if ( GetParameter("Parameters Source") == 2 ) {
+        // source from live or preset source notes
+        const pitch = event.pitch;
+        if ( event instanceof NoteOn ) {
+            var notes = ACTIVE_LIVE_NOTES[ pitch ];
+            if ( !notes ) {
+                notes = [];
+            }
+            notes.push( event );
+            ACTIVE_LIVE_NOTES[ pitch ] = notes;
+            calculate_live_preset_pitches();
+        } else if ( event instanceof NoteOff ) {
+            var notes = ACTIVE_LIVE_NOTES[ pitch ];
+            var note = notes.pop();
+            ACTIVE_LIVE_NOTES[ pitch ] = notes;
+            calculate_live_preset_pitches();
+        } else if ( event instanceof NoteOn == false && event instanceof NoteOff == false ) {
+            event.send();
+        }
+    }
 }
 
 function ProcessMIDI() {
@@ -206,7 +377,7 @@ function ProcessMIDI() {
 
 	// when the transport stops, stop any playing notes and track the cursor and trigger so play can begin uninterrupted
 	if ( !timing_info.playing ){
-		ACTIVE_NOTES.forEach( function ( note_on ) {
+		ACTIVE_RGEN_NOTES.forEach( function ( note_on ) {
 			var note_off = new NoteOff( note_on );
 			note_off.send();
 		});
@@ -258,7 +429,7 @@ function ProcessMIDI() {
 		}
         
         // the cursor has come to the trigger
-		if ( cursor == TRIGGER ) {
+		if ( cursor == TRIGGER && NOTE_PITCH_POOL[POOL_TOTAL_KEY] != 0 ) {
 
             // get some basic note information
 			var event_pitch = ( TARGET_OCTAVE * 12 ) + parseInt(getRandomValueFromWeightPool( NOTE_PITCH_POOL ));
@@ -292,7 +463,7 @@ function ProcessMIDI() {
 				note_on.velocity = 100;
 
 				note_on.sendAtBeat( TRIGGER ); 
-				ACTIVE_NOTES.push( note_on );
+				ACTIVE_RGEN_NOTES.push( note_on );
 
                 var note_off = new NoteOff( note_on );
 				var note_off_beat = TRIGGER + event_length;
@@ -325,8 +496,6 @@ function ProcessMIDI() {
 		}
 	}
 	
-	LAST_TIMING_INFO = timing_info;
-
 }
 
 function ParameterChanged( param, value ) {
@@ -335,47 +504,73 @@ function ParameterChanged( param, value ) {
 	}
 	switch( param ) {
 		case 0:
-			// pitches text
+			// "Pitch Parameters"
 			break;
 		case 1:
 			TARGET_OCTAVE = value;
 			break;
 		case 2:
-			// root pulldown
-			updateNotePitchPool( GetParameter("Root") , GetParameter("Scale") );
+			// scale root pulldown
+            if ( GetParameter( "Parameters Source" ) != 2 ) {
+                calculate_scale_pitches( GetParameter("Scale Root") , GetParameter("Scale Type") );
+            }
 			break;
 		case 3:
-			// scale pulldown
-			if ( value == 0 ) {
-				updateNotePitchPoolToChromatic();
-			} else {			
-				updateNotePitchPool( GetParameter("Root") , GetParameter("Scale") );				
-			}
+			// scale type pulldown
+            if ( GetParameter( "Parameters Source" ) != 2 ) {
+                if ( value == 0 ) {
+                    calculate_scale_pitches_to_chromatic();
+                } else {			
+                    calculate_scale_pitches( GetParameter("Scale Root") , GetParameter("Scale Type") );				
+                }
+            }
 			break;
 		case 4:
+            // parameters source pulldown
+            if ( value == 0 ) {
+                // scale type pulldown
+                if ( GetParameter("Scale Type") == 0 ) {
+                    calculate_scale_pitches_to_chromatic();
+                } else {			
+                    calculate_scale_pitches( GetParameter("Scale Root") , GetParameter("Scale Type") );				
+                }
+            } else if ( value == 1 ) {
+                // chord pulldowns
+                calculate_chord_pitches ( GetParameter("Chord Root") , GetParameter("Chord Type") );
+            } else if ( value == 2 ) {
+                // live play
+                calculate_live_preset_pitches();
+            }
+            break;
 		case 5:
+            // chord root
 		case 6:
+            // chord type
 		case 7:
 		case 8:
 		case 9:
-		case 10:
+  		case 10:
+            // 13ths
+            if ( GetParameter( "Parameters Source" ) == 1 ) {
+                calculate_chord_pitches ( GetParameter("Chord Root") , GetParameter("Chord Type") );
+            }
+            break;
 		case 11:
 		case 12:
 		case 13:
 		case 14:
 		case 15:
-			updatePitchWeight( param , value );
-			break;
 		case 16:
-			// lengths text; do nothing
-			break;
 		case 17:
 		case 18:
 		case 19:
 		case 20:
 		case 21:
 		case 22:
+            updatePitchWeight( param , value );
+            break;
 		case 23:
+            // note lengths label; do nothing
         case 24:
         case 25:
         case 26:
@@ -386,18 +581,17 @@ function ParameterChanged( param, value ) {
         case 31:
         case 32:
         case 33:
-            updateNoteLengthPool( param , value );
-			break;
         case 34:
-            // rests text; do nothing
-            break;
         case 35:
         case 36:
         case 37:
         case 38:
         case 39:
         case 40:
+            updateNoteLengthPool( param , value );
+			break;
         case 41:
+            // rest lengths label; do nothing
         case 42:
         case 43:
         case 44:
@@ -408,13 +602,20 @@ function ParameterChanged( param, value ) {
         case 49:
         case 50:
         case 51:
+        case 52:
+        case 53:
+        case 54:
+        case 55:
+        case 56:
+        case 57:
+        case 58:
 			updateRestLengthPool( param , value );
             break;
-		case 52:
+		case 59:
 			OUTPUT_NOTES_TO_CONSOLE = value;
 			Trace( "Output notes to console is " + ( value == 1 ? "true" : "false" ) );
 			break;
-		case 53:
+		case 60:
 			VERBOSE = value;
 			Trace( "Verbosity is " + ( value == 1 ? "true" : "false" ) );
 			break;
@@ -430,27 +631,15 @@ CUSTOM FUNCTIONS
 /* TRANSPOSITION */
 
 // converts the half- and whole-step jumps into the transposition and pitch shift maps
-function updateNotePitchPool( root, templateIndex ) {
-	
-	/*
-		* build the map as normal for transposition
-		* translate map into weights
-			* build a weight map object
-			* for each value in the pitch map
-				* weight map <array>
-					* if pitch == root then push root weight 
-					* if pitch != last pitch then push diatonic weight
-					* if pitch == last pitch then push non-diatonic weight
-			* update controls with weight map
-		* build selection pool based on weights
-	*/
-	
+function calculate_scale_pitches( root, templateIndex ) {
+
 	// root index maps directly to MIDI pitches 0-11
 	var template = SCALE_TEMPLATES[SCALE_KEYS[templateIndex]];
 	var lastPitch = root;
 	// init
 	PITCH_WEIGHT_MAP = {};
 	PITCH_WEIGHT_MAP[lastPitch] = createPitchRecord( NOTE_PROB_ROOT, PITCH_TYPE_ROOT );
+
 	// build; length - 2 because we ignore the last value
 	for ( var index = 0 ; index <= template.length - 2 ; index++ ) {
 		var steps = template[index];
@@ -465,19 +654,19 @@ function updateNotePitchPool( root, templateIndex ) {
 		PITCH_WEIGHT_MAP[pitch] = createPitchRecord( NOTE_PROB_DIATONIC, PITCH_TYPE_DIATONIC );
 		lastPitch = pitch;
 	}
-	var origPitchKeys = Object.keys( PITCH_WEIGHT_MAP );
 		
 	// normalize to octave C-2 (MIDI pitches 0-11)
     var cache = {};
-	for ( var index = 0 ; index < origPitchKeys.length ; index++ ) {
-        var key = origPitchKeys[index];
+    var keys = Object.keys(PITCH_WEIGHT_MAP);
+    keys.forEach( function ( key ) {
 		var pitch = parseInt(key);
         var pitchRecord = PITCH_WEIGHT_MAP[key]
-		if ( pitch >= 12 ) {
+		if ( pitch >= 12 ) { 
 			pitch = pitch - 12;
 		}
 			cache[pitch] = pitchRecord;
-	}
+    });
+
 	PITCH_WEIGHT_MAP = cache;
 	
 	NOTE_PITCH_POOL = buildNotePitchWeightPoolWithPitchWeightMap( PITCH_WEIGHT_MAP );
@@ -486,8 +675,132 @@ function updateNotePitchPool( root, templateIndex ) {
 		
 }
 
+function calculate_chord_pitches ( chord_root , chord_type ) {
+
+    let chord_template = CHORD_TEMPLATES_LIB[ CHORD_PULLDOWN_LABELS[ chord_type ] ];
+
+    if ( VERBOSE ) {
+        Trace("chord template pre qual: " + JSON.stringify( chord_template ));
+    }
+    // get the qualities and modify
+
+    var ext7 = GetParameter("7ths");
+    if ( ext7 > 0 ) {
+        let key = CHORD_QUAL_7TH_PULLDOWN_LABELS[ ext7 ];
+        let interval = CHORD_QUAL_7TH_LIB[ key ];
+        chord_template[3] = interval;
+    } else {
+        chord_template[3] = null;
+    }
+
+    var ext9 = GetParameter("9ths");
+    if ( ext9 > 0 ) {
+        let key = CHORD_QUAL_9TH_PULLDOWN_LABELS[ ext9 ];
+        let interval = CHORD_QUAL_9TH_LIB[ key ];
+        chord_template[4] = interval;
+    } else {
+        chord_template[4] = null;
+    }
+
+    var ext11 = GetParameter("11ths");
+    if ( ext11 > 0 ) {
+        let key = CHORD_QUAL_11TH_PULLDOWN_LABELS[ ext11 ];
+        let interval = CHORD_QUAL_11TH_LIB[ key ];
+        chord_template[5] = interval;
+    } else {
+        chord_template[5] = null;
+    }
+
+    var ext13 = GetParameter("13ths");
+    if ( ext13 > 0 ) {
+        let key = CHORD_QUAL_13TH_PULLDOWN_LABELS[ ext13 ];
+        let interval = CHORD_QUAL_13TH_LIB[ key ];
+        chord_template[6] = interval;
+    } else {
+        chord_template[6] = null;
+    }
+
+    if ( VERBOSE ) {
+        Trace("chord template postqual: " + JSON.stringify( chord_template ));
+    }
+
+    // calculate the chord pitches
+    let voices = {};
+    chord_template.forEach( function ( interval ) {
+        if ( interval != null ) {
+            var pitch = chord_root + interval;
+        if ( pitch >= 12 ) {
+            pitch -= 12;
+        }
+        if ( interval == 0 ) {
+            voices[ pitch ] = createPitchRecord( NOTE_PROB_CHROMATIC , PITCH_TYPE_ROOT );
+        } else {
+            voices[ pitch ] = createPitchRecord( NOTE_PROB_CHROMATIC , PITCH_TYPE_DIATONIC );
+        }
+    }
+        
+    });
+    // compile the chord pitches with empty values for the remaining pitches in 
+    // the chromatic scale for the PITCH_WEIGHT_MAP
+    let chord_cache = {};
+    for (let pitch = 0; pitch < 12; pitch++) {
+        const pitch_record = voices[pitch];
+        if ( pitch_record ) {
+            chord_cache[ pitch ] = pitch_record;
+        } else {
+            chord_cache[ pitch ] = createPitchRecord( NOTE_PROB_DEFAULT , PITCH_TYPE_NONDIATONIC );
+        }
+    }
+
+    PITCH_WEIGHT_MAP = chord_cache;
+	
+	NOTE_PITCH_POOL = buildNotePitchWeightPoolWithPitchWeightMap( PITCH_WEIGHT_MAP );
+	
+	updateControlsToScaleWeights( PITCH_WEIGHT_MAP );
+}
+
+function calculate_live_preset_pitches () {
+
+    var pitches = {};
+    const keys = Object.keys( ACTIVE_LIVE_NOTES );
+    keys.forEach( function ( key ) {
+        const arr = ACTIVE_LIVE_NOTES[key];
+        if ( arr ) {
+            var length = arr.length;
+            if ( length > 0 ) {
+                var pitch = parseInt( key );
+                if ( pitch >= 12 ) {
+                    while ( pitch >= 12 ) {
+                        pitch -= 12;
+                    }
+                }
+                pitches[pitch] = createPitchRecord ( NOTE_PROB_CHROMATIC , PITCH_TYPE_DIATONIC );
+            }
+        }
+    });
+
+    // compile the chord pitches with empty values for the remaining pitches in 
+    // the chromatic scale for the PITCH_WEIGHT_MAP
+    var cache = {};
+    for (let pitch = 0; pitch < 12; pitch++) {
+        const pitch_record = pitches[pitch];
+        if ( pitch_record ) {
+            cache[ pitch ] = pitch_record;
+        } else {
+            cache[ pitch ] = createPitchRecord( NOTE_PROB_DEFAULT , PITCH_TYPE_NONDIATONIC );
+        }
+    }
+
+    PITCH_WEIGHT_MAP = cache;
+	
+	NOTE_PITCH_POOL = buildNotePitchWeightPoolWithPitchWeightMap( PITCH_WEIGHT_MAP );
+	
+	updateControlsToScaleWeights( PITCH_WEIGHT_MAP );
+
+}
+
 // special function for chromatic because it doesn't need special calculations
-function updateNotePitchPoolToChromatic() {
+function calculate_scale_pitches_to_chromatic() {
 
 	for ( index = 0 ; index < 12 ; index++ ) {
 		var pitchRecord = createPitchRecord( NOTE_PROB_CHROMATIC, PITCH_TYPE_DIATONIC );
@@ -500,10 +813,9 @@ function updateNotePitchPoolToChromatic() {
 // update to apply chromatic weights
 function updateControlsToChromaticWeights() {
 	UPDATING_CONTROLS = true;
-	var controlOffset = 4;
 	
 	// reset controls to chromatic value
-	for ( var index = controlOffset ; index < 12 + controlOffset ; index++ ) {
+	for ( var index = PITCH_CONTROL_OFFSET ; index < 12 + PITCH_CONTROL_OFFSET ; index++ ) {
 		SetParameter(index, NOTE_PROB_CHROMATIC);
 	}
 	UPDATING_CONTROLS = false;
@@ -620,6 +932,7 @@ function buildNotePitchWeightPoolWithPitchWeightMap( map ) {
 
     */
     pool[POOL_TOTAL_KEY] = total;
+
     return pool;
 
 }
@@ -716,11 +1029,11 @@ PARAMETER CONTROL MANAGEMENT
 
 // index 0
 PluginParameters.push({
-    	name:"Pitches", 
-    	type:"text"
-    	});
-    	
-// index 1
+    name:"Pitch Parameters", 
+    type:"text"
+    });
+
+// 1
 PluginParameters.push({
 	name:"Target Octave", 
 	type:"menu", 
@@ -728,23 +1041,79 @@ PluginParameters.push({
 	defaultValue:5
 	});
 
-// index 2
+// 2
 PluginParameters.push({
-	name:"Root", 
+	name:"Scale Root", 
 	type:"menu", 
 	valueStrings: CHROMATIC_SCALE_STRINGS,
 	defaultValue:0
 });
 
-// index 3
+// 3
 PluginParameters.push({
-	name:"Scale", 
+	name:"Scale Type", 
 	type:"menu", 
 	valueStrings: SCALE_KEYS, 
 	defaultValue:1
 });
 
-// index 4-15
+// 4
+PluginParameters.push({
+	name:"Parameters Source", 
+	type:"menu", 
+	valueStrings: POOL_SOURCE_OPTIONS,
+	defaultValue:0
+});
+
+// 5
+PluginParameters.push({
+	name:"Chord Root", 
+	type:"menu", 
+	valueStrings: CHROMATIC_SCALE_STRINGS,
+	defaultValue:0
+});
+
+// 6
+PluginParameters.push({
+	name:"Chord Type", 
+	type:"menu", 
+	valueStrings: CHORD_PULLDOWN_LABELS,
+	defaultValue:0
+});
+
+// 7
+PluginParameters.push({
+	name:"7ths", 
+	type:"menu", 
+	valueStrings: CHORD_QUAL_7TH_PULLDOWN_LABELS,
+	defaultValue:0
+});
+
+// 8 
+PluginParameters.push({
+	name:"9ths", 
+	type:"menu", 
+	valueStrings: CHORD_QUAL_9TH_PULLDOWN_LABELS,
+	defaultValue:0
+});
+
+// 9
+PluginParameters.push({
+	name:"11ths", 
+	type:"menu", 
+	valueStrings: CHORD_QUAL_11TH_PULLDOWN_LABELS,
+	defaultValue:0
+});
+
+// 10
+PluginParameters.push({
+	name:"13ths", 
+	type:"menu", 
+	valueStrings: CHORD_QUAL_13TH_PULLDOWN_LABELS,
+	defaultValue:0
+});
+
+// 11-22
 var index = 0;
 CHROMATIC_SCALE_STRINGS.forEach(element => {
     PluginParameters.push({
@@ -759,7 +1128,7 @@ CHROMATIC_SCALE_STRINGS.forEach(element => {
     index++;
 });
 
-// index 16
+// 23
 PluginParameters.push({
     	name:"Note Lengths", 
     	type:"text"
@@ -767,7 +1136,7 @@ PluginParameters.push({
 
 index = 0;
 
-// index 17-33
+// 24-40
 NOTE_LENGTH_KEYS.forEach( element => {
     var default_length = 0;
     if ( element == "1/4") {
@@ -786,13 +1155,13 @@ NOTE_LENGTH_KEYS.forEach( element => {
     index++;
 });
 
-// index 34
+// 41
 PluginParameters.push({
     name:"Rest Lengths", 
     type:"text" 
     });
 
-// index 35-51
+// 42-58
 index = 0;
 NOTE_LENGTH_KEYS.forEach( element => {
 
@@ -810,12 +1179,14 @@ NOTE_LENGTH_KEYS.forEach( element => {
 	index++;
 });
 
+// 59
 PluginParameters.push({
 	name:"Output Notes to Console", 
 	type:"checkbox", 
 	defaultValue:0
 });
 
+// 60
 PluginParameters.push({
 	name:"Verbose for Troubleshooting", 
 	type:"checkbox", 
