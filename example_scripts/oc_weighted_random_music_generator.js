@@ -14,6 +14,26 @@ rest lengths
     * Handling recursive changes across controls so that settings don't change 
 	endlessly
 
+Instructions for use:
+* The script functionality is divided into several sections:
+    * Selection of source pitches
+    * Selection of possible note lengths
+    * Selection of possible note rests
+    * Basic preferences, really for troubleshooting
+* Source pitches can come from three sources:
+    * Scale
+    * Chord (irrespective of the selected scale)
+    * Live play or MIDI events already in the track
+    * Weights for the source pitches are between 1-100. Selection of notes
+    based on those weights is proportional to their individual selections
+* Note Lengths and Note Rests work the same way, as do the selection of their
+respective weights.
+
+This script is intended to automated by making scale and chord selection 
+streamlined to two automation lanes, while still offering the ability to 
+fine tune those selections as needed for blues, jazz, or any scale or
+chord variants.
+
 This script is released under the MIT License.
 
 Permissions

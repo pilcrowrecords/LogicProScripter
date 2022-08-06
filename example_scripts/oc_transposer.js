@@ -1,4 +1,5 @@
-/*
+/******************************************************************************
+
 Name: Transposer JS
 Author(s): Philip Regan
 Purpose: Recreation of the Transposer MIDI Effects Plug-In
@@ -8,20 +9,43 @@ Information:
 	* How to model scales
 		* parameter control indexes for pitches aligns with MIDI pitch values 0-11
 
-Change History:
-	22_01_27_01_00_00:	Started script
-	22_01_28_01_01_00:	Added semitone transposition
-						Updated roadmap
-	22_01_29_01_02_00:	Added active note management
-						Added parameter controls for root and scale transposition
-	22_01_31_01_03_00:	Added transpose function and parameter control application
-	22_01_31_01_03_01:	Fixed bug where updating controls would result in an endless loop and duplicate function names
-	22_01_31_01_03_02:	Added array.sort() to ensure maps and pitches align as much as possible.
-	22_01_31_01_03_03:	Moved pitch info array to make calculation more efficient; was causing
-	22_01_31_02_00_01:	Updated live play transposition to be faster
-	22_01_31_02_01_02:	Added individual pitch shift changes
-						DRY'd code which applied transpose map to pitch shift map 
-*/
+This script is released under the MIT License.
+
+Permissions
+* Commercial use
+* Modification
+* Distribution
+* Private use
+
+Limitations
+x Liability
+x Warranty
+
+Conditions
+! License and copyright notice
+
+Copyright Philip Regan and Pilcrow Records
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+****************************************************************************/
 
 /*
 SCRIPTER GLOBAL VARIABLES

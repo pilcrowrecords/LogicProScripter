@@ -1,34 +1,53 @@
-/****************************************************************************
+/******************************************************************************
 Name: Live Humanize
 Author(s): Philip Regan
-Purpose: Randomize pitch beatPos, velocity, detune and pitchbend during play
-Information:
-	* Less is more. Go for subtlety first.
-	* Detune only works with Apple-sourced synths, except Hammond B3
-	* PitchBend works on all synths which support it
+Purpose: Recreates the Humanize MIDI transformation found in the piano roll. By
+having this functionality in Scripter, that means it can be used during live 
+play.
 
-Enhancements:
-	* Make pitch bend glide between changes
+Transforms the following for any MIDI event which has these properties:
+* Shift the played beat. Limited to within the bounds of a process block, 
+approximately 1/64th note.
+* Velocity
+* Detune (for Apple-supplied synths ONLY)
+* Pitch bend (PR: this may not actually be complete)
 
-Bugs:
-	* None
+This script is released under the MIT License.
 
-Change History:
-	21_10_24_01_00_00:	Started script
-	21_10_24_01_01_00:	Added beatPos shift
-	21_10_24_01_02_00:	Added velocity shift
-	21_10_25_01_03_00:	Added negative values to shifts
-						Added probability to beatPos shift 
-	21_10_25_01_04_00: 	Added probability to velocity
-	21_10_25_01_04_01:	Updated variable names to be more consistent
-						Updated label names to be more consistent
-	21_10_25_01_05_00:	Fixed bug where events were being sent twice
-	21_10_25_01_06_00:	Added detune shift
-	21_11_09_01_06_01:	Fixed a couple bugs
-						Updated probability sliders to align to same values
-						Updated rInt() to include negative numbers
-	21_11_09_01_06_02:	Updated detune to allow for 100 ticks across all 127 pitches
-	22_02_27_01_07_00:	Added PitchBend to ProcessMIDI()
+Permissions
+* Commercial use
+* Modification
+* Distribution
+* Private use
+
+Limitations
+x Liability
+x Warranty
+
+Conditions
+! License and copyright notice
+
+Copyright Philip Regan and Pilcrow Records
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
 ****************************************************************************/
 
 /*
