@@ -11,10 +11,6 @@ function HandleMIDI(event) {
 	event.send();
 }
 
-function ProcessMIDI() {
-	var timingInfo = GetTimingInfo();
-}
-
 function ParameterChanged(param, value) {
 	switch ( param ) {
 		case 0:
