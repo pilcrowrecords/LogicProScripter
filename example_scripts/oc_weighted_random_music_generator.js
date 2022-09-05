@@ -109,9 +109,23 @@ var SCALE_MAP = {}
 // the store from which pitches are selected
 var NOTE_PITCH_POOL = [];
 
-const OCTAVE_STRINGS = ["8", "7", "6", "5"," 4", "3 (Middle C)", "2", "1", "0", "-1", "-2"];
 const OCTAVE_CONTROL_NAME = "Octave";
-var TARGET_OCTAVE = 5;
+
+const TARGET_OCTAVE_LIB = {
+    "8"             :   10, 
+    "7"             :   9, 
+    "6"             :   8, 
+    "5"             :   7, 
+    "4"             :   6, 
+    "3 (Middle C)"  :   5, 
+    "2"             :   4, 
+    "1"             :   3, 
+    "0"             :   2, 
+    "-1"            :   1, 
+    "-2"            :   0
+};
+const TARGET_OCTAVE_KEYS = ["8", "7", "6", "5", "4", "3 (Middle C)", "2", "1", "0", "-1", "-2"];
+var TARGET_OCTAVE = TARGET_OCTAVE_LIB["3 (Middle C)"];
 
 /* scales */
 
@@ -544,7 +558,7 @@ function ParameterChanged( param, value ) {
 			break;
 		case 1:
             // Target Octave
-			TARGET_OCTAVE = value;
+			TARGET_OCTAVE = TARGET_OCTAVE_LIB[TARGET_OCTAVE_KEYS[value]];
 			break;
 		case 2:
 			// scale root pulldown
@@ -1087,7 +1101,7 @@ PluginParameters.push({
 PluginParameters.push({
 	name:"Target Octave", 
 	type:"menu", 
-	valueStrings:OCTAVE_STRINGS, 
+	valueStrings:TARGET_OCTAVE_KEYS, 
 	defaultValue:5
 	});
 
