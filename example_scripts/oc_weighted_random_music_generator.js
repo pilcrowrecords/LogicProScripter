@@ -32,6 +32,7 @@ respective weights.
 * Updates and fixes for note lengths
     * Added note lengths
     * Fixed values for note lengths
+    * Updated control offsets
 
 This script is intended to automated by making scale and chord selection 
 streamlined to two automation lanes, while still offering the ability to 
@@ -355,7 +356,7 @@ const POOL_TOTAL_KEY = "total";
 var UPDATING_CONTROLS = false;
 const PITCH_CONTROL_OFFSET = 11;
 const LENGTH_CONTROL_OFFSET = 24;
-const REST_CONTROL_OFFSET = 42;
+const REST_CONTROL_OFFSET = 47;
 
 
 // the trigger variable is where the next note (or rest) is to be played
@@ -467,6 +468,12 @@ function ProcessMIDI() {
 
             // is this going to be a played note or a rest?
 			var note_rest_result = getRandomValueFromWeightPool( NOTE_REST_RATIO_POOL );
+
+            if ( VERBOSE ) {
+                // Trace("NOTE_REST_RATIO_POOL: " + JSON.stringify( NOTE_REST_RATIO_POOL ));
+                // Trace("REST_LENGTH_SELECTIONS: " + JSON.stringify(REST_LENGTH_SELECTIONS)); 
+                Trace("REST_LENGTH_POOL: " +  JSON.stringify( REST_LENGTH_POOL ));
+            }
 
 			if ( note_rest_result == EVENT_IS_REST ) { 
 
