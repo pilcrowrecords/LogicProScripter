@@ -7,15 +7,17 @@ the note should play on a strong or weak beat.
 * Useful for finding new rhythms or phrases for any MIDI track
 
 Instructions:
+* The beat probabilities are represented in the 16 probability sliders. The 
+other controls are used to control characteristics of the probability
 * Probabilities are contained in 16-element arrays. Several options are 
-provided to show the creative possibilities.
+provided to show how presets can be managed as well as creative possibilities
 * The frequency of probability changes can be changed with the "Division" 
 control
-* How far down the script travels down the probability array can be changed with
-the "Length" control.
+* The number of beats to be used can be changed with the Start and Length 
+controls.
     * Setting this to a small odd number leads to some interesting possibilities
 * Increasing or decreasing the overall probability can be changed with the 
-"Skew" control
+"Skew" control.
 
 This script is released under the MIT License.
 
@@ -90,9 +92,15 @@ var ACTIVE_NOTES = {};
 
 // user settings
 var PROBS_ARR = PROBS_LIB["Original"];
+var PATTERN_START = 1;
 var PATTERN_LENGTH = 15;
 var PROB_SKEW = 0;
 var DIVISION = NOTE_LENGTHS_LIB["1/4"];
+
+// controls
+const BEAT_PARAM_OFFSET = 5;
+const BEAT_PARAM_LENGTH = 16;
+var UPDATING_CONTROLS = false;
 
 function HandleMIDI( event ) {
     if ( PATTERN_LENGTH == 0 ) {
@@ -180,27 +188,76 @@ function ProcessMIDI() {
 }
 
 function ParameterChanged( param , value ) {
+    if ( UPDATING_CONTROLS == true ) {
+		return;
+	}
     switch ( param ) {
         case 0:
             // pattern
-            PROBS_ARR = PROBS_LIB[ PROBS_LIB_KEYS[ value ]];
+            update_to_preset( value );
             break;
         case 1:
+            // start
+            PATTERN_START = value + BEAT_PARAM_OFFSET;
+            break;
+        case 2:
             // length
             PATTERN_LENGTH = value - 1;
             break;
-        case 2:
+        case 3:
             // skew
             PROB_SKEW = value;
             break;
-        case 3:
+        case 4:
             // division
             DIVISION = NOTE_LENGTHS_LIB[ NOTE_LENGTH_KEYS[ value ] ];
             break;
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+        case 16:
+        case 17:
+        case 18:
+        case 19:
+        case 20:
+        case 21:
+            update_probs_arr( param, value );
         default:
             Trace("Error: ParameterChanged: " + param + " , " + value);
             break;
     }
+}
+
+function update_to_preset( value ) {
+    UPDATING_CONTROLS = true;
+
+    PROBS_ARR = PROBS_LIB[ PROBS_LIB_KEYS[ value ]];
+
+    for (let index = 0; index < BEAT_PARAM_LENGTH; index++) {
+        SetParameter( index + BEAT_PARAM_OFFSET , PROBS_ARR[index] );
+    }
+
+    UPDATING_CONTROLS = false;
+}
+
+function update_probs_arr( param, value ) {
+    UPDATING_CONTROLS = true;
+
+    PROBS_ARR[ param - BEAT_PARAM_OFFSET ] = value;
+
+    for (let index = 0; index < BEAT_PARAM_LENGTH; index++) {
+        SetParameter( index + BEAT_PARAM_OFFSET , PROBS_ARR[index] );
+    }
+
+    UPDATING_CONTROLS = false;
 }
 
 function rInt( min, max ) {
@@ -218,6 +275,16 @@ PluginParameters.push({
 
 // 1
 PluginParameters.push({
+    name:"Start", 
+    type:"lin", 
+    minValue:1,
+    maxValue:16,
+    numberOfSteps:15,
+    defaultValue:1
+});
+
+// 2
+PluginParameters.push({
     name:"Length", 
     type:"lin", 
     minValue:0,
@@ -226,7 +293,7 @@ PluginParameters.push({
     defaultValue:16
 });
 
-// 2
+// 3
 PluginParameters.push({
     name:"Skew", 
     type:"lin", 
@@ -236,10 +303,22 @@ PluginParameters.push({
     defaultValue:0
 });
 
-// 3
+// 4
 PluginParameters.push({
     name:"Division", 
     type:"menu", 
     valueStrings:NOTE_LENGTH_KEYS, 
     defaultValue:4
 });
+
+// 5 - 21
+for (let index = 0; index < 16 ; index++) {
+    PluginParameters.push({
+        name: "Beat " + (index + 1),
+        type:"lin",
+        minValue:0,
+        maxValue:100,
+        numberOfSteps:100,
+        defaultValue:50
+    });
+}
