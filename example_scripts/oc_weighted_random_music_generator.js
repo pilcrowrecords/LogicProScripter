@@ -29,6 +29,10 @@ Instructions for use:
 * Note Lengths and Note Rests work the same way, as do the selection of their
 respective weights.
 
+* Updates and fixes for note lengths
+    * Added note lengths
+    * Fixed values for note lengths
+
 This script is intended to automated by making scale and chord selection 
 streamlined to two automation lanes, while still offering the ability to 
 fine tune those selections as needed for blues, jazz, or any scale or
@@ -287,31 +291,36 @@ const CHORD_QUAL_13TH_PULLDOWN_LABELS = Object.keys(CHORD_QUAL_13TH_LIB);
 /* length params */
  
 const NOTE_LENGTHS_LIB = {
-	"1/32"	:	0.75,
-	"1/32d"	:	1.125,
-	"1/32t"	:	0.25,
-	"1/16"	:	1.5,
-	"1/16d"	:	2.25,
-	"1/16t"	:	0.5,
-	"1/8" 	:	3.0,
-	"1/8d"	:	4.5,
-	"1/8t"	:	1.0,
-	"1/4" 	:	6.0,
-	"1/4d"	:	9.0,
-	"1/4t"	:	2.0,
-	"1/2" 	:	12.0,
-	"1/2d"	:	18.0,
-	"1/2t"	:	4.0,
-	"1"		:	24.0,
-	"1t"	:	8.0
+	"1/128"		:	0.0105,
+    "1/128d"	:	0.04725,
+    "1/128t"	:	41.600,
+    "1/64"      :   0.063,
+    "1/64d"     :   0.094,
+    "1/64t"     :   0.021,
+    "1/32"	    :	0.125,
+    "1/32d"	    :	0.188,
+    "1/32t"	    :	0.041,
+    "1/16"	    :	0.250,
+    "1/16d"	    :	0.375,
+    "1/16t"	    :	0.333,
+    "1/8" 	    :	0.500,
+    "1/8d"	    :	0.750,
+    "1/8t"	    :	0.1667,
+    "1/4" 	    :	1.000,
+    "1/4d"	    :	1.500,
+    "1/4t"	    :	0.300,
+    "1/2" 	    :	2.000,
+    "1/2d"	    :	3.000,
+    "1/2t"	    :	0.667,
+    "1 bar"		:	4.000
 };
 var NOTE_LENGTH_KEYS = Object.keys( NOTE_LENGTHS_LIB );
 
 // the keys get sorted into an incorrect order, so this fixes them
-var whole_note = NOTE_LENGTH_KEYS.shift();
-var whole_triplet = NOTE_LENGTH_KEYS.pop();
-NOTE_LENGTH_KEYS.push( whole_note );
-NOTE_LENGTH_KEYS.push( whole_triplet );
+// var whole_note = NOTE_LENGTH_KEYS.shift();
+// var whole_triplet = NOTE_LENGTH_KEYS.pop();
+// NOTE_LENGTH_KEYS.push( whole_note );
+// NOTE_LENGTH_KEYS.push( whole_triplet );
 
 const POOL_SOURCE_OPTIONS = ["Scale" , "Chord" , "Live"];
 
@@ -527,6 +536,7 @@ function ParameterChanged( param, value ) {
 			// "Pitch Parameters"
 			break;
 		case 1:
+            // Target Octave
 			TARGET_OCTAVE = value;
 			break;
 		case 2:
@@ -567,8 +577,11 @@ function ParameterChanged( param, value ) {
 		case 6:
             // chord type
 		case 7:
+            // 7th
 		case 8:
+            // 9th
 		case 9:
+            // 11th
   		case 10:
             // 13ths
             if ( GetParameter( "Parameters Source" ) == 1 ) {
@@ -608,15 +621,15 @@ function ParameterChanged( param, value ) {
         case 38:
         case 39:
         case 40:
-            updateNoteLengthPool( param , value );
-			break;
         case 41:
-            // rest lengths label; do nothing
         case 42:
         case 43:
         case 44:
         case 45:
+            updateNoteLengthPool( param , value );
+			break;
         case 46:
+        // rest lengths label; do nothing
         case 47:
         case 48:
         case 49:
@@ -629,13 +642,23 @@ function ParameterChanged( param, value ) {
         case 56:
         case 57:
         case 58:
+        case 59:
+        case 60:
+        case 61:
+        case 62:
+        case 63:
+        case 64:
+        case 65:
+        case 66:
+        case 67:
+        case 68:
 			updateRestLengthPool( param , value );
             break;
-		case 59:
+		case 69:
 			OUTPUT_NOTES_TO_CONSOLE = value;
 			Trace( "Output notes to console is " + ( value == 1 ? "true" : "false" ) );
 			break;
-		case 60:
+		case 70:
 			VERBOSE = value;
 			Trace( "Verbosity is " + ( value == 1 ? "true" : "false" ) );
 			break;
