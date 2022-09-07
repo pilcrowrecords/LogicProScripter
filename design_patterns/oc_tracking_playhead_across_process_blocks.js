@@ -1,3 +1,5 @@
+var NeedsTimingInfo = true;
+
 const RESET_VALUE = -1.0;
 var TRIGGER = RESET_VALUE;
 const CURSOR_INCREMENT = 0.001;
