@@ -55,6 +55,9 @@ Purpose:
     voice leading between the chords.
     * In this example, if the intended starter value is the I, then the first
     key to be used needs to be iii.
+    * In this script, the chain is used to create single notes, but the values
+    in the chain can represent and be applied to any event, parameter, or 
+    behavior.
 
 * Markov Chain: a sequence of possible events in which the probability of each 
 event depends only on the state attained in the previous event. See
@@ -253,7 +256,7 @@ function ProcessMIDI() {
 
             CHAIN_LAST_SELECTION = current_selection;
 
-            let event_length = NOTE_LENGTHS_LIB["1/4"];
+            let event_length = NOTE_LENGTHS_LIB[ GetParameter( "Iteration Length" )];
 
             // with the selection from the Markov Chain, build and play the note
 
@@ -327,6 +330,7 @@ function ParameterChanged( param, value ) {
     switch ( param ) {
         case 0:
             // iteration length
+            break;
         case 1:
             // target octave
             break;
@@ -334,25 +338,60 @@ function ParameterChanged( param, value ) {
             // pitch CHAIN_ASSIGNMENTS titles
             break;
         case 3:
-            // I; value - 1
+            // I
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["I"];
+            } else {
+                CHAIN_ASSIGNMENTS["I"] = value - 1;
+            }
             break;
         case 4:
             // II
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["II"];
+            } else {
+                CHAIN_ASSIGNMENTS["II"] = value - 1;
+            }
             break;
         case 5:
             // III
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["III"];
+            } else {
+                CHAIN_ASSIGNMENTS["III"] = value - 1;
+            }
             break;
         case 6:
             // IV
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["IV"];
+            } else {
+                CHAIN_ASSIGNMENTS["IV"] = value - 1;
+            }
             break;
         case 7:
             // V
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["V"];
+            } else {
+                CHAIN_ASSIGNMENTS["V"] = value - 1;
+            }
             break;
         case 8:
             // VI
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["VI"];
+            } else {
+                CHAIN_ASSIGNMENTS["VI"] = value - 1;
+            }
             break;
         case 9:
             // VII
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["VII"];
+            } else {
+                CHAIN_ASSIGNMENTS["VII"] = value - 1;
+            }
             break;
         default:
             break;
