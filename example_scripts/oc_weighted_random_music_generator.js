@@ -99,7 +99,6 @@ const PROBABILITY_MAX = 100;
 
 /* pitch params */
 
-const CHROMATIC_SCALE_STRINGS = ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"];
 // stores and identifies root and diatonic pitches with their weights
 var PITCH_WEIGHT_MAP = {};
 const PITCH_RECORD_KEY_WEIGHT = "w";
@@ -1103,7 +1102,7 @@ PluginParameters.push({
 	type:"menu", 
 	valueStrings:TARGET_OCTAVE_KEYS, 
 	defaultValue:5
-	});
+});
 
 // 2
 PluginParameters.push({
