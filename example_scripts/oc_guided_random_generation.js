@@ -1,6 +1,11 @@
 /******************************************************************************
 Name: Guided Random Generation
 Author(s): Philip Regan
+
+Bugs:
+* Timing is off for some reason after adding the chain library
+* Need a better way to handle assignments which are turned off
+
 Purpose: 
 * Uses a Markov Chain to better guide random music generation.
     * While the weighted random music generation would select a note based upon 
@@ -157,15 +162,96 @@ NOTE_LENGTH_KEYS.push( whole_triplet );
     Markov Chain
 */
 
-var CHAIN = {
-    "I"   :   { "100":"VI", "total":100 },
-    "II"  :   { "60":"V", "100":"VII", "total":100 },
-    "III" :   { "100":"I", "total":100 },
-    "IV"  :   { "80":"V", "100":"VII", "total":100 },
-    "V"   :   { "100":"III", "total":100 },
-    "VI"  :   { "60":"IV", "100":"II", "total":100 },
-    "VII":   { "100":"III", "total":100 }
+var EXAMPLE_CHAINS = {
+    "BASIC_EXAMPLE" : {
+        "I"   :   { 
+            "100":"VI", 
+            "total":100 
+        },
+        "II"  :   { 
+            "60":"V", 
+            "100":"VII", 
+            "total":100 
+        },
+        "III" :   { 
+            "100":"I", 
+            "total":100 
+        },
+        "IV"  :   { 
+            "80":"V", 
+            "100":"VII", 
+            "total":100 
+        },
+        "V"   :   { 
+            "100":"III", 
+            "total":100 
+        },
+        "VI"  :   { 
+            "60":"IV", 
+            "100":"II", 
+            "total":100 
+        },
+        "VII":   { 
+            "100":"III", 
+            "total":100 
+        }
+    },
+    "VOICE_LEADING" : {
+        "I"   :   { 
+            "14":"I", 
+            "28":"II",
+            "42":"III",
+            "56":"IV",
+            "72":"V",
+            "86":"VI",
+            "100":"VII",
+            "total":100 
+        },
+        "II"   :   { 
+            "25":"I", 
+            "50":"II",
+            "75":"IV",
+            "100":"VI",
+            "total":100 
+        },
+        "III"   :   { 
+            "25":"I", 
+            "50":"III",
+            "75":"V",
+            "100":"VII",
+            "total":100 
+        },
+        "IV"   :   { 
+            "34":"I", 
+            "67":"IV",
+            "100":"VI",
+            "total":100 
+        },
+        "V"   :   { 
+            "25":"I", 
+            "50":"V",
+            "75":"VII",
+            "100":"II",
+            "total":100 
+        },
+        "VI"   :   { 
+            "34":"I", 
+            "67":"VI",
+            "100":"II",
+            "total":100 
+        },
+        "VII"   :   { 
+            "50":"I", 
+            "68":"VII",
+            "85":"II",
+            "100":"IV",
+            "total":100 
+        }
+    }
 }
+
+var CHAIN = EXAMPLE_CHAINS["BASIC_EXAMPLE"];
+
 // pitch CHAIN_ASSIGNMENTS are handled as -2 octave pitch values
 var CHAIN_ASSIGNMENTS = {
     "I"   :   0,
@@ -256,7 +342,7 @@ function ProcessMIDI() {
 
             CHAIN_LAST_SELECTION = current_selection;
 
-            let event_length = NOTE_LENGTHS_LIB[ GetParameter( "Iteration Length" )];
+            let event_length = NOTE_LENGTHS_LIB[ GetParameter( "Iteration Length" ) ];
 
             // with the selection from the Markov Chain, build and play the note
 
@@ -292,6 +378,8 @@ function ProcessMIDI() {
 }
 
 function getRandomValueFromWeightPool( weightPool ) {
+
+    Trace("getRandomValueFromWeightPool: " + JSON.stringify(weightPool));
 
 	var total = weightPool["total"];
 
@@ -393,7 +481,14 @@ function ParameterChanged( param, value ) {
                 CHAIN_ASSIGNMENTS["VII"] = value - 1;
             }
             break;
+        case 10:
+            // example chains
+            let keys = Object.keys(EXAMPLE_CHAINS);
+            CHAIN = EXAMPLE_CHAINS[keys[value]];
+            Trace(JSON.stringify(CHAIN));
+            break;
         default:
+            Trace("ERROR: ParameterChanged()");
             break;
     }
 }
@@ -473,5 +568,12 @@ PluginParameters.push({
 	name:"VII", 
 	type:"menu", 
 	valueStrings:["Off", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"], 
-	defaultValue:0
+	defaultValue:12
 });
+
+PluginParameters.push({
+    name:"Example Markov Chain",
+    type:"menu",
+    valueStrings:Object.keys(EXAMPLE_CHAINS),
+    defaultValue:0
+})
