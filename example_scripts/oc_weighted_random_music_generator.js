@@ -127,6 +127,7 @@ const TARGET_OCTAVE_KEYS = ["8", "7", "6", "5", "4", "3 (Middle C)", "2", "1", "
 var TARGET_OCTAVE = TARGET_OCTAVE_LIB["3 (Middle C)"];
 
 /* scales */
+const CHROMATIC_SCALE_STRINGS = ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"];
 
 const SCALE_TEMPLATES = {
 	"Chromatic" : [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
