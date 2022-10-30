@@ -1,6 +1,11 @@
 /******************************************************************************
 Name: Guided Random Generation
 Author(s): Philip Regan
+
+Bugs:
+* Timing is off for some reason after adding the chain library
+* Need a better way to handle assignments which are turned off
+
 Purpose: 
 * Uses a Markov Chain to better guide random music generation.
     * While the weighted random music generation would select a note based upon 
@@ -55,6 +60,9 @@ Purpose:
     voice leading between the chords.
     * In this example, if the intended starter value is the I, then the first
     key to be used needs to be iii.
+    * In this script, the chain is used to create single notes, but the values
+    in the chain can represent and be applied to any event, parameter, or 
+    behavior.
 
 * Markov Chain: a sequence of possible events in which the probability of each 
 event depends only on the state attained in the previous event. See
@@ -154,58 +162,140 @@ NOTE_LENGTH_KEYS.push( whole_triplet );
     Markov Chain
 */
 
-var CHAIN = {
-    "I"   :   { 
-        "14":"I", 
-        "28":"II",
-        "42":"III",
-        "56":"IV",
-        "72":"V",
-        "86":"VI",
-        "100":"VII",
-        "total":100 
+var EXAMPLE_CHAINS = {
+    "BASIC_EXAMPLE" : {
+        "I"   :   { 
+            "100":"VI", 
+            "total":100 
+        },
+        "II"  :   { 
+            "60":"V", 
+            "100":"VII", 
+            "total":100 
+        },
+        "III" :   { 
+            "100":"I", 
+            "total":100 
+        },
+        "IV"  :   { 
+            "80":"V", 
+            "100":"VII", 
+            "total":100 
+        },
+        "V"   :   { 
+            "100":"III", 
+            "total":100 
+        },
+        "VI"  :   { 
+            "60":"IV", 
+            "100":"II", 
+            "total":100 
+        },
+        "VII":   { 
+            "100":"III", 
+            "total":100 
+        }
     },
-    "II"   :   { 
-        "25":"I", 
-        "50":"II",
-        "75":"IV",
-        "100":"VI",
-        "total":100 
+    "VOICE_LEADING 1" : {
+        "I"   :   { 
+            "14":"I", 
+            "28":"II",
+            "42":"III",
+            "56":"IV",
+            "72":"V",
+            "86":"VI",
+            "100":"VII",
+            "total":100 
+        },
+        "II"   :   { 
+            "25":"I", 
+            "50":"II",
+            "75":"IV",
+            "100":"VI",
+            "total":100 
+        },
+        "III"   :   { 
+            "25":"I", 
+            "50":"III",
+            "75":"V",
+            "100":"VII",
+            "total":100 
+        },
+        "IV"   :   { 
+            "34":"I", 
+            "67":"IV",
+            "100":"VI",
+            "total":100 
+        },
+        "V"   :   { 
+            "25":"I", 
+            "50":"V",
+            "75":"VII",
+            "100":"II",
+            "total":100 
+        },
+        "VI"   :   { 
+            "34":"I", 
+            "67":"VI",
+            "100":"II",
+            "total":100 
+        },
+        "VII"   :   { 
+            "50":"I", 
+            "68":"VII",
+            "85":"II",
+            "100":"IV",
+            "total":100 
+        }
     },
-    "III"   :   { 
-        "25":"I", 
-        "50":"III",
-        "75":"V",
-        "100":"VII",
-        "total":100 
-    },
-    "IV"   :   { 
-        "33":"I", 
-        "66":"IV",
-        "100":"VI",
-        "total":100 
-    },
-    "V"   :   { 
-        "25":"I", 
-        "50":"V",
-        "75":"VII",
-        "100":"II",
-        "total":100 
-    },
-    "VI"   :   { 
-        "33":"I", 
-        "66":"VI",
-        "100":"II",
-        "total":100 
-    },
-    "VII"   :   { 
-        "50":"I", 
-        "68":"VII",
-        "85":"II",
-        "100":"IV",
-        "total":100 
+    "VOICE_LEADING 2" : {
+        "I"   :   { 
+            "34":"I", 
+            "67":"III",
+            "100":"V",
+            "total":100 
+        },
+        "II"   :   { 
+            "34":"II",
+            "67":"IV",
+            "100":"VI",
+            "total":100 
+        },
+        "III"   :   { 
+            "34":"III",
+            "67":"V",
+            "100":"VII",
+            "total":100 
+        },
+        "IV"   :   { 
+        	    "34":"I",
+            "67":"IV",
+            "100":"VI",
+            "total":100 
+        },
+        "V"   :   { 
+            "34":"V",
+            "67":"VII",
+            "100":"II",
+            "total":100 
+        },
+        "VI"   :   { 
+            "34":"VI",
+            "67":"II",
+            "100":"IV",
+            "total":100 
+        },
+        "VII"   :   { 
+            "34":"VII",
+            "67":"II",
+            "100":"IV",
+            "total":100 
+        }
     }
 }
+
+var CHAIN = EXAMPLE_CHAINS["BASIC_EXAMPLE"];
+
 // pitch CHAIN_ASSIGNMENTS are handled as -2 octave pitch values
 var CHAIN_ASSIGNMENTS = {
     "I"   :   0,
@@ -296,8 +386,7 @@ function ProcessMIDI() {
 
             CHAIN_LAST_SELECTION = current_selection;
 
-            let key = NOTE_LENGTH_KEYS[ GetParameter( "Iteration Length" ) ];
-            let event_length = NOTE_LENGTHS_LIB[key];
+            let event_length = NOTE_LENGTHS_LIB[ GetParameter( "Iteration Length" ) ];
 
             // with the selection from the Markov Chain, build and play the note
 
@@ -333,6 +422,8 @@ function ProcessMIDI() {
 }
 
 function getRandomValueFromWeightPool( weightPool ) {
+
+    Trace("getRandomValueFromWeightPool: " + JSON.stringify(weightPool));
 
 	var total = weightPool["total"];
 
@@ -371,6 +462,7 @@ function ParameterChanged( param, value ) {
     switch ( param ) {
         case 0:
             // iteration length
+            break;
         case 1:
             // target octave
             break;
@@ -378,27 +470,69 @@ function ParameterChanged( param, value ) {
             // pitch CHAIN_ASSIGNMENTS titles
             break;
         case 3:
-            // I; value - 1
+            // I
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["I"];
+            } else {
+                CHAIN_ASSIGNMENTS["I"] = value - 1;
+            }
             break;
         case 4:
             // II
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["II"];
+            } else {
+                CHAIN_ASSIGNMENTS["II"] = value - 1;
+            }
             break;
         case 5:
             // III
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["III"];
+            } else {
+                CHAIN_ASSIGNMENTS["III"] = value - 1;
+            }
             break;
         case 6:
             // IV
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["IV"];
+            } else {
+                CHAIN_ASSIGNMENTS["IV"] = value - 1;
+            }
             break;
         case 7:
             // V
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["V"];
+            } else {
+                CHAIN_ASSIGNMENTS["V"] = value - 1;
+            }
             break;
         case 8:
             // VI
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["VI"];
+            } else {
+                CHAIN_ASSIGNMENTS["VI"] = value - 1;
+            }
             break;
         case 9:
             // VII
+            if ( value == 0 ) {
+                delete CHAIN_ASSIGNMENTS["VII"];
+            } else {
+                CHAIN_ASSIGNMENTS["VII"] = value - 1;
+            }
+            break;
+        case 10:
+            // example chains
+            let keys = Object.keys(EXAMPLE_CHAINS);
+            CHAIN = EXAMPLE_CHAINS[keys[value]];
+            Trace(JSON.stringify(CHAIN));
             break;
         default:
+            Trace("ERROR: ParameterChanged()");
             break;
     }
 }
@@ -478,5 +612,12 @@ PluginParameters.push({
 	name:"VII", 
 	type:"menu", 
 	valueStrings:["Off", "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B"], 
-	defaultValue:0
+	defaultValue:12
 });
+
+PluginParameters.push({
+    name:"Example Markov Chain",
+    type:"menu",
+    valueStrings:Object.keys(EXAMPLE_CHAINS),
+    defaultValue:0
+})
