@@ -308,7 +308,7 @@ const CHORD_QUAL_13TH_PULLDOWN_LABELS = Object.keys(CHORD_QUAL_13TH_LIB);
 const NOTE_LENGTHS_LIB = {
 	"1/128"		:	0.0105,
     "1/128d"	:	0.04725,
-    "1/128t"	:	41.600,
+    "1/128t"	:	0.0416,
     "1/64"      :   0.063,
     "1/64d"     :   0.094,
     "1/64t"     :   0.021,
@@ -331,7 +331,6 @@ const NOTE_LENGTHS_LIB = {
 };
 var NOTE_LENGTH_KEYS = Object.keys( NOTE_LENGTHS_LIB );
 
-// the keys get sorted into an incorrect order, so this fixes them
 // var whole_note = NOTE_LENGTH_KEYS.shift();
 // var whole_triplet = NOTE_LENGTH_KEYS.pop();
 // NOTE_LENGTH_KEYS.push( whole_note );
