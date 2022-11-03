@@ -150,13 +150,12 @@ const NOTE_LENGTHS_LIB = {
     "1/2t"	    :	0.667,
     "1 bar"		:	4.000
 };
-
 var NOTE_LENGTH_KEYS = Object.keys( NOTE_LENGTHS_LIB );
 
-var whole_note = NOTE_LENGTH_KEYS.shift();
-var whole_triplet = NOTE_LENGTH_KEYS.pop();
-NOTE_LENGTH_KEYS.push( whole_note );
-NOTE_LENGTH_KEYS.push( whole_triplet );
+// var whole_note = NOTE_LENGTH_KEYS.shift();
+// var whole_triplet = NOTE_LENGTH_KEYS.pop();
+// NOTE_LENGTH_KEYS.push( whole_note );
+// NOTE_LENGTH_KEYS.push( whole_triplet );
 
 /* 
     Markov Chain
@@ -328,72 +327,67 @@ var ACTIVE_RGEN_NOTES = [];
 function ProcessMIDI() {
 	var timing_info = GetTimingInfo();
 
+	// when the transport stops, stop any playing notes and track the cursor and trigger so play can begin uninterrupted
 	if ( !timing_info.playing ){
+		ACTIVE_RGEN_NOTES.forEach( function ( note_on ) {
+			var note_off = new NoteOff( note_on );
+			note_off.send();
+		});
 		cursor = timing_info.blockStartBeat;
 		TRIGGER = RESET_VALUE;
-        CHAIN_STARTED = false;
-
-        ACTIVE_RGEN_NOTES.forEach( function (note_on ) {
-            var note_off = new NoteOff( note_on );
-            note_off.send;
-        });
-        ACTIVE_RGEN_NOTES = [];
-
 		return;
 	}
 	
+	// calculate beat to schedule
 	var lookAheadEnd = timing_info.blockEndBeat;
 	var cursor = timing_info.blockStartBeat;
 	if ( TRIGGER == RESET_VALUE ) {
-		TRIGGER = cursor;
+		TRIGGER = timing_info.blockStartBeat;
 	}
-	
+
+	// trigger can get stuck outside of cycle causing whole cycle loss of music
 	if ( timing_info.cycling && ( !TRIGGER || TRIGGER > timing_info.rightCycleBeat ) ) {
 		TRIGGER = ( timing_info.rightCycleBeat > timing_info.blockEndBeat ? timing_info.rightCycleBeat : timing_info.blockEndBeat ); 
+		// Assumes the cycle is on a whole number (quarter beat/bottom denominator in time sig);
 		if ( TRIGGER == timing_info.rightCycleBeat && Math.trunc(cursor) == timing_info.leftCycleBeat ) {
 			TRIGGER = timing_info.blockStartBeat;
 		}
+			
 	}
 
+    // cycling the playhead cretes buffers which need to be managed
+    // the buffers are the edges of the cycle
+    // process blocks do not line up with cycle bounds
+	// when cycling, find the beats that wrap around the last buffer
 	if ( timing_info.cycling && lookAheadEnd >= timing_info.rightCycleBeat ) {
+        // is the end of the process block past the end of the cycle?
+		if ( lookAheadEnd >= timing_info.rightCycleBeat ) {
+            // get the length of the process block
 			var cycleBeats = timing_info.rightCycleBeat - timing_info.leftCycleBeat;
+            // get the difference between the end of the process block and the cycle length
+            // this will be the relative shift back to the beginning of the cycle
 			var cycleEnd = lookAheadEnd - cycleBeats;
+		}
 	}
 
+	// increment the cursor through the beats that fall within this cycle's buffers
 	while ((cursor >= timing_info.blockStartBeat && cursor < lookAheadEnd)
+	// including beats that wrap around the cycle point
 	|| (timing_info.cycling && cursor < cycleEnd)) {
+		// adjust the cursor and the trigger for the cycle
 		if (timing_info.cycling && cursor >= timing_info.rightCycleBeat) {
 			cursor -= (timing_info.rightCycleBeat - timing_info.leftCycleBeat);
 			TRIGGER = cursor;
 		}
-
+        
+        // the cursor has come to the trigger
 		if ( cursor == TRIGGER ) {
 
-            // make the next selection in the Markov Chain
-            let current_selection = -1;
-            let current_pool = undefined;
-
-			if ( CHAIN_STARTED == false ) {
-                // select the start value in the chain
-                current_pool = CHAIN[ CHAIN_START_KEY ];
-                current_selection = getRandomValueFromWeightPool( current_pool );
-                CHAIN_STARTED = true;
-            } else {
-                // Based on the last selection, make a new selection
-                current_pool = CHAIN[ CHAIN_LAST_SELECTION ];
-                current_selection = getRandomValueFromWeightPool( current_pool );
-            }
-
-            CHAIN_LAST_SELECTION = current_selection;
-
-            let event_length = NOTE_LENGTHS_LIB[ GetParameter( "Iteration Length" ) ];
-
-            // with the selection from the Markov Chain, build and play the note
-
-            let event_pitch = CHAIN_ASSIGNMENTS[ current_selection ] + ( 12 * TARGET_OCTAVE );
+            let iteration_index = GetParameter( "Iteration Length" );
+            let event_length = NOTE_LENGTHS_LIB[ NOTE_LENGTH_KEYS[ iteration_index ] ];
 
             var note_on = new NoteOn();
-            note_on.pitch = event_pitch;
+            note_on.pitch = 64;
             note_on.velocity = 100;
 
             note_on.sendAtBeat( TRIGGER ); 
@@ -401,24 +395,29 @@ function ProcessMIDI() {
 
             var note_off = new NoteOff( note_on );
             var note_off_beat = TRIGGER + event_length;
-            
+
             // adjust for the cycle buffers
             if ( timing_info.cycling && note_off_beat >= timing_info.rightCycleBeat ) {
                 while ( note_off_beat >= timing_info.rightCycleBeat ) {
                     note_off_beat -= cycleBeats;
+                    // ERROR: note_off_beat = null
+                    // ATTEMPT: chaning cycleBeats to actual calc crams events at the end of the cycle
                 }
             }
 
             note_off.sendAtBeat( note_off_beat );
 
             TRIGGER = note_off_beat;
+
 		}
-		
+
+		// advance the cursor and trigger to the next beat
 		cursor += CURSOR_INCREMENT;
 		if ( TRIGGER < cursor ) {
 			TRIGGER = cursor;
-		}	
+		}
 	}
+	
 }
 
 function getRandomValueFromWeightPool( weightPool ) {
