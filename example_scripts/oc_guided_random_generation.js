@@ -2,8 +2,7 @@
 Name: Guided Random Generation
 Author(s): Philip Regan
 
-Bugs:
-* Timing is off for some reason after adding the chain library
+Roadmap:
 * Need a better way to handle assignments which are turned off
 
 Purpose: 
@@ -193,9 +192,10 @@ var EXAMPLE_CHAINS = {
         "VII":   { 
             "100":"III", 
             "total":100 
-        }
+        },
+        "START" : "I"
     },
-    "VOICE_LEADING 1" : {
+    "VOICE_LEADING_1" : {
         "I"   :   { 
             "14":"I", 
             "28":"II",
@@ -245,9 +245,10 @@ var EXAMPLE_CHAINS = {
             "85":"II",
             "100":"IV",
             "total":100 
-        }
+        },
+        "START" : "I"
     },
-    "VOICE_LEADING 2" : {
+    "VOICE_LEADING_2" : {
         "I"   :   { 
             "34":"I", 
             "67":"III",
@@ -289,11 +290,12 @@ var EXAMPLE_CHAINS = {
             "67":"II",
             "100":"IV",
             "total":100 
-        }
+        },
+        "START" : "I"
     }
 }
 
-var CHAIN = EXAMPLE_CHAINS["BASIC_EXAMPLE"];
+var CHAIN = EXAMPLE_CHAINS["VOICE_LEADING_2"];
 
 // pitch CHAIN_ASSIGNMENTS are handled as -2 octave pitch values
 var CHAIN_ASSIGNMENTS = {
@@ -306,8 +308,7 @@ var CHAIN_ASSIGNMENTS = {
     "VII":   11
 }
 
-var CHAIN_START_KEY = "III";
-var CHAIN_LAST_SELECTION = "III";
+var CHAIN_LAST_SELECTION = "";
 var CHAIN_STARTED = false;
 
 function HandleMIDI( event ) {
@@ -335,6 +336,7 @@ function ProcessMIDI() {
 		});
 		cursor = timing_info.blockStartBeat;
 		TRIGGER = RESET_VALUE;
+        CHAIN_STARTED = false;
 		return;
 	}
 	
@@ -383,11 +385,33 @@ function ProcessMIDI() {
         // the cursor has come to the trigger
 		if ( cursor == TRIGGER ) {
 
+            //  select a pitch from the selected markov chain
+            let iteration_key = "";
+            let pool = {};
+            let iteration_selection = "";
+
+            if ( !CHAIN_STARTED ) {
+                iteration_key = CHAIN["START"];
+                pool = CHAIN[ iteration_key ];
+                // select a pitch from the pool
+                iteration_selection = getRandomValueFromWeightPool( pool );
+                CHAIN_LAST_SELECTION = iteration_selection;
+                CHAIN_STARTED = true;
+            } else {
+                iteration_key = CHAIN_LAST_SELECTION;
+                pool = CHAIN[ iteration_key ];
+                iteration_selection = getRandomValueFromWeightPool( pool );
+                CHAIN_LAST_SELECTION = iteration_selection;
+            }
+
+            // init the note event parameters: pitch and length
+            let pitch = CHAIN_ASSIGNMENTS[ iteration_selection ];
+            pitch += TARGET_OCTAVE * 12;
             let iteration_index = GetParameter( "Iteration Length" );
             let event_length = NOTE_LENGTHS_LIB[ NOTE_LENGTH_KEYS[ iteration_index ] ];
 
             var note_on = new NoteOn();
-            note_on.pitch = 64;
+            note_on.pitch = pitch;
             note_on.velocity = 100;
 
             note_on.sendAtBeat( TRIGGER ); 
