@@ -15,6 +15,8 @@ working in C Ionian:
     Fulcrum Pitch = 60 = C-3 = diatonic
     Reversed pitch = 50 = D-2 = diatonic
 
+* 
+
 Roadmap:
 * v1: pitch reversal by half-step or octave
     X Select fulcrum pitch
@@ -23,9 +25,9 @@ Roadmap:
         X bi-direction (default)
         X Up (if pitch below fulcrum, then push up)
         X Down (if pitch above fulcrum, then push down)
-    > calc reversal
+    X calc reversal
         X half-step
-        > octave
+        X octave
 * v2: transpose into pitch range
     * select high pitch
     * select low pitch
@@ -108,6 +110,7 @@ var CALC_DIR = CALC_DIRS[0];
 
 function HandleMIDI( event ) {
     if ( event instanceof NoteOn || event instanceof NoteOff ) {
+        // Trace(event);
         event.pitch = calculate_reversal( event.pitch );
     }
     event.send();
@@ -182,23 +185,142 @@ function calculate_reversal( orig_pitch ) {
     return orig_pitch;
 }
 
+function calculate_reversal( orig_pitch ) {
+    // handle the cases where nothing needs to change
+    if ( CALC_DIR == CALC_DIRS[0] && orig_pitch == FULCRUM_PITCH ) {
+        return orig_pitch;
+    }
+    if ( CALC_DIR == CALC_DIRS[1] && orig_pitch >= FULCRUM_PITCH ) {
+        return orig_pitch;
+    }
+    if ( CALC_DIR == CALC_DIRS[2] && orig_pitch <= FULCRUM_PITCH ) {
+        return orig_pitch;
+    }
+    // handle each combination individually; no need to get clever here
+    // repeated calcs are placed into functions for clarity and maintenance
+    // bi-directional
+    if ( CALC_DIR == CALC_DIRS[0] ) {
+        // half-step
+        if ( CALC_METHOD == CALC_METHODS[0] ) {
+            if ( orig_pitch > FULCRUM_PITCH ) {
+                return calc_halfstep_down( orig_pitch );
+            } else {
+                return calc_halfstep_up( orig_pitch );
+            }
+        }
+        // octave
+        if ( CALC_METHOD == CALC_METHODS[1] ) {
+            if ( orig_pitch > FULCRUM_PITCH ) {
+                return calc_octave_down( orig_pitch );
+            } else {
+                return calc_octave_up( orig_pitch );
+            }
+        }
+    }
+    // up only
+    if ( CALC_DIR == CALC_DIRS[1] ) {
+        // half-step
+        if ( CALC_METHOD == CALC_METHODS[0] ) {
+            if ( orig_pitch < FULCRUM_PITCH ) {
+                return calc_halfstep_up( orig_pitch );
+            }
+        }
+        // octave
+        if ( CALC_METHOD == CALC_METHODS[1] ) {
+            if ( orig_pitch < FULCRUM_PITCH ) {
+                return calc_octave_up( orig_pitch );
+            }
+        }
+    }
+
+     // down only
+     if ( CALC_DIR == CALC_DIRS[2] ) {
+        // half-step
+        if ( CALC_METHOD == CALC_METHODS[0] ) {
+            if ( orig_pitch > FULCRUM_PITCH ) {
+                return calc_halfstep_down( orig_pitch );
+            }
+        }
+        // octave
+        if ( CALC_METHOD == CALC_METHODS[1] ) {
+            if ( orig_pitch > FULCRUM_PITCH ) {
+                return calc_octave_down( orig_pitch );
+            }
+        }
+    }
+    // we've not accounted for all of the possible combinations
+    // so we don't change anything and post an error
+    console.log("ERROR: calculate_reversal(): missing settings combination: " + JSON.stringify({CALC_DIR:CALC_DIR, CALC_METHOD:CALC_METHOD}));
+    return orig_pitch;
+}
+
 function calc_halfstep_up( orig_pitch ) {
     let diff = FULCRUM_PITCH - orig_pitch;
     let new_pitch = orig_pitch + ( diff * 2 );
-    return MIDI.normalizeData( new_pitch );
+    return new_pitch;
 }
 
 function calc_halfstep_down( orig_pitch ) {
     let diff = orig_pitch - FULCRUM_PITCH;
     let new_pitch = orig_pitch - ( diff * 2 );
-    return MIDI.normalizeData( new_pitch );
+    return new_pitch;
 }
 
 function calc_octave_up( orig_pitch ) {
-
+    // we need to calculate the diff by octave
+    // get fulcrum octave
+    let fulcrum_octave = get_octave_for_pitch( FULCRUM_PITCH );
+    // get orig octave
+    let orig_octave = get_octave_for_pitch( orig_pitch );
+    // diff the octaves
+    let octave_diff = ( fulcrum_octave - orig_octave );
+    // update the original pitch by octave diff * 12 
+    let new_pitch = orig_pitch + ( octave_diff * 12 );
+    return new_pitch;
 }
 
 function calc_octave_down( orig_pitch ) {
+    // we need to calculate the diff by octave
+    // get fulcrum octave
+    let fulcrum_octave = get_octave_for_pitch( FULCRUM_PITCH );
+    // get orig octave
+    let orig_octave = get_octave_for_pitch( orig_pitch );
+    // diff the octaves
+    let octave_diff = ( orig_octave - fulcrum_octave );
+    // update the original pitch by octave diff * 12 
+    let new_pitch = orig_pitch - ( octave_diff * 12 );
+    return new_pitch;
+}
+
+function get_octave_for_pitch( pitch ) {
+    // array for fast lookup
+    const octaves = [1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9,9,9,10,10,10,10,10,10,10,10,10,10,10,10,11,11,11,11,11,11,11,11];
+    return octaves[ pitch ];
+    /*
+        if ( pitch >= 0 && pitch <= 11 ) {
+            return 1;
+        } else if ( pitch >= 12 && pitch <= 23 ) {
+            return 2;
+        } else if ( pitch >= 24 && pitch <= 35 ) {
+            return 3;
+        } else if ( pitch >= 36 && pitch <= 47 ) {
+            return 4;
+        } else if ( pitch >= 48 && pitch <= 59 ) {
+            return 5;
+        } else if ( pitch >= 60 && pitch <= 71 ) {
+            return 6;
+        } else if ( pitch >= 72 && pitch <= 83 ) {
+            return 7;
+        } else if ( pitch >= 84 && pitch <= 95 ) {
+            return 8;
+        } else if ( pitch >= 96 && pitch <= 107 ) {
+            return 9;
+        } else if ( pitch >= 108 && pitch <= 119 ) {
+            return 10;
+        } else if ( pitch >= 120 && pitch <= 127 ) {
+            return 11;
+        }
+    */
 
 }
 
