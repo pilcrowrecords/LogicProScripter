@@ -110,8 +110,9 @@ var CALC_DIR = CALC_DIRS[0];
 
 function HandleMIDI( event ) {
     if ( event instanceof NoteOn || event instanceof NoteOff ) {
-        // Trace(event);
-        event.pitch = calculate_reversal( event.pitch );
+        let new_pitch = calculate_reversal( event.pitch );
+        new_pitch = MIDI.normalizeData( new_pitch );
+        event.pitch = new_pitch;
     }
     event.send();
 }
@@ -182,75 +183,6 @@ function calculate_reversal( orig_pitch ) {
     // we've not accounted for all of the possible combinations
     // so we don't change anything and post an error
     Trace("ERROR: calculate_reversal(): missing settings combination: " + JSON.stringify({CALC_DIR:CALC_DIR, CALC_METHOD:CALC_METHOD}));
-    return orig_pitch;
-}
-
-function calculate_reversal( orig_pitch ) {
-    // handle the cases where nothing needs to change
-    if ( CALC_DIR == CALC_DIRS[0] && orig_pitch == FULCRUM_PITCH ) {
-        return orig_pitch;
-    }
-    if ( CALC_DIR == CALC_DIRS[1] && orig_pitch >= FULCRUM_PITCH ) {
-        return orig_pitch;
-    }
-    if ( CALC_DIR == CALC_DIRS[2] && orig_pitch <= FULCRUM_PITCH ) {
-        return orig_pitch;
-    }
-    // handle each combination individually; no need to get clever here
-    // repeated calcs are placed into functions for clarity and maintenance
-    // bi-directional
-    if ( CALC_DIR == CALC_DIRS[0] ) {
-        // half-step
-        if ( CALC_METHOD == CALC_METHODS[0] ) {
-            if ( orig_pitch > FULCRUM_PITCH ) {
-                return calc_halfstep_down( orig_pitch );
-            } else {
-                return calc_halfstep_up( orig_pitch );
-            }
-        }
-        // octave
-        if ( CALC_METHOD == CALC_METHODS[1] ) {
-            if ( orig_pitch > FULCRUM_PITCH ) {
-                return calc_octave_down( orig_pitch );
-            } else {
-                return calc_octave_up( orig_pitch );
-            }
-        }
-    }
-    // up only
-    if ( CALC_DIR == CALC_DIRS[1] ) {
-        // half-step
-        if ( CALC_METHOD == CALC_METHODS[0] ) {
-            if ( orig_pitch < FULCRUM_PITCH ) {
-                return calc_halfstep_up( orig_pitch );
-            }
-        }
-        // octave
-        if ( CALC_METHOD == CALC_METHODS[1] ) {
-            if ( orig_pitch < FULCRUM_PITCH ) {
-                return calc_octave_up( orig_pitch );
-            }
-        }
-    }
-
-     // down only
-     if ( CALC_DIR == CALC_DIRS[2] ) {
-        // half-step
-        if ( CALC_METHOD == CALC_METHODS[0] ) {
-            if ( orig_pitch > FULCRUM_PITCH ) {
-                return calc_halfstep_down( orig_pitch );
-            }
-        }
-        // octave
-        if ( CALC_METHOD == CALC_METHODS[1] ) {
-            if ( orig_pitch > FULCRUM_PITCH ) {
-                return calc_octave_down( orig_pitch );
-            }
-        }
-    }
-    // we've not accounted for all of the possible combinations
-    // so we don't change anything and post an error
-    console.log("ERROR: calculate_reversal(): missing settings combination: " + JSON.stringify({CALC_DIR:CALC_DIR, CALC_METHOD:CALC_METHOD}));
     return orig_pitch;
 }
 
@@ -330,10 +262,10 @@ function ParameterChanged( param , value ) {
             FULCRUM_PITCH = value;
             break;
         case 1:
-            CALC_METHOD = value;
+            CALC_METHOD = CALC_METHODS[value];
             break;
         case 2:
-            CALC_DIR = value;
+            CALC_DIR = CALC_DIRS[value];
             break;
         default:
             Trace("ERROR: ParameterChanged(" + param + ", " + value + ")");
