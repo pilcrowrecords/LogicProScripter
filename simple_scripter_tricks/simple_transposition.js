@@ -77,7 +77,7 @@ function HandleMIDI( event ) {
     if ( event instanceof NoteOn || event instanceof NoteOff ) {
         let new_pitch = calculate_reversal( event.pitch );
         new_pitch = MIDI.normalizeData( new_pitch );
-        Trace(event.pitch + "\t" + FULCRUM_PITCH + "\t" + new_pitch);
+        // Trace(event.pitch + "\t" + FULCRUM_PITCH + "\t" + new_pitch);
         event.pitch = new_pitch;
     }
     event.send();
