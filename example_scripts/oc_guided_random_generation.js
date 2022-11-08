@@ -293,9 +293,48 @@ var EXAMPLE_CHAINS = {
         },
         "START" : "I"
     }
+    ,
+    "VOICE_LEADING_3" : {
+        "I"   :   { 
+            "50":"IV",
+            "100":"V",
+            "total":100 
+        },
+        "II"   :   { 
+            "50":"V",
+            "100":"VI",
+            "total":100 
+        },
+        "III"   :   { 
+            "50":"VI",
+            "100":"VII",
+            "total":100 
+        },
+        "IV"   :   { 
+            "50":"VII",
+            "100":"I",
+            "total":100 
+        },
+        "V"   :   { 
+            "50":"I",
+            "100":"II",
+            "total":100 
+        },
+        "VI"   :   { 
+            "50":"II",
+            "100":"III",
+            "total":100 
+        },
+        "VII"   :   { 
+            "50":"III",
+            "100":"IV",
+            "total":100 
+        },
+        "START" : "I"
+    }
 }
 
-var CHAIN = EXAMPLE_CHAINS["VOICE_LEADING_2"];
+var CHAIN = EXAMPLE_CHAINS["VOICE_LEADING_3"];
 
 // pitch CHAIN_ASSIGNMENTS are handled as -2 octave pitch values
 var CHAIN_ASSIGNMENTS = {
@@ -406,6 +445,7 @@ function ProcessMIDI() {
 
             // init the note event parameters: pitch and length
             let pitch = CHAIN_ASSIGNMENTS[ iteration_selection ];
+            Trace(iteration_selection);
             pitch += TARGET_OCTAVE * 12;
             let iteration_index = GetParameter( "Iteration Length" );
             let event_length = NOTE_LENGTHS_LIB[ NOTE_LENGTH_KEYS[ iteration_index ] ];
@@ -446,7 +486,7 @@ function ProcessMIDI() {
 
 function getRandomValueFromWeightPool( weightPool ) {
 
-    Trace("getRandomValueFromWeightPool: " + JSON.stringify(weightPool));
+    // Trace("getRandomValueFromWeightPool: " + JSON.stringify(weightPool));
 
 	var total = weightPool["total"];
 
