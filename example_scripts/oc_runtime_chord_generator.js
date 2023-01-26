@@ -6,6 +6,51 @@ Purpose:
 and modifies them based on specific musical needs
 * Intended to assist in improvisation and sketching new musical ideas
 
+Roadmap
+* Chord types
+    * Jazz Major 7
+        * (root, 3, 5, 7)
+        * commonly used as a I chord of a given key center
+    * Jazz Major 9
+        * (root, 3, 5, 7, 9)
+    * Jazz Major 7(b5)
+        * (root, 3, b5, 7)
+        * commonly used as a I chord of a given key center
+    * Jazz Major 6/9 
+        * (root, 3, 6, 9)
+        * either written out as a I chord in a tune or simply used as a 
+        replacement for a major 7th chord
+    * Jazz Dominant 7th
+        * (root, 3, 5, b7)
+        * In blues it can represent the I7 or IV7 chord.
+        * Often is used as a V chord moving to a I
+        * sometimes be substituted for a minor vi chord among others
+    * Jazz Dominant 9
+        * (root, 3, 5, b7, 9)
+        * can be substituted for most dominant 7th chords
+    * Jazz Dominant 7(b9)
+        * (root, 3, 5, b7, b9)
+        * often used to voice lead to a I chord
+    * Jazz Dominant 7(#9)
+        * (root, 3, 5, b7, #9)
+        * add tension leading to the I chord
+        * can also be used in a blues situation on the I7 chord
+    * Jazz Dominant 7(#5)
+        * (root, 3, #5, b7)
+        * provides tension as a V chord going to a I chord
+    * Jazz Dominant 7(b5)
+        * (root 3, b5, b7)
+        * can also be a dominant 7(#11) chord if you us the b5(#11) as 
+        an extension
+        * typically specifically called out
+    * Jazz Minor 7th
+        * (root, b3, 5, b7)
+        * minor i chord, or a minor vi, iv, iii or ii chord
+    * Jazz Minor 9th
+        * (root, b3, 5, b7, 9)
+        * best used on a minor i, iv, or ii chord
+    * 
+
 This script is released under the MIT License.
 
 Permissions
@@ -111,14 +156,17 @@ var CHORD_OPTIONS = [1, 1, 1, 1, 1, 1, 1];
 
 var ACTIVE_NOTES = [];
 
-// test();
-// function test() {
-//     calculate_scale_pitches(0, 0);
-//     let chord = calculate_chord_pitches(0, KEYBOARD_SCALE);
-//     let options = [1, 1, 0, 1, 0, 0, 0];
-//     let voices = get_voices_from_chord( options, chord );
-//     console.log(voices);
-// }
+test();
+function test() {
+    // ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"]
+    // ["Ionian","Dorian","Phrygian","Lydian","Mixolydian","Aeolian","Locrian"]
+    calculate_scale_pitches(0, 0);
+    // CHROMATIC_SCALE_STRINGS
+    let chord = calculate_chord_pitches(0, KEYBOARD_SCALE);
+    let voices = get_voices_from_chord( CHORD_VOICE_OPTIONS["7th (1, 3, 5, 7)"], chord );
+    console.log(KEYBOARD_SCALE);
+    console.log(voices);
+}
 
 function HandleMIDI( event ) {
 
