@@ -46,8 +46,8 @@ test();
 function test() {
 	// index as int
 	// index as int
-	let root = 5;
-	let type = 3;
+	let root = 0;
+	let type = 0;
 	let scale = calculate_scale_pitches( root , type );
 	// console.log(SCALE_KEYS[type]);
 	// console.log(CHROMATIC_SCALE_STRINGS[root]);
@@ -135,7 +135,7 @@ function collapse_scale_to_diatonic( scale ) {
 	let scale_keys = Object.keys(scale);
 	scale_keys.forEach( function ( key ) {
 		let pitch_record = scale[key];
-		if ( pitch_record[ PITCH_RECORD_KEY_TYPE ] == PITCH_TYPE_DIATONIC ) {
+		if ( pitch_record[ PITCH_RECORD_KEY_TYPE ] == PITCH_TYPE_DIATONIC || pitch_record[ PITCH_RECORD_KEY_TYPE ] == PITCH_TYPE_ROOT ) {
 			cache[key] = JSON.parse(JSON.stringify(pitch_record));
 		}
 	});
