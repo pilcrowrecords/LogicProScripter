@@ -268,10 +268,10 @@ function transpose_pitch_to_lowest_octave( pitch ) {
 }
 
 function update_chord_options( index, value ) {
-
+    CHORD_VOICE_OPTION_SELECTION = value;
     if ( index == 4 ) {
         UPDATING_CONTROLS = true;
-        let options = CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[value]];
+        let options = CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[CHORD_VOICE_OPTION_SELECTION]];
         SetParameter( 5, options[ 0 ] );
         SetParameter( 6, options[ 1 ] );
         SetParameter( 7, options[ 2 ] );
@@ -444,7 +444,6 @@ function ParameterChanged( index, value ) {
             calculate_chord_pitches(CHORD_ROOT, KEYBOARD_SCALE);
             break;
         case 4:
-            CHORD_VOICE_OPTION_SELECTION = value;
         case 5:
         case 6:
         case 7:
