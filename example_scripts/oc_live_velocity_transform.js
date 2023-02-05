@@ -58,10 +58,10 @@ function HandleMIDI(event)
 
         if ( GetParameter( PARAM_NAME_VELOCITY_LIMITER_SWITCH )) {
             if ( event.velocity < GetParameter( PARAM_NAME_VELOCITY_LIMITER_MIN ) ) {
-                event.velocity < GetParameter( PARAM_NAME_VELOCITY_LIMITER_MIN );
+                event.velocity = GetParameter( PARAM_NAME_VELOCITY_LIMITER_MIN );
             }
             if ( event.velocity > GetParameter( PARAM_NAME_VELOCITY_LIMITER_MAX ) ) {
-                event.velocity < GetParameter( PARAM_NAME_VELOCITY_LIMITER_MAX );
+                event.velocity = GetParameter( PARAM_NAME_VELOCITY_LIMITER_MAX );
             }
         }
     }
