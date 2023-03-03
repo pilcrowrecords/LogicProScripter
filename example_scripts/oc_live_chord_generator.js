@@ -10,8 +10,11 @@ and modifies them based on specific musical needs
 Roadmap
 * Chord types
     * Exc 5th Root, 3rd, 7th
-    * Pop VII/I
-    * Pop II/I
+    * Drop Chords 7ths { 1:B, 2:G, 3:E, 4:C }
+		* Drop 2
+		* Drop 3
+		* Drop 2+3
+		* Drop 2+4
 
 This script is released under the MIT License.
 
@@ -126,8 +129,13 @@ const CHORD_VOICE_OPTIONS = {
     "Pentatonic (1, 3, 5, 9, 11)" : [1, 1, 1, 0, 1, 1, 0],
     "Exclude Minor 9ths" : [1, 1, 1, 1, 1, 1, 1],
     "Pop VII/I" : [0, 0, 0, 1, 1, 1, 0],
-    "Pop II/I" : [0, 0, 0, 0, 1, 1, 1]
+    "Pop II/I" : [0, 0, 0, 0, 1, 1, 1],
+	"Drop 2 (1342)" : [1, 1, 1, 1, 0, 0, 0],
+	"Drop 3 (1243)" : [1, 1, 1, 1, 0, 0, 0],
+	"Drop 2+3 (1423)" : [1, 1, 1, 1, 0, 0, 0],
+	"Drop 2+4 (1324)" : [1, 1, 1, 1, 0, 0, 0]
 };
+
 const CHORD_VOICE_OPTIONS_KEYS = Object.keys( CHORD_VOICE_OPTIONS );
 var CHORD_VOICE_OPTION_SELECTION = 1;
 var CHORD_VOICE_OPTION_SELECTION_KEY = "7th (1, 3, 5, 7)";
@@ -144,32 +152,34 @@ var KEYBOARD_SCALE = [];
 
 var ACTIVE_NOTES = [];
 
-test();
-function test() {
-    // ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"]
-    // ["Ionian","Dorian","Phrygian","Lydian","Mixolydian","Aeolian","Locrian"]
-    var scale_object = calculate_scale_pitches(0, 0);
-    var full_keyboard = expand_scale_to_midi_range(scale_object);
-    var diatonic_scale = collapse_scale_to_diatonic(full_keyboard);
-    KEYBOARD_SCALE = collapse_scale_to_integers(diatonic_scale);
-    // CHROMATIC_SCALE_STRINGS
-    let chord = calculate_chord_pitches(0, KEYBOARD_SCALE);
-    let voices = get_voices_from_chord( CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[CHORD_VOICE_OPTION_SELECTION]], chord );
-    console.log(KEYBOARD_SCALE);
-    console.log(voices);
-}
+var music_lib = new MUSIC_LIB();
+
+// test();
+// function test() {
+//     // ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"]
+//     // ["Ionian","Dorian","Phrygian","Lydian","Mixolydian","Aeolian","Locrian"]
+//     var scale_object = calculate_scale_pitches(0, 0);
+//     var full_keyboard = expand_scale_to_midi_range(scale_object);
+//     var diatonic_scale = collapse_scale_to_diatonic(full_keyboard);
+//     KEYBOARD_SCALE = collapse_scale_to_integers(diatonic_scale);
+//     // CHROMATIC_SCALE_STRINGS
+//     let chord = calculate_chord_pitches(0, KEYBOARD_SCALE);
+//     let voices = get_voices_from_chord( CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[CHORD_VOICE_OPTION_SELECTION]], chord );
+//     console.log(KEYBOARD_SCALE);
+//     console.log(voices);
+// }
 
 function HandleMIDI( event ) {
 
     // note on and note off assumes a single event is going to equate to a chord
     if ( event instanceof NoteOn ) {
         Trace( event );
-        calculate_scale_pitches( SCALE_ROOT, SCALE_TEMPLATE_INDEX );
+        music_lib.calculate_scale_pitches( SCALE_ROOT, SCALE_TEMPLATE_INDEX );
         // Trace( JSON.stringify( KEYBOARD_SCALE ) );
-        CHORD_ROOT = transpose_pitch_to_lowest_octave( event.pitch );
+        CHORD_ROOT = music_lib.transpose_pitch_to_lowest_octave( event.pitch );
         // Trace( CHORD_ROOT );
-        CHORD_ORIGINAL = calculate_chord_pitches( CHORD_ROOT, KEYBOARD_SCALE );
-        CHORD_VOICES = get_voices_from_chord( CHORD_OPTIONS, CHORD_ORIGINAL );
+        CHORD_ORIGINAL = music_lib.calculate_chord_pitches( CHORD_ROOT, KEYBOARD_SCALE );
+        CHORD_VOICES = music_lib.get_voices_from_chord( CHORD_OPTIONS, CHORD_ORIGINAL );
         Trace( event );
         Trace( JSON.stringify( CHORD_ORIGINAL ) );
         Trace( JSON.stringify( CHORD_OPTIONS ) );
@@ -196,200 +206,348 @@ function HandleMIDI( event ) {
     }
 }
 
-function remove_minor_9ths( chord ) {
-    if ( chord.length != 7 ) {
-        return chord;
+function MUSIC_LIB () {
+
+	/* GENERAL MUSIC */
+
+	// index aligns to lowest MIDI octave
+	this.CHROMATIC_SCALE_STRINGS = ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"];
+	this.CHROMATIC_HALF_STEPS = 12;
+	this.OCTAVE_PITCH_INDEX = [-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8];
+
+	/* SCALES */
+
+    this.SCALE_DEGREE_NAMES = ["I tonic", "II supertonic", "III mediant", "IV subdominant", "V dominant", "VI submediant", "VII leading tone"];
+	this.KEYBOARD_STRINGS = [];
+	this.SCALE_TEMPLATES = {
+		"Ionian" : [2, 2, 1, 2, 2, 2, 1],
+		"Dorian" : [2, 1, 2, 2, 2, 1, 2],
+		"Phrygian" : [1, 2, 2, 2, 1, 2, 2],
+		"Lydian" : [2, 2, 2, 1, 2, 2, 1],
+		"Mixolydian" : [2, 2, 1, 2, 2, 1, 2],
+		"Aeolian" : [2, 1, 2, 2, 1, 2, 2],
+		"Locrian" : [1, 2, 2, 1, 2, 2, 2]
+	}
+	this.SCALE_KEYS = Object.keys(this.SCALE_TEMPLATES);
+	
+	this._PITCH_TYPE_ROOT = 'rt';
+	this._PITCH_TYPE_DIATONIC = 'dt';
+	this._PITCH_TYPE_NONDIATONIC = 'nd';
+	this._PITCH_RECORD_KEY_TYPE = "t";
+	this._PITCH_RECORD_KEY_DEGREE = "d";
+	this._PITCH_RECORD_KEY_NAME = "n";
+
+	/* CHORDS */
+
+	this.CHORD_VOICE_ROOT = 0;
+	this.CHORD_VOICE_3RD = 1;
+	this.CHORD_VOICE_5TH = 2;
+	this.CHORD_VOICE_7TH = 3;
+	this.CHORD_VOICE_9TH = 4;
+	this.CHORD_VOICE_11TH = 5;
+	this.CHORD_VOICE_13TH = 6;
+	this.CHORD_VOICE_OPTIONS = {
+		"Triad (1, 3, 5)" : [1, 1, 1, 0, 0, 0, 0],
+		"7th (1, 3, 5, 7)" : [1, 1, 1, 1, 0, 0, 0],
+		"Exc. 5th (1, 3, 7)" : [1, 1, 0, 1, 0, 0, 0],
+		"Extensions (9, 11, 13)" : [0, 0, 0, 0, 1, 1, 1],
+		"Pentatonic (1, 3, 5, 9, 11)" : [1, 1, 1, 0, 1, 1, 0],
+		"Exclude Minor 9ths" : [1, 1, 1, 1, 1, 1, 1],
+		"Pop VII/I" : [0, 0, 0, 1, 1, 1, 0],
+		"Pop II/I" : [0, 0, 0, 0, 1, 1, 1]
+	};
+	this.CHORD_VOICE_OPTIONS_KEYS = Object.keys( this.CHORD_VOICE_OPTIONS );
+
+	/*
+
+	MUSIC_LIB provides fundamental calculations for scales and chords. It
+	is intended to provide a single source of truth for Scripter by being 
+	accurate, fast, and lightweight. MUSIC_LIB is designed to input and 
+	output a number of formats needed for Scripter (and some personal uses)
+	but it does not actually store anything aside what's needed to provided
+	desired data.
+
+	Example: C Major chord in C Major scale
+	let music_lib = new MUSIC_LIB();
+	music_lib.initialize();
+	let root = 0; // C
+	let type = 0; // Major
+	// build the basic scale object with full metadata
+	let scale = music_lib.calculate_scale_pitches( root , type );
+	// expand to MIDI range
+	scale = music_lib.expand_scale_to_midi_range( scale );
+	// remove non-diatonic pitches
+	scale = music_lib.collapse_scale_to_diatonic( scale );
+	// remove all metadata except MIDI pitch numbers
+	scale = music_lib.collapse_scale_to_integers( scale );
+	// build the C Major chord
+	let chord = calculate_chord_pitches( root , scale );
+	let parameter_index = 0; // Parameter Control Number
+	let options_value = 0 // "Triad (1, 3, 5)"
+	music_lib.update_chord_options( index, value );
+	chord = music_lib.get_voices_from_chord( options, chord );
+	*/
+
+    // initialize prepares values for base calculations
+    this.initialize = function () {
+		// build the keyboard strings
+		let keyboard_strings_cache = [];
+        for (let index = 0; index < 12; index++) {
+			this.CHROMATIC_SCALE_STRINGS.forEach( function ( s ) {
+				keyboard_strings_cache.push( s );
+			});
+		}
+		this.KEYBOARD_STRINGS = keyboard_strings_cache;
+		// populate object key caches
+		this.SCALE_KEYS = Object.keys(this.SCALE_TEMPLATES);
     }
-    const vmin = 0;
-    const vmax = 3;
-    const emin = 4;
-    const emax = 6;
-    for (let e = emin; e <= emax; e++) {
-        for (let v = vmin; v <= vmax; v++) {
-            const extension = chord[e];
-            const voice = chord[v];
-            const interval = extension - voice;
-            if ( interval == 13 ) {
-                chord[e] = null;
-            }
-        }
-    }
 
-    let cache = [];
-    chord.forEach( function ( voice ) {
-        if ( voice != null ) {
-            cache.push(voice);
-        }
-    });
+	/* SCALE CALCULATIONS */
 
-    return cache;
-}
+	// returns the chromatic scale, noting root, diatonic, and non-diatonic pitches
+	this.calculate_scale_pitches = function ( root, templateIndex ) {
 
-function transpose_pitch_to_lowest_octave( pitch ) {
-    let tp_pitch = pitch;
-    while ( tp_pitch > 11 ) {
-        tp_pitch -= CHROMATIC_HALF_STEPS;
-    }
-    return tp_pitch;
-}
+		// root index maps directly to MIDI pitches 0-11
+		let template = this.SCALE_TEMPLATES[this.SCALE_KEYS[templateIndex]];
+		let lastPitch = root;
+		let diatonic_count = 0;
+		// init
+		let pitch_weight_map = {};
+		pitch_weight_map[lastPitch] = this._create_pitch_record( this._PITCH_TYPE_ROOT, diatonic_count, lastPitch );
 
-function update_chord_options( index, value ) {
-    CHORD_VOICE_OPTION_SELECTION = value;
-    CHORD_VOICE_OPTION_SELECTION_KEY = CHORD_VOICE_OPTIONS_KEYS[CHORD_VOICE_OPTION_SELECTION];
-    if ( index == 4 ) {
-        UPDATING_CONTROLS = true;
-        let options = CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTION_SELECTION_KEY];
-        SetParameter( 5, options[ 0 ] );
-        SetParameter( 6, options[ 1 ] );
-        SetParameter( 7, options[ 2 ] );
-        SetParameter( 8, options[ 3 ] );
-        SetParameter( 9, options[ 4 ] );
-        SetParameter( 10, options[ 5 ] );
-        SetParameter( 11, options[ 6 ] );
-        UPDATING_CONTROLS = false;
-    }
-    CHORD_OPTIONS[ 0 ] = GetParameter( 5 );
-    CHORD_OPTIONS[ 1 ] = GetParameter( 6 );
-    CHORD_OPTIONS[ 2 ] = GetParameter( 7 );
-    CHORD_OPTIONS[ 3 ] = GetParameter( 8 );
-    CHORD_OPTIONS[ 4 ] = GetParameter( 9 );
-    CHORD_OPTIONS[ 5 ] = GetParameter( 10 );
-    CHORD_OPTIONS[ 6 ] = GetParameter( 11 );
-}
-
-function get_voices_from_chord( options, chord ) {
-    let voices = [];
-    // "Pop VII/I" : [1, 1, 1, 1, 1, 1, 1],
-    // "Pop II/I" : [1, 1, 1, 1, 1, 1, 1]
-    if ( CHORD_VOICE_OPTION_SELECTION_KEY == "Exclude Minor 9ths" ) {
-        voices = remove_minor_9ths( chord );
-    } else {
-        for ( let index = 0; index < options.length; index++ ) {
-            if ( options[index] == 1 ) {
-                let voice = chord[ index ];
-                if ( CHORD_VOICE_OPTION_SELECTION_KEY == "Pop VII/I" || CHORD_VOICE_OPTION_SELECTION_KEY == "Pop II/I" ) {
-                    v -= CHROMATIC_HALF_STEPS;
-                }
-                voices.push( voice );
-            } 
-        }
-    }
-    return voices;
-}
-
-function calculate_chord_pitches( root, scale ) {
-    let voices = [];
-    let root_index = scale.indexOf( root );
-    // root
-    voices.push( scale[ root_index ] );
-    // 3rd
-    voices.push( scale[ root_index + 2 ] );
-    // 5th
-    voices.push( scale[ root_index + 4 ] );
-    // 7th
-    voices.push( scale[ root_index + 6 ] );
-    // 9th
-    voices.push( scale[ root_index + 8 ] );
-    // 11th
-    voices.push( scale[ root_index + 10 ] );
-    // 13th
-    voices.push( scale[ root_index + 12 ] );
-    return voices;
-}
-
-// returns the chromatic scale, noting root, diatonic, and non-diatonic pitches
-function calculate_scale_pitches( root, templateIndex ) {
-
-	// root index maps directly to MIDI pitches 0-11
-	var template = SCALE_TEMPLATES[SCALE_KEYS[templateIndex]];
-	var lastPitch = root;
-	let diatonic_count = 0;
-	// init
-	let PITCH_WEIGHT_MAP = {};
-	PITCH_WEIGHT_MAP[lastPitch] = createPitchRecord( NOTE_PROB_ROOT, PITCH_TYPE_ROOT, diatonic_count, lastPitch );
-
-	// build; length - 2 because we ignore the last value
-	for ( var index = 0 ; index <= template.length - 2 ; index++ ) {
-		var steps = template[index];
-		var pitch = lastPitch + steps;
-		// non-diatonic pitches
-		if ( steps > 1 ) {
-			let non_diatonic_pitch = pitch;
-			while ( steps > 0 ) {
-				non_diatonic_pitch--;
-				if ( !PITCH_WEIGHT_MAP[non_diatonic_pitch] ) {
-					PITCH_WEIGHT_MAP[non_diatonic_pitch] = createPitchRecord( NOTE_PROB_DEFAULT, PITCH_TYPE_NONDIATONIC, -1, non_diatonic_pitch );
+		// build; length - 2 because we ignore the last value
+		for ( let index = 0 ; index <= template.length - 2 ; index++ ) {
+			let steps = template[index];
+			let pitch = lastPitch + steps;
+			// non-diatonic pitches
+			if ( steps > 1 ) {
+				let non_diatonic_pitch = pitch;
+				while ( steps > 0 ) {
+					non_diatonic_pitch--;
+					if ( !pitch_weight_map[non_diatonic_pitch] ) {
+						pitch_weight_map[non_diatonic_pitch] = this._create_pitch_record( this._PITCH_TYPE_NONDIATONIC, -1, non_diatonic_pitch );
+					}
+					steps--;
 				}
-				steps--;
+			}
+			diatonic_count++;
+			pitch_weight_map[pitch] = this._create_pitch_record( this._PITCH_TYPE_DIATONIC, diatonic_count, pitch );
+			lastPitch = pitch;
+		}
+			
+		// normalize to octave C-2 (MIDI pitches 0-11)
+		let cache = {};
+		let keys = Object.keys(pitch_weight_map);
+		keys.forEach( function ( key ) {
+			let pitch = parseInt(key);
+			let pitchRecord = pitch_weight_map[key]
+			if ( pitch >= 12 ) { 
+				pitch = pitch - 12;
+			}
+				cache[pitch] = pitchRecord;
+		});
+
+		return cache;
+			
+	}
+
+	this._create_pitch_record = function ( type, degree, pitch ) {
+		let cache = {};
+		cache[this._PITCH_RECORD_KEY_TYPE] = type;
+		cache[this._PITCH_RECORD_KEY_DEGREE] = this.SCALE_DEGREE_NAMES[degree];
+		cache[this._PITCH_RECORD_KEY_NAME] = this.KEYBOARD_STRINGS[pitch];
+		return cache;
+	}
+
+	/* SCALE MANIPULATION */
+
+	// takes a single C-2 scale and returns a scale object containing all octaves
+	// creates an object with length 144; does not limit to 0-127
+	this.expand_scale_to_midi_range = function ( scale ) {
+		let cache = {};
+		let scale_keys = Object.keys( scale );
+		for (let index = 0; index < 12; index++) {
+			scale_keys.forEach( function ( key ) {
+				let pitch = parseInt(key);
+				let pitch_record = scale[key];
+				let new_pitch = pitch + ( index * 12 )
+				cache[new_pitch] = JSON.parse(JSON.stringify(pitch_record));
+			});
+		}
+		return cache;
+	}
+
+	// takes a scale object of any length and return a scale object with only diatonic notes
+	this.collapse_scale_to_diatonic = function ( scale ) {
+		let cache = {};
+		let scale_keys = Object.keys(scale);
+		scale_keys.forEach( function ( key ) {
+			let pitch_record = scale[key];
+			if ( pitch_record[ 't' ] === 'dt' || pitch_record[ 't' ] === 'rt' ) {
+				cache[key] = JSON.parse(JSON.stringify(pitch_record));
+			} else {
+				// exclude silently
+			}
+		});
+		return cache;
+	}
+
+	// takes a scale object of any length and type and returns an integer array
+	this.collapse_scale_to_integers = function ( scale ) {
+		let cache = [];
+		let scale_keys = Object.keys(scale);
+		scale_keys.forEach( function ( key ) {
+			cache.push(parseInt(key));
+		});
+		return cache;
+	}
+
+	// takes a scale object of any length and type and returns an integer array
+	this.collapse_scale_to_spelling = function ( scale ) {
+		let cache = [];
+		let scale_keys = Object.keys(scale);
+		scale_keys.forEach( function ( key ) {
+			let record = scale[key];
+			let spelling = record[ 'n' ];
+			cache.push(spelling);
+		});
+		return cache;
+	}
+
+	/* CHORD CALCULATIONS */
+
+	// root = integer
+	// scale = <integer>array
+	this.calculate_chord_pitches = function ( root, scale ) {
+		// update the scale object to only include diatonic notes
+		let chord_scale = this.collapse_scale_to_diatonic( scale );
+		// update the scale to an array of integers of diatonic pitches
+		chord_scale = this.collapse_scale_to_spelling( scale );
+
+		let voices = [];
+		let root_index = chord_scale.indexOf( root );
+		// root
+		voices.push( chord_scale[ root_index ] );
+		// 3rd
+		voices.push( chord_scale[ root_index + 2 ] );
+		// 5th
+		voices.push( chord_scale[ root_index + 4 ] );
+		// 7th
+		voices.push( chord_scale[ root_index + 6 ] );
+		// 9th
+		voices.push( chord_scale[ root_index + 8 ] );
+		// 11th
+		voices.push( chord_scale[ root_index + 10 ] );
+		// 13th
+		voices.push( chord_scale[ root_index + 12 ] );
+		return voices;
+	}
+
+	this.update_chord_options = function ( index, value ) {
+		this.CHORD_VOICE_OPTION_SELECTION = value;
+		this.CHORD_VOICE_OPTION_SELECTION_KEY = this.CHORD_VOICE_OPTIONS_KEYS[this.CHORD_VOICE_OPTION_SELECTION];
+		if ( index == 4 ) {
+			UPDATING_CONTROLS = true;
+			let options = this.CHORD_VOICE_OPTIONS[this.CHORD_VOICE_OPTION_SELECTION_KEY];
+			SetParameter( 5, options[ 0 ] );
+			SetParameter( 6, options[ 1 ] );
+			SetParameter( 7, options[ 2 ] );
+			SetParameter( 8, options[ 3 ] );
+			SetParameter( 9, options[ 4 ] );
+			SetParameter( 10, options[ 5 ] );
+			SetParameter( 11, options[ 6 ] );
+			UPDATING_CONTROLS = false;
+		}
+		this.CHORD_OPTIONS[ 0 ] = GetParameter( 5 );
+		this.CHORD_OPTIONS[ 1 ] = GetParameter( 6 );
+		this.CHORD_OPTIONS[ 2 ] = GetParameter( 7 );
+		this.CHORD_OPTIONS[ 3 ] = GetParameter( 8 );
+		this.CHORD_OPTIONS[ 4 ] = GetParameter( 9 );
+		this.CHORD_OPTIONS[ 5 ] = GetParameter( 10 );
+		this.CHORD_OPTIONS[ 6 ] = GetParameter( 11 );
+	}
+
+	this.get_voices_from_chord = function ( options, chord ) {
+		let voices = [];
+		// * Drop Chords 7ths { 1:B, 2:G, 3:E, 4:C }
+		// 		* Drop 2
+		// 		* Drop 3
+		// 		* Drop 2+3
+		// 		* Drop 2+4
+		// "Drop 2 (1342)" : [1, 1, 1, 1, 0, 0, 0],
+		// "Drop 3 (1243)" : [1, 1, 1, 1, 0, 0, 0],
+		// "Drop 2+3 (1423)" : [1, 1, 1, 1, 0, 0, 0],
+		// "Drop 2+4 (1324)" : [1, 1, 1, 1, 0, 0, 0]
+		if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Exclude Minor 9ths" ) {
+			voices = remove_minor_9ths( chord );
+		} else {
+			for ( let index = 0; index < options.length; index++ ) {
+				if ( options[index] == 1 ) {
+					let voice = chord[ index ];
+					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Pop VII/I" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Pop II/I" ) {
+						v -= this.CHROMATIC_HALF_STEPS;
+					}
+					voices.push( voice );
+				} 
+				if ( index == 1 ) {
+					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2 (1342)" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2+3 (1423)" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2+4 (1324)" ) {
+						v -= this.CHROMATIC_HALF_STEPS;
+						voices.push( voice );
+					}
+				} 
+				if ( index == 2 ) {
+					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 3 (1243)" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2+3 (1423)" ) {
+						v -= this.CHROMATIC_HALF_STEPS;
+						voices.push( voice );
+					}
+				} 
+				if ( index == 3 ) {
+					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2+4 (1324)" ) {
+						v -= this.CHROMATIC_HALF_STEPS;
+						voices.push( voice );
+					}
+				}
 			}
 		}
-		diatonic_count++;
-		PITCH_WEIGHT_MAP[pitch] = createPitchRecord( NOTE_PROB_DIATONIC, PITCH_TYPE_DIATONIC, diatonic_count, pitch );
-		lastPitch = pitch;
+		return voices;
 	}
-		
-	// normalize to octave C-2 (MIDI pitches 0-11)
-    var cache = {};
-    var keys = Object.keys(PITCH_WEIGHT_MAP);
-    keys.forEach( function ( key ) {
-		var pitch = parseInt(key);
-        var pitchRecord = PITCH_WEIGHT_MAP[key]
-		if ( pitch >= 12 ) { 
-			pitch = pitch - 12;
+
+	this.remove_minor_9ths = function ( chord ) {
+		if ( chord.length != 7 ) {
+			return chord;
 		}
-			cache[pitch] = pitchRecord;
-    });
-
-	return cache;
-		
-}
-
-function createPitchRecord ( weight, type, degree, pitch ) {
-	var cache = {};
-	cache[PITCH_RECORD_KEY_WEIGHT] = weight;
-	cache[PITCH_RECORD_KEY_TYPE] = type;
-	cache[PITCH_RECORD_KEY_DEGREE] = SCALE_DEGREE_NAMES[degree];
-	cache[PITCH_RECORD_KEY_NAME] = KEYBOARD_STRINGS[pitch];
-	return cache;
-}
-
-// takes a single C-2 scale and returns a scale object containing all octaves
-// creates an object with length 144; does not limit to 0-127
-function expand_scale_to_midi_range( scale ) {
-	let cache = {};
-	let scale_keys = Object.keys( scale );
-	for (let index = 0; index < 12; index++) {
-        scale_keys.forEach( function ( key ) {
-			let pitch = parseInt(key);
-			let pitch_record = scale[key];
-			let new_pitch = pitch + ( index * 12 )
-            cache[new_pitch] = JSON.parse(JSON.stringify(pitch_record));
-        });
-    }
-	return cache;
-}
-
-// takes a scale object of any length and return a scale object with only diatonic notes
-function collapse_scale_to_diatonic( scale ) {
-	let cache = {};
-	let scale_keys = Object.keys(scale);
-	scale_keys.forEach( function ( key ) {
-		let pitch_record = scale[key];
-		if ( pitch_record[ PITCH_RECORD_KEY_TYPE ] == PITCH_TYPE_DIATONIC || pitch_record[ PITCH_RECORD_KEY_TYPE ] == PITCH_TYPE_ROOT ) {
-			cache[key] = JSON.parse(JSON.stringify(pitch_record));
+		const vmin = 0;
+		const vmax = 3;
+		const emin = 4;
+		const emax = 6;
+		for (let e = emin; e <= emax; e++) {
+			for (let v = vmin; v <= vmax; v++) {
+				const extension = chord[e];
+				const voice = chord[v];
+				const interval = extension - voice;
+				if ( interval == 13 ) {
+					chord[e] = null;
+				}
+			}
 		}
-	});
-	return cache;
-}
+	
+		let cache = [];
+		chord.forEach( function ( voice ) {
+			if ( voice != null ) {
+				cache.push(voice);
+			}
+		});
+	
+		return cache;
+	}
 
-// takes a scale object of any length and type and returns an integer array
-function collapse_scale_to_integers( scale ) {
-	let cache = [];
-	let scale_keys = Object.keys(scale);
-	scale_keys.forEach( function ( key ) {
-		cache.push(parseInt(key));
-	});
-	return cache;
+	this.transpose_pitch_to_lowest_octave = function ( pitch ) {
+		let tp_pitch = pitch;
+		while ( tp_pitch > 11 ) {
+			tp_pitch -= this.CHROMATIC_HALF_STEPS;
+		}
+		return tp_pitch;
+	}
 }
 
 function ParameterChanged( index, value ) {
@@ -404,17 +562,17 @@ function ParameterChanged( index, value ) {
         case 1:
             // scale root
             SCALE_ROOT = value;
-            calculate_scale_pitches( SCALE_ROOT, SCALE_TEMPLATE_INDEX );
+            music_lib.calculate_scale_pitches( SCALE_ROOT, SCALE_TEMPLATE_INDEX );
             break;
         case 2:
             // scale type
             SCALE_TEMPLATE_INDEX = value;
-            calculate_scale_pitches( SCALE_ROOT, SCALE_TEMPLATE_INDEX );
+            music_lib.calculate_scale_pitches( SCALE_ROOT, SCALE_TEMPLATE_INDEX );
             break;
         case 3:
             // chord root
             CHORD_ROOT = value;
-            calculate_chord_pitches(CHORD_ROOT, KEYBOARD_SCALE);
+            music_lib.calculate_chord_pitches(CHORD_ROOT, KEYBOARD_SCALE);
             break;
         case 4:
         case 5:
@@ -424,7 +582,7 @@ function ParameterChanged( index, value ) {
         case 9:
         case 10:
         case 11:
-            update_chord_options(index, value);
+            music_lib.update_chord_options(index, value);
             break;
         default:
 
