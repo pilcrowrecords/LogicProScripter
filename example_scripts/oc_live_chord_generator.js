@@ -8,13 +8,8 @@ and modifies them based on specific musical needs
 * A Scripter-based implementation of the Chord Trigger MIDI Effects Plug-In
 
 Roadmap
-* Chord types
-    * Exc 5th Root, 3rd, 7th
-    * Drop Chords 7ths { 1:B, 2:G, 3:E, 4:C }
-		* Drop 2
-		* Drop 3
-		* Drop 2+3
-		* Drop 2+4
+* Update to handle suspended chords
+	* Dependency: MUSIC_LIB needs to be updated to create suspended chords
 
 This script is released under the MIT License.
 
@@ -469,39 +464,32 @@ function MUSIC_LIB () {
 
 	this.get_voices_from_chord = function ( options, chord ) {
 		let voices = [];
-		// * Drop Chords 7ths { 1:B, 2:G, 3:E, 4:C }
-		// 		* Drop 2
-		// 		* Drop 3
-		// 		* Drop 2+3
-		// 		* Drop 2+4
-		// "Drop 2 (1342)" : [1, 1, 1, 1, 0, 0, 0],
-		// "Drop 3 (1243)" : [1, 1, 1, 1, 0, 0, 0],
-		// "Drop 2+3 (1423)" : [1, 1, 1, 1, 0, 0, 0],
-		// "Drop 2+4 (1324)" : [1, 1, 1, 1, 0, 0, 0]
 		if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Exclude Minor 9ths" ) {
 			voices = remove_minor_9ths( chord );
 		} else {
 			for ( let index = 0; index < options.length; index++ ) {
 				if ( options[index] == 1 ) {
 					let voice = chord[ index ];
+					// shift the extensions down to behave like a chord so the rest of the data stream can handle accordingly
 					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Pop VII/I" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Pop II/I" ) {
 						v -= this.CHROMATIC_HALF_STEPS;
 					}
 					voices.push( voice );
 				} 
-				if ( index == 1 ) {
+				// Drop Chords 7ths { [3]1:B, [2]2:G, [1]3:E, [0]4:C }
+				if ( index == 2 ) {
 					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2 (1342)" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2+3 (1423)" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2+4 (1324)" ) {
 						v -= this.CHROMATIC_HALF_STEPS;
 						voices.push( voice );
 					}
 				} 
-				if ( index == 2 ) {
+				if ( index == 1 ) {
 					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 3 (1243)" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2+3 (1423)" ) {
 						v -= this.CHROMATIC_HALF_STEPS;
 						voices.push( voice );
 					}
 				} 
-				if ( index == 3 ) {
+				if ( index == 0 ) {
 					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Drop 2+4 (1324)" ) {
 						v -= this.CHROMATIC_HALF_STEPS;
 						voices.push( voice );
