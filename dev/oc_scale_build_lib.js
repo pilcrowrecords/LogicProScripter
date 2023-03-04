@@ -3,7 +3,8 @@
 TODO:
 X Update chord calculations to work in the MUSIC_LIB object
 X Update chord calculations to accept the scale object with metadata.
-X Update MUSIC_LIB to not need external values (GetParameter) to calculate
+* Update MUSIC_LIB to not need external values (GetParameter) to calculate
+	* For chord voices, accept array of values; so options get moved out
 * Update chord options to include suspended chords 
 * Update to handle scales <7 pitches; pentatonic
 X add to pitch records
