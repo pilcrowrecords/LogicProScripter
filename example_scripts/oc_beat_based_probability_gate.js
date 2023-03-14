@@ -128,8 +128,10 @@ function HandleMIDI( event ) {
 	} else if ( event instanceof NoteOff ) {
         // handle all note off regardless of note on
 		var notes = ACTIVE_NOTES[ pitch ];
-        var note = notes.pop();
-        ACTIVE_NOTES[ pitch ] = notes;
+		if ( notes ) {
+			var note = notes.pop();
+        		ACTIVE_NOTES[ pitch ] = notes;
+		}
         event.send();
 	}
 
@@ -144,30 +146,47 @@ function ProcessMIDI() {
 		return;
 	}
 	
+	// calculate beat to schedule
 	var lookAheadEnd = timing_info.blockEndBeat;
 	var cursor = timing_info.blockStartBeat;
 	if ( TRIGGER == RESET_VALUE ) {
-		TRIGGER = cursor;
+		TRIGGER = timing_info.blockStartBeat;
 	}
 	
+	// trigger can get stuck outside of cycle causing whole cycle loss of music
 	if ( timing_info.cycling && ( !TRIGGER || TRIGGER > timing_info.rightCycleBeat ) ) {
 		TRIGGER = ( timing_info.rightCycleBeat > timing_info.blockEndBeat ? timing_info.rightCycleBeat : timing_info.blockEndBeat ); 
+		// Assumes the cycle is on a whole number (quarter beat/bottom denominator in time sig);
 		if ( TRIGGER == timing_info.rightCycleBeat && Math.trunc(cursor) == timing_info.leftCycleBeat ) {
 			TRIGGER = timing_info.blockStartBeat;
 		}
+			
 	}
 
+	// cycling the playhead cretes buffers which need to be managed
+    // the buffers are the edges of the cycle
+    // process blocks do not line up with cycle bounds
+	// when cycling, find the beats that wrap around the last buffer
 	if ( timing_info.cycling && lookAheadEnd >= timing_info.rightCycleBeat ) {
+        // is the end of the process block past the end of the cycle?
+		if ( lookAheadEnd >= timing_info.rightCycleBeat ) {
+            // get the length of the process block
 			var cycleBeats = timing_info.rightCycleBeat - timing_info.leftCycleBeat;
+            // get the difference between the end of the process block and the cycle length
+            // this will be the relative shift back to the beginning of the cycle
 			var cycleEnd = lookAheadEnd - cycleBeats;
+		}
 	}
 
-	while ((cursor >= timing_info.blockStartBeat && cursor < lookAheadEnd)
-	|| (timing_info.cycling && cursor < cycleEnd)) {
-		if (timing_info.cycling && cursor >= timing_info.rightCycleBeat) {
-			cursor -= (timing_info.rightCycleBeat - timing_info.leftCycleBeat);
-			TRIGGER = cursor;
-		}
+// increment the cursor through the beats that fall within this cycle's buffers
+while ((cursor >= timing_info.blockStartBeat && cursor < lookAheadEnd)
+// including beats that wrap around the cycle point
+|| (timing_info.cycling && cursor < cycleEnd)) {
+    // adjust the cursor and the trigger for the cycle
+    if (timing_info.cycling && cursor >= timing_info.rightCycleBeat) {
+        cursor -= (timing_info.rightCycleBeat - timing_info.leftCycleBeat);
+        TRIGGER = cursor;
+    }
 
 		if ( cursor == TRIGGER ) {
             // update the probability for this beat
