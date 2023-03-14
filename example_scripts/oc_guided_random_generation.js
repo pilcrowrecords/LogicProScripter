@@ -146,8 +146,10 @@ const NOTE_LENGTHS_LIB = {
     "1/4t"	    :	0.300,
     "1/2" 	    :	2.000,
     "1/2d"	    :	3.000,
-    "1/2t"	    :	0.667,
-    "1 bar"		:	4.000
+    "1/2t"	    :	1.667,
+    "1 bar"		:	4.000,
+    "2 bars"		:	8.000,
+    "4 bars"		:	16.000
 };
 var NOTE_LENGTH_KEYS = Object.keys( NOTE_LENGTHS_LIB );
 
@@ -163,172 +165,399 @@ var NOTE_LENGTH_KEYS = Object.keys( NOTE_LENGTHS_LIB );
 var EXAMPLE_CHAINS = {
     "BASIC_EXAMPLE" : {
         "I"   :   { 
+            "50":"I",
             "100":"VI", 
             "total":100 
         },
         "II"  :   { 
+            "20":"II",
             "60":"V", 
             "100":"VII", 
             "total":100 
         },
         "III" :   { 
+            "20":"III",
             "100":"I", 
             "total":100 
         },
         "IV"  :   { 
+            "20":"IV",
             "80":"V", 
             "100":"VII", 
             "total":100 
         },
         "V"   :   { 
+            "20":"V",
             "100":"III", 
             "total":100 
         },
         "VI"  :   { 
+            "20":"VI",
             "60":"IV", 
             "100":"II", 
             "total":100 
         },
         "VII":   { 
+            "20":"VII",
             "100":"III", 
             "total":100 
         },
         "START" : "I"
     },
-    "VOICE_LEADING_1" : {
+    "THIRDS" : {
         "I"   :   { 
-            "14":"I", 
-            "28":"II",
-            "42":"III",
-            "56":"IV",
-            "72":"V",
-            "86":"VI",
-            "100":"VII",
-            "total":100 
-        },
-        "II"   :   { 
-            "25":"I", 
-            "50":"II",
-            "75":"IV",
-            "100":"VI",
-            "total":100 
-        },
-        "III"   :   { 
-            "25":"I", 
+            "20":"I",
             "50":"III",
-            "75":"V",
-            "100":"VII",
+            "100":"VI", 
             "total":100 
         },
-        "IV"   :   { 
-            "34":"I", 
-            "67":"IV",
-            "100":"VI",
+        "II"  :   { 
+            "20":"II",
+            "50":"IV", 
+            "100":"VII", 
+            "total":100 
+        },
+        "III" :   { 
+            "20":"III",
+            "50":"I",
+            "100":"V", 
+            "total":100 
+        },
+        "IV"  :   { 
+            "20":"IV",
+            "50":"II", 
+            "100":"VI", 
             "total":100 
         },
         "V"   :   { 
-            "25":"I", 
-            "50":"V",
-            "75":"VII",
-            "100":"II",
+            "20":"V",
+            "50":"III", 
+            "100":"VII",
             "total":100 
         },
-        "VI"   :   { 
-            "34":"I", 
-            "67":"VI",
-            "100":"II",
+        "VI"  :   { 
+            "20":"VI",
+            "50":"IV", 
+            "100":"II", 
             "total":100 
         },
-        "VII"   :   { 
-            "50":"I", 
-            "68":"VII",
-            "85":"II",
-            "100":"IV",
+        "VII":   { 
+            "20":"VII",
+            "50":"II",
+            "100":"V", 
             "total":100 
         },
         "START" : "I"
     },
-    "VOICE_LEADING_2" : {
+    "PENTA1 (I->II, III, V, VI)" : {
         "I"   :   { 
-            "34":"I", 
-            "67":"III",
-            "100":"V",
+            "10":"I",
+            "25":"II",
+            "50":"III",
+            "75":"V",
+            "100":"VI", 
             "total":100 
         },
-        "II"   :   { 
-            "34":"II",
-            "67":"IV",
-            "100":"VI",
+        "II"   :   {
+            "10":"II", 
+            "25":"III",
+            "50":"IV",
+            "75":"VI",
+            "100":"VII", 
             "total":100 
         },
         "III"   :   { 
-            "34":"III",
-            "67":"V",
-            "100":"VII",
+            "10":"III",
+            "25":"IV",
+            "50":"V",
+            "75":"VII",
+            "100":"I", 
             "total":100 
         },
         "IV"   :   { 
-        	    "34":"I",
-            "67":"IV",
-            "100":"VI",
+            "10":"IV",
+            "25":"V",
+            "50":"VI",
+            "75":"I",
+            "100":"II", 
             "total":100 
         },
         "V"   :   { 
-            "34":"V",
-            "67":"VII",
-            "100":"II",
+            "10":"V",
+            "25":"VI",
+            "50":"VII",
+            "75":"II",
+            "100":"III", 
             "total":100 
         },
         "VI"   :   { 
-            "34":"VI",
-            "67":"II",
-            "100":"IV",
+            "10":"VI",
+            "25":"VII",
+            "50":"I",
+            "75":"III",
+            "100":"IV", 
             "total":100 
         },
         "VII"   :   { 
-            "34":"VII",
-            "67":"II",
-            "100":"IV",
+            "10":"VII",
+            "25":"I",
+            "50":"II",
+            "75":"IV",
+            "100":"V", 
             "total":100 
         },
         "START" : "I"
-    }
-    ,
-    "VOICE_LEADING_3" : {
+    },
+    "PENTA2 (I, II, III, V, VI)" : {
         "I"   :   { 
-            "50":"IV",
-            "100":"V",
+            "10":"I",
+            "25":"II",
+            "50":"III",
+            "75":"V",
+            "100":"VI", 
             "total":100 
         },
         "II"   :   { 
-            "50":"V",
-            "100":"VI",
+            "10":"II",
+            "25":"I",
+            "50":"III",
+            "75":"V",
+            "100":"VI", 
             "total":100 
         },
         "III"   :   { 
-            "50":"VI",
-            "100":"VII",
-            "total":100 
-        },
-        "IV"   :   { 
-            "50":"VII",
-            "100":"I",
+            "10":"III",
+            "25":"I",
+            "50":"II",
+            "75":"V",
+            "100":"VI", 
             "total":100 
         },
         "V"   :   { 
-            "50":"I",
-            "100":"II",
+            "10":"V",
+            "25":"I",
+            "50":"II",
+            "75":"III",
+            "100":"VI", 
             "total":100 
         },
         "VI"   :   { 
+            "10":"VI",
+            "25":"I",
             "50":"II",
-            "100":"III",
+            "75":"III",
+            "100":"V", 
             "total":100 
         },
-        "VII"   :   { 
-            "50":"III",
-            "100":"IV",
-            "total":100 
+        "START" : "I"
+    },
+    "MAJOR MAPPING" : {
+        "I" : {
+            "11" : 	"I",
+            "55" : 	"II",
+            "66" : 	"IV",
+            "100" : 	"V",
+        "total" : 100
+        },
+            "II" : {
+            "22" : 	"I",
+            "44" : 	"II",
+            "66" : 	"III",
+            "77" : 	"IV",
+            "100" : 	"V",
+        "total" : 100
+        },
+        "III" :{
+            "20" : 	"III",
+            "60" : 	"IV",
+            "100" : "VI",
+        "total" : 100
+        },
+        "IV" : {
+            "54" : 	"I",
+            "63" : 	"II",
+            "72" : 	"IV",
+            "90" : 	"V",
+            "100" : 	"VII",
+            "total" : 100
+        },
+        "V" : {
+            "36" : 	"I",
+            "48" : 	"II",
+            "60" : 	"III",
+            "72" : 	"V",
+            "100" : "VI",
+            "total" : 100
+        },
+        "VI" : {
+            "16" : 	"I",
+            "64" : 	"II",
+            "80" : 	"IV",
+            "100" : 	"VII",
+            "total" : 100
+        },
+        "VII" : {
+            "40" : 	"I",
+            "80" : 	"III",
+            "100" : "VII",
+            "total" : 100
+        },
+        "START" : "I"
+    }, 
+    "MINOR MAPPING" : {
+        "I" : {
+            "18" : 	"I",
+            "45" : 	"II",
+            "72" : 	"IV",
+            "90" : 	"V",
+            "100" : "VII",
+            "total" : 100
+        },
+        "II" : {
+    
+            "30" : 	"I",
+            "42" : 	"II",
+            "54" : 	"III",
+            "66" : 	"IV",
+            "84" : 	"V",
+            "90" : 	"VI",
+            "100" : 	"VII",
+            "total" : 100
+        },
+        "III" : {
+            "12" : 	"I",
+            "36" : 	"II",
+            "48" : 	"III",
+            "84" : 	"IV",
+            "100" : "VI",
+            "total" : 100
+        },
+        "IV" : {
+            "40" : 	"I",
+            "56" : 	"II",
+            "72" : 	"IV",
+            "88" : 	"V",
+            "100" : 	"VII",
+            "total" : 100
+        },
+        "V" : { 
+            "40" : 	"I",
+            "56" : 	"III",
+            "72" : 	"IV",
+            "80" : 	"V",
+            "100" : 	"VI",
+            "total" : 100
+        },
+        "VI" : {
+            "16" : 	"I",
+            "48" : 	"II",
+            "64" : 	"IV",
+            "80" : 	"VI",
+            "100" : 	"VII",
+            "total" : 100
+        },
+        "VII" : {
+            "30" : 	"I",
+            "50" : 	"III",
+            "70" : 	"IV",
+            "80" : 	"V",
+            "90" : 	"VI",
+            "100" : "VII",
+            "total" : 100
+        },
+        "START" : "I"
+    },
+    "MAJOR PENTA" : {
+        "I" : {
+            "11" : 	"I",
+            "55" : 	"II",
+            "100" : 	"V",
+        "total" : 100
+        },
+            "II" : {
+            "44" : 	"II",
+            "66" : 	"III",
+            "100" : 	"IV",
+        "total" : 100
+        },
+        "III" :{
+            "20" : 	"III",
+            "100" : 	"IV",
+        "total" : 100
+        },
+        "IV" : {
+            "54" : 	"I",
+            "72" : 	"IV",
+            "100" : 	"V",
+            "total" : 100
+        },
+        "V" : {
+            "48" : 	"II",
+            "60" : 	"III",
+            "72" : 	"V",
+            "100" : "VI",
+            "total" : 100
+        },
+        "VI" : {
+            "16" : 	"I",
+            "80" : 	"IV",
+            "100" : 	"VII",
+            "total" : 100
+        },
+        "VII" : {
+            "40" : 	"I",
+            "100" : "VII",
+            "total" : 100
+        },
+        "START" : "I"
+    }, 
+    "MINOR PENTA" : {
+        "I" : {
+            "18" : 	"I",
+            "45" : 	"II",
+            "100" : 	"V",
+            "total" : 100
+        },
+        "II" : {
+            "42" : 	"II",
+            "54" : 	"III",
+            "66" : 	"IV",
+            "90" : 	"VI",
+            "100" : 	"VII",
+            "total" : 100
+        },
+        "III" : {
+            "12" : 	"I",
+            "48" : 	"III",
+            "100" : 	"IV",
+            "total" : 100
+        },
+        "IV" : {
+            "40" : 	"I",
+            "56" : 	"II",
+            "72" : 	"IV",
+            "100" : 	"V",
+            "total" : 100
+        },
+        "V" : { 
+            "56" : 	"III",
+            "80" : 	"V",
+            "100" : 	"VI",
+            "total" : 100
+        },
+        "VI" : {
+            "16" : 	"I",
+            "64" : 	"IV",
+            "80" : 	"VI",
+            "100" : 	"VII",
+            "total" : 100
+        },
+        "VII" : {
+            "30" : 	"I",
+            "70" : 	"IV",
+            "80" : 	"V",
+            "100" : "VII",
+            "total" : 100
         },
         "START" : "I"
     }
@@ -439,13 +668,17 @@ function ProcessMIDI() {
             } else {
                 iteration_key = CHAIN_LAST_SELECTION;
                 pool = CHAIN[ iteration_key ];
+                if ( !pool ) {
+                    iteration_key = CHAIN["START"];
+                    pool = CHAIN[ iteration_key ];
+                }
                 iteration_selection = getRandomValueFromWeightPool( pool );
                 CHAIN_LAST_SELECTION = iteration_selection;
             }
 
             // init the note event parameters: pitch and length
             let pitch = CHAIN_ASSIGNMENTS[ iteration_selection ];
-            Trace(iteration_selection);
+            Trace("iteration_selection: " + iteration_selection);
             pitch += TARGET_OCTAVE * 12;
             let iteration_index = GetParameter( "Iteration Length" );
             let event_length = NOTE_LENGTHS_LIB[ NOTE_LENGTH_KEYS[ iteration_index ] ];
@@ -486,7 +719,7 @@ function ProcessMIDI() {
 
 function getRandomValueFromWeightPool( weightPool ) {
 
-    // Trace("getRandomValueFromWeightPool: " + JSON.stringify(weightPool));
+    Trace("getRandomValueFromWeightPool: " + JSON.stringify(weightPool));
 
 	var total = weightPool["total"];
 
