@@ -128,7 +128,10 @@ const CHORD_VOICE_OPTIONS = {
 	"Drop 2 (1342)" : [1, 1, 1, 1, 0, 0, 0],
 	"Drop 3 (1243)" : [1, 1, 1, 1, 0, 0, 0],
 	"Drop 2+3 (1423)" : [1, 1, 1, 1, 0, 0, 0],
-	"Drop 2+4 (1324)" : [1, 1, 1, 1, 0, 0, 0]
+	"Drop 2+4 (1324)" : [1, 1, 1, 1, 0, 0, 0],
+	"Rootless (3, 5, 7, 9)" :  [0, 1, 1, 1, 1, 0, 0],
+	"Rootless V7 (3, 7, 9, 13)" :  [0, 1, 0, 1, 1, 0, 1],
+	"Shell (3, 7)" :  [0, 1, 0, 1, 0, 0, 0]
 };
 
 const CHORD_VOICE_OPTIONS_KEYS = Object.keys( CHORD_VOICE_OPTIONS );
@@ -153,27 +156,30 @@ var music_lib = new MUSIC_LIB();
 // function test() {
 //     // ["C", "C♯/D♭", "D", "D♯/E♭", "E", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B"]
 //     // ["Ionian","Dorian","Phrygian","Lydian","Mixolydian","Aeolian","Locrian"]
-//     var scale_object = calculate_scale_pitches(0, 0);
-//     var full_keyboard = expand_scale_to_midi_range(scale_object);
-//     var diatonic_scale = collapse_scale_to_diatonic(full_keyboard);
-//     KEYBOARD_SCALE = collapse_scale_to_integers(diatonic_scale);
+//     var scale_object = music_lib.calculate_scale_pitches(0, 0);
+//     // var full_keyboard = music_lib.expand_scale_to_midi_range(scale_object);
+//     // var diatonic_scale = music_lib.collapse_scale_to_diatonic(full_keyboard);
+//     // KEYBOARD_SCALE = music_lib.collapse_scale_to_integers(diatonic_scale);
 //     // CHROMATIC_SCALE_STRINGS
-//     let chord = calculate_chord_pitches(0, KEYBOARD_SCALE);
-//     let voices = get_voices_from_chord( CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[CHORD_VOICE_OPTION_SELECTION]], chord );
+//     let chord = music_lib.calculate_chord_pitches(0, scale_object);
+//     let voices = music_lib.get_voices_from_chord( CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[CHORD_VOICE_OPTION_SELECTION]], chord );
 //     console.log(KEYBOARD_SCALE);
 //     console.log(voices);
 // }
+
+function Trace( s ) {
+	console.log( s );
+}
 
 function HandleMIDI( event ) {
 
     // note on and note off assumes a single event is going to equate to a chord
     if ( event instanceof NoteOn ) {
-        Trace( event );
-        music_lib.calculate_scale_pitches( SCALE_ROOT, SCALE_TEMPLATE_INDEX );
+        let scale_object = music_lib.calculate_scale_pitches( SCALE_ROOT, SCALE_TEMPLATE_INDEX );
         // Trace( JSON.stringify( KEYBOARD_SCALE ) );
         CHORD_ROOT = music_lib.transpose_pitch_to_lowest_octave( event.pitch );
         // Trace( CHORD_ROOT );
-        CHORD_ORIGINAL = music_lib.calculate_chord_pitches( CHORD_ROOT, KEYBOARD_SCALE );
+        CHORD_ORIGINAL = music_lib.calculate_chord_pitches( CHORD_ROOT, scale_object );
         CHORD_VOICES = music_lib.get_voices_from_chord( CHORD_OPTIONS, CHORD_ORIGINAL );
         Trace( event );
         Trace( JSON.stringify( CHORD_ORIGINAL ) );
@@ -252,6 +258,7 @@ function MUSIC_LIB () {
 		"Pop II/I" : [0, 0, 0, 0, 1, 1, 1]
 	};
 	this.CHORD_VOICE_OPTIONS_KEYS = Object.keys( this.CHORD_VOICE_OPTIONS );
+	this.CHORD_OPTIONS = [1, 1, 1, 1, 1, 1, 1];
 
 	/*
 
@@ -402,9 +409,7 @@ function MUSIC_LIB () {
 		let cache = [];
 		let scale_keys = Object.keys(scale);
 		scale_keys.forEach( function ( key ) {
-			let record = scale[key];
-			let spelling = record[ 'n' ];
-			cache.push(spelling);
+			cache.push(parseInt(key));
 		});
 		return cache;
 	}
@@ -414,10 +419,13 @@ function MUSIC_LIB () {
 	// root = integer
 	// scale = <integer>array
 	this.calculate_chord_pitches = function ( root, scale ) {
+
+		var full_keyboard = music_lib.expand_scale_to_midi_range(scale);
+
 		// update the scale object to only include diatonic notes
-		let chord_scale = this.collapse_scale_to_diatonic( scale );
+		let diatonic_scale = this.collapse_scale_to_diatonic( full_keyboard );
 		// update the scale to an array of integers of diatonic pitches
-		chord_scale = this.collapse_scale_to_spelling( scale );
+		let chord_scale = this.collapse_scale_to_spelling( diatonic_scale );
 
 		let voices = [];
 		let root_index = chord_scale.indexOf( root );
@@ -468,7 +476,7 @@ function MUSIC_LIB () {
 			voices = remove_minor_9ths( chord );
 		} else {
 			for ( let index = 0; index < options.length; index++ ) {
-				if ( options[index] == 1 ) {
+				if ( this.CHORD_OPTIONS[index] == 1 ) {
 					let voice = chord[ index ];
 					// shift the extensions down to behave like a chord so the rest of the data stream can handle accordingly
 					if ( this.CHORD_VOICE_OPTION_SELECTION_KEY == "Pop VII/I" || this.CHORD_VOICE_OPTION_SELECTION_KEY == "Pop II/I" ) {
