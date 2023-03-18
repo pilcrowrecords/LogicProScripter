@@ -102,7 +102,11 @@ for (let index = 1; index < sequence.length; index++) {
         while ( cache != post_end ) {
             // fill the gap with skips and leaps
             // check to see if a skip or step will land before post_end
-            let cache_post_distance = Math.abs ( post_end - cache ); 
+            let cache_post_distance = Math.abs ( post_end - cache );
+            if ( cache_post_distance > SKIP ) {
+                // select motion
+                // calculate direction
+            } 
         }
     }
     connectors.push( connector );
