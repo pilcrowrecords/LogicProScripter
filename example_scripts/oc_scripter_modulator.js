@@ -233,7 +233,7 @@ function HandleMIDI(event) {
             // do something with CURRENT_WAVEFORM_OUTPUT
 
     	// event = triangle_wave_example( event );
-        event = sine_wave_example( event );
+        // event = sine_wave_example( event );
         // event = square_wave_example( event );
     }
 	event.send();
