@@ -90,24 +90,28 @@ for (let index = 1; index < sequence.length; index++) {
         if ( !up ) {
             motion = 0 - motion;
         }
-        connector.push(post_start += motion )
+        connector.push(post_start += motion );
     } else {
-        if ( distance >= leap && USAGE_COUNTS.leaps == 0 ) {
-            if ( distance > leap ) {
+        if ( distance >= LEAP && USAGE_COUNTS.leaps == 0 ) {
+            if ( distance > LEAP ) {
                 cache += 2;
                 connector.push(cache);
             }
             USAGE_COUNTS.leaps = 1;
         }
-        while ( cache != post_end ) {
-            // fill the gap with skips and leaps
-            // check to see if a skip or step will land before post_end
-            let cache_post_distance = Math.abs ( post_end - cache );
-            if ( cache_post_distance > SKIP ) {
-                // select motion
-                // calculate direction
-            } 
-        }
+        // while ( cache != post_end ) {
+        //     // fill the gap with skips and leaps
+        //     // check to see if a skip or step will land before post_end
+        //     let cache_post_distance = Math.abs ( post_end - cache );
+        //     if ( cache_post_distance > SKIP ) {
+        //         let up = rInt(0,1);
+        //         let motion = rInt(STEP,SKIP);
+        //         if ( !up ) {
+        //             motion = 0 - motion;
+        //         }
+        //         connector.push( post_start += motion );
+        //     } 
+        // }
     }
     connectors.push( connector );
 }
