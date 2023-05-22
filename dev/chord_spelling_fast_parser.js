@@ -39,71 +39,11 @@ Roadmap:
 
 ********************************************************************************/
 
-var TEST_CHORD_STRINGS = [
-    "I",
-    "ii",
-    "iii",
-    "IV",
-    "V",
-    "vi",
-    "vii",
-    "#I",
-    "#iv",
-    "#II",
-    "#V",
-    "bVI",
-    "bVII",
-    "bii",
-    "bv",
-    "biv",
-    "bVI7",
-    "vi7",
-    "#Idim7",
-    "#IVmin7",
-    "#IIdim7",
-    "IIIm7",
-    "Vm",
-    "IVm7",
-    "Im",
-    "iim",
-    "iiim",
-    "vim",
-    "iim",
-    "#Vdim7",
-    "#Idim7",
-    "VIm7",
-    "VIIm7",
-    "IIIm7",
-    "Idim",
-    "#IVm7",
-    "ii˚",
-    "ii˚7",
-    "bIII+",
-    "V/2",
-    "IV/1",
-    "V/1",
-    "vii˚/2",
-    "im/b3",
-    "bII/4",
-    "ivm/b6",
-    "ivm/1",
-    "IIIm7b5",
-    "#IVmin7b5",
-    "Im6",
-    "IIIm7b5",
-    "#IVm7b5",
-    "VIm7b5/b3",
-    "vim7b5",
-    "Vm7b5",
-    "bviim7b5",
-    "Iadd9",
-    "ii,11",
-    "iiiadd13",
-    "IVb9,13",
-    "Vadd9",
-    "vi",
-    "vii"
- ];
+// 
+
+const TEST_CHORD_STRINGS = [
+    "V"
+];
 
 const TOKEN_QUALITY_MAJOR = "maj";
 const TOKEN_QUALITY_MAJOR_ALPHA = "M";
@@ -210,28 +150,87 @@ const CHORD_TEMPLATES_LIB = {
     ],
 };
 
- const SCALE = [1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,0,1,1,0,1 ];
- const TONICS = [0, 2, 4, 5, 7, 9, 11];
+const PITCH_TYPE_ROOT = 'rt';
+const PITCH_TYPE_DIATONIC = 'dt';
+const PITCH_TYPE_NONDIATONIC = 'nd';
+const PITCH_RECORD_KEY_TYPE = "t";
+const PITCH_RECORD_KEY_DEGREE = "d";
+const PITCH_RECORD_KEY_NAME = "n";
+
+ const SCALE = {"0":{"t":"rt","d":"I tonic","n":"C"},"1":{"t":"nd","n":"C♯/D♭"},"2":{"t":"dt","d":"II supertonic","n":"D"},"3":{"t":"nd","n":"D♯/E♭"},"4":{"t":"dt","d":"III mediant","n":"E"},"5":{"t":"dt","d":"IV subdominant","n":"F"},"6":{"t":"nd","n":"F♯/G♭"},"7":{"t":"dt","d":"V dominant","n":"G"},"8":{"t":"nd","n":"G♯/A♭"},"9":{"t":"dt","d":"VI submediant","n":"A"},"10":{"t":"nd","n":"A♯/B♭"},"11":{"t":"dt","d":"VII leading tone","n":"B"},"12":{"t":"rt","d":"I tonic","n":"C"},"13":{"t":"nd","n":"C♯/D♭"},"14":{"t":"dt","d":"II supertonic","n":"D"},"15":{"t":"nd","n":"D♯/E♭"},"16":{"t":"dt","d":"III mediant","n":"E"},"17":{"t":"dt","d":"IV subdominant","n":"F"},"18":{"t":"nd","n":"F♯/G♭"},"19":{"t":"dt","d":"V dominant","n":"G"},"20":{"t":"nd","n":"G♯/A♭"},"21":{"t":"dt","d":"VI submediant","n":"A"},"22":{"t":"nd","n":"A♯/B♭"},"23":{"t":"dt","d":"VII leading tone","n":"B"},"24":{"t":"rt","d":"I tonic","n":"C"},"25":{"t":"nd","n":"C♯/D♭"},"26":{"t":"dt","d":"II supertonic","n":"D"},"27":{"t":"nd","n":"D♯/E♭"},"28":{"t":"dt","d":"III mediant","n":"E"},"29":{"t":"dt","d":"IV subdominant","n":"F"},"30":{"t":"nd","n":"F♯/G♭"},"31":{"t":"dt","d":"V dominant","n":"G"},"32":{"t":"nd","n":"G♯/A♭"},"33":{"t":"dt","d":"VI submediant","n":"A"},"34":{"t":"nd","n":"A♯/B♭"},"35":{"t":"dt","d":"VII leading tone","n":"B"},"36":{"t":"rt","d":"I tonic","n":"C"},"37":{"t":"nd","n":"C♯/D♭"},"38":{"t":"dt","d":"II supertonic","n":"D"},"39":{"t":"nd","n":"D♯/E♭"},"40":{"t":"dt","d":"III mediant","n":"E"},"41":{"t":"dt","d":"IV subdominant","n":"F"},"42":{"t":"nd","n":"F♯/G♭"},"43":{"t":"dt","d":"V dominant","n":"G"},"44":{"t":"nd","n":"G♯/A♭"},"45":{"t":"dt","d":"VI submediant","n":"A"},"46":{"t":"nd","n":"A♯/B♭"},"47":{"t":"dt","d":"VII leading tone","n":"B"},"48":{"t":"rt","d":"I tonic","n":"C"},"49":{"t":"nd","n":"C♯/D♭"},"50":{"t":"dt","d":"II supertonic","n":"D"},"51":{"t":"nd","n":"D♯/E♭"},"52":{"t":"dt","d":"III mediant","n":"E"},"53":{"t":"dt","d":"IV subdominant","n":"F"},"54":{"t":"nd","n":"F♯/G♭"},"55":{"t":"dt","d":"V dominant","n":"G"},"56":{"t":"nd","n":"G♯/A♭"},"57":{"t":"dt","d":"VI submediant","n":"A"},"58":{"t":"nd","n":"A♯/B♭"},"59":{"t":"dt","d":"VII leading tone","n":"B"},"60":{"t":"rt","d":"I tonic","n":"C"},"61":{"t":"nd","n":"C♯/D♭"},"62":{"t":"dt","d":"II supertonic","n":"D"},"63":{"t":"nd","n":"D♯/E♭"},"64":{"t":"dt","d":"III mediant","n":"E"},"65":{"t":"dt","d":"IV subdominant","n":"F"},"66":{"t":"nd","n":"F♯/G♭"},"67":{"t":"dt","d":"V dominant","n":"G"},"68":{"t":"nd","n":"G♯/A♭"},"69":{"t":"dt","d":"VI submediant","n":"A"},"70":{"t":"nd","n":"A♯/B♭"},"71":{"t":"dt","d":"VII leading tone","n":"B"},"72":{"t":"rt","d":"I tonic","n":"C"},"73":{"t":"nd","n":"C♯/D♭"},"74":{"t":"dt","d":"II supertonic","n":"D"},"75":{"t":"nd","n":"D♯/E♭"},"76":{"t":"dt","d":"III mediant","n":"E"},"77":{"t":"dt","d":"IV subdominant","n":"F"},"78":{"t":"nd","n":"F♯/G♭"},"79":{"t":"dt","d":"V dominant","n":"G"},"80":{"t":"nd","n":"G♯/A♭"},"81":{"t":"dt","d":"VI submediant","n":"A"},"82":{"t":"nd","n":"A♯/B♭"},"83":{"t":"dt","d":"VII leading tone","n":"B"},"84":{"t":"rt","d":"I tonic","n":"C"},"85":{"t":"nd","n":"C♯/D♭"},"86":{"t":"dt","d":"II supertonic","n":"D"},"87":{"t":"nd","n":"D♯/E♭"},"88":{"t":"dt","d":"III mediant","n":"E"},"89":{"t":"dt","d":"IV subdominant","n":"F"},"90":{"t":"nd","n":"F♯/G♭"},"91":{"t":"dt","d":"V dominant","n":"G"},"92":{"t":"nd","n":"G♯/A♭"},"93":{"t":"dt","d":"VI submediant","n":"A"},"94":{"t":"nd","n":"A♯/B♭"},"95":{"t":"dt","d":"VII leading tone","n":"B"},"96":{"t":"rt","d":"I tonic","n":"C"},"97":{"t":"nd","n":"C♯/D♭"},"98":{"t":"dt","d":"II supertonic","n":"D"},"99":{"t":"nd","n":"D♯/E♭"},"100":{"t":"dt","d":"III mediant","n":"E"},"101":{"t":"dt","d":"IV subdominant","n":"F"},"102":{"t":"nd","n":"F♯/G♭"},"103":{"t":"dt","d":"V dominant","n":"G"},"104":{"t":"nd","n":"G♯/A♭"},"105":{"t":"dt","d":"VI submediant","n":"A"},"106":{"t":"nd","n":"A♯/B♭"},"107":{"t":"dt","d":"VII leading tone","n":"B"},"108":{"t":"rt","d":"I tonic","n":"C"},"109":{"t":"nd","n":"C♯/D♭"},"110":{"t":"dt","d":"II supertonic","n":"D"},"111":{"t":"nd","n":"D♯/E♭"},"112":{"t":"dt","d":"III mediant","n":"E"},"113":{"t":"dt","d":"IV subdominant","n":"F"},"114":{"t":"nd","n":"F♯/G♭"},"115":{"t":"dt","d":"V dominant","n":"G"},"116":{"t":"nd","n":"G♯/A♭"},"117":{"t":"dt","d":"VI submediant","n":"A"},"118":{"t":"nd","n":"A♯/B♭"},"119":{"t":"dt","d":"VII leading tone","n":"B"},"120":{"t":"rt","d":"I tonic","n":"C"},"121":{"t":"nd","n":"C♯/D♭"},"122":{"t":"dt","d":"II supertonic","n":"D"},"123":{"t":"nd","n":"D♯/E♭"},"124":{"t":"dt","d":"III mediant","n":"E"},"125":{"t":"dt","d":"IV subdominant","n":"F"},"126":{"t":"nd","n":"F♯/G♭"},"127":{"t":"dt","d":"V dominant","n":"G"},"128":{"t":"nd","n":"G♯/A♭"},"129":{"t":"dt","d":"VI submediant","n":"A"},"130":{"t":"nd","n":"A♯/B♭"},"131":{"t":"dt","d":"VII leading tone","n":"B"},"132":{"t":"rt","d":"I tonic","n":"C"},"133":{"t":"nd","n":"C♯/D♭"},"134":{"t":"dt","d":"II supertonic","n":"D"},"135":{"t":"nd","n":"D♯/E♭"},"136":{"t":"dt","d":"III mediant","n":"E"},"137":{"t":"dt","d":"IV subdominant","n":"F"},"138":{"t":"nd","n":"F♯/G♭"},"139":{"t":"dt","d":"V dominant","n":"G"},"140":{"t":"nd","n":"G♯/A♭"},"141":{"t":"dt","d":"VI submediant","n":"A"},"142":{"t":"nd","n":"A♯/B♭"},"143":{"t":"dt","d":"VII leading tone","n":"B"}}
+ 
+ 
+ // const TONICS = [0, 2, 4, 5, 7, 9, 11];
 
 test();
 
 function test() {
     TEST_CHORD_STRINGS.forEach( function ( str ) {
         let chord_settings = parse_chord_spelling( str );
-        TONICS.forEach( function ( tonic ) {
-            let chord_pitches = create_chord( chord_settings, SCALE, tonic );
-        });
+        // TONICS.forEach( function ( tonic ) {
+            let chord_pitches = create_chord( chord_settings, SCALE, 0 );
+            console.log(str + "\t" + chord_pitches);
+        // });
     });
 }
 
 // (Object, <boolean>[], integer ) returns <integer>[]
 function create_chord( chord_settings, scale, tonic ) {
     let pitches = [];
-    // get the tonic from the scale
+
     // get the chord accidental
-    // push the chord root
+    let chord_accidental = 0;
+    switch ( chord_settings.chord_accidental ) {
+        case TOKEN_FLAT_ALPHA:
+            chord_accidental = -1;
+            break;
+        case TOKEN_SHARP_ALPHA:
+            chord_accidental = 1;
+            break;
+        default:
+            chord_accidental = 0;
+            break;
+    }
+
+    // get the chord root from the scale
+    /*
+    "0":
+        {"t":"rt",
+        "d":"I tonic",
+        "n":"C"}
+    
+    "1":
+        {"t":"nd",
+        "n":"C♯/D♭"
+    }
+
+    {
+        chord_spelling: "V",
+        chord_accidental: "♮",
+        chord_degree: 5,
+        chord_quality: "maj",
+    }
+    */
+    let degrees = 1; // tonic to degree = interval
+    let chord_root = 0;
+    let scale_index = tonic - 1; // start 1 back to ensure correct output
+    while ( degrees <= chord_settings.chord_degree ) {
+        scale_index++;
+        let pitch = scale[scale_index];
+        if ( pitch[PITCH_RECORD_KEY_TYPE] != PITCH_TYPE_NONDIATONIC ) {
+            degrees++;
+        }
+    };
+    chord_root = scale_index;
+
+    // adjust the root by the accidental
+    chord_root += chord_accidental;
     // get the chord quality
     // push the chord voices from the root
+    chord_pitches_template = CHORD_TEMPLATES_LIB[chord_settings.chord_quality];
+    chord_pitches_template.forEach( interval => {
+        pitches.push( scale[ chord_root + interval ] );
+    });
     // get the 7th extension
     // get the extensions
     // get the sus2 or sus4
