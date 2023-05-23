@@ -41,9 +41,6 @@ Roadmap:
 
 // 
 
-const TEST_CHORD_STRINGS = [
-    "V"
-];
 
 const TOKEN_QUALITY_MAJOR = "maj";
 const TOKEN_QUALITY_MAJOR_ALPHA = "M";
@@ -162,86 +159,34 @@ const PITCH_RECORD_KEY_NAME = "n";
  
  // const TONICS = [0, 2, 4, 5, 7, 9, 11];
 
+
+const TEST_CHORD_STRINGS = [
+    "V7"
+];
+
 test();
 
 function test() {
     TEST_CHORD_STRINGS.forEach( function ( str ) {
-        let chord_settings = parse_chord_spelling( str );
-        // TONICS.forEach( function ( tonic ) {
-            let chord_pitches = create_chord( chord_settings, SCALE, 0 );
-            console.log(str + "\t" + chord_pitches);
-        // });
+        let chord_pitches = create_chord_from_spelling( str, SCALE, 0 );
+        console.log( JSON.stringify( chord_pitches ) );
     });
 }
 
-// (Object, <boolean>[], integer ) returns <integer>[]
-function create_chord( chord_settings, scale, tonic ) {
-    let pitches = [];
-
-    // get the chord accidental
-    let chord_accidental = 0;
-    switch ( chord_settings.chord_accidental ) {
-        case TOKEN_FLAT_ALPHA:
-            chord_accidental = -1;
-            break;
-        case TOKEN_SHARP_ALPHA:
-            chord_accidental = 1;
-            break;
-        default:
-            chord_accidental = 0;
-            break;
-    }
-
-    // get the chord root from the scale
-    /*
-    "0":
-        {"t":"rt",
-        "d":"I tonic",
-        "n":"C"}
-    
-    "1":
-        {"t":"nd",
-        "n":"C♯/D♭"
-    }
-
-    {
-        chord_spelling: "V",
-        chord_accidental: "♮",
-        chord_degree: 5,
-        chord_quality: "maj",
-    }
-    */
+function get_chord_voice_from_scale( degree, scale, tonic ) {
     let degrees = 1; // tonic to degree = interval
-    let chord_root = 0;
     let scale_index = tonic - 1; // start 1 back to ensure correct output
-    while ( degrees <= chord_settings.chord_degree ) {
+    while ( degrees <= degree ) {
         scale_index++;
         let pitch = scale[scale_index];
         if ( pitch[PITCH_RECORD_KEY_TYPE] != PITCH_TYPE_NONDIATONIC ) {
             degrees++;
         }
     };
-    chord_root = scale_index;
-
-    // adjust the root by the accidental
-    chord_root += chord_accidental;
-    // get the chord quality
-    // push the chord voices from the root
-    chord_pitches_template = CHORD_TEMPLATES_LIB[chord_settings.chord_quality];
-    chord_pitches_template.forEach( interval => {
-        pitches.push( scale[ chord_root + interval ] );
-    });
-    // get the 7th extension
-    // get the extensions
-    // get the sus2 or sus4
-    // update the 2nd voice to sus
-    // get the alt bass
-    // push alt bass to index 0
-
-    return pitches;
+    return scale[scale_index];
 }
 
-function parse_chord_spelling( str ) {
+function create_chord_from_spelling( str, scale, tonic ) {
     let chord_spelling = str;
     let chord_settings = {};
     chord_settings.chord_spelling = str;
