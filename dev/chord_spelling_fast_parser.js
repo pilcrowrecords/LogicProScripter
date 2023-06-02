@@ -967,7 +967,7 @@ const SCALE = {
 
 
 const TEST_CHORD_STRINGS = [
-    "V"
+    "V/1"
 ];
 
 test();
@@ -1114,7 +1114,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
         // no chord quality
     }
 
-    // TODO: build the basic triad
+    // build the basic triad
     // determine the root
 
     let chord_root = get_chord_voice_from_scale( chord_settings.chord_degree, scale, tonic );
@@ -1170,6 +1170,13 @@ function create_chord_from_spelling( str, scale, tonic ) {
         // trim alt bass notation and qualities off of chord spelling to prep for extensions
         chord_spelling = chord_spelling.slice(0, chord_spelling.length - ( alt_bass.length + 1 ) );
     }
+
+    // Add the bass below the tonic
+    // get the bass pitch
+    let bass_pitch = get_chord_voice_from_scale( chord_settings.alt_bass_pitch, scale, tonic );
+    // transpose to below the chord root (pitches[0]);
+    bass_pitch.midi_pitch = bass_pitch.midi_pitch -= 12;
+    pitches.push( bass_pitch );
 
     // does the chord have a 7th extension?
     if ( chord_spelling.indexOf("7", cursor) >= 0 ) {
