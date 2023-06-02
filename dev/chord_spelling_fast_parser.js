@@ -1180,10 +1180,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 
     // does the chord have a 7th extension?
     if ( chord_spelling.indexOf("7", cursor) >= 0 ) {
-        // TODO: get 7th pitch
-        let seventh_pitch = get_chord_voice_from_scale ( 7, scale, tonic );
+        // get 7th pitch
+        let seventh_pitch = get_chord_voice_from_scale ( 7, scale, chord_root_midi_pitch );
         pitches.push( seventh_pitch );
-        // 
         cursor += 1;
     }
 
@@ -1195,26 +1194,36 @@ function create_chord_from_spelling( str, scale, tonic ) {
         if ( cursor >= 0 ) {
             switch ( extension ) {
                 case TOKEN_QUALITY_THIRTEENTH:
-                    // capture the extension
-                    chord_settings["extension_" + extension] = extension; 
-                    // check the value in the position just before the cursor
+                    // // capture the extension
+                    // chord_settings["extension_" + extension] = extension; 
+                    // // check the value in the position just before the cursor
+                    let thirteenth = 13;
+                    let add = false;
                     mod = chord_spelling.charAt( cursor - 1 );
                     switch ( mod ) {
                         case TOKEN_SHARP_MUSIC:
                         case TOKEN_SHARP_ALPHA:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
+                            thirteenth += 1;
                             break;
                         case TOKEN_FLAT_MUSIC:
                         case TOKEN_FLAT_ALPHA:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
+                            thirteenth -= 1;
                             break;
                         case TOKEN_CHORD_EXT_ADD_FRAGMENT:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_CHORD_EXT_ADD;
+                            add = true;
                             break;
                         default:
                             break;
                     }
                     break;
+
+                    // TODO: add the 13th
+                    
+                    if ( add ) {
+                       // TODO: If add then add 11th and 9th
+                    }
                 
                 case TOKEN_QUALITY_ELEVENTH:
                     // capture the extension
