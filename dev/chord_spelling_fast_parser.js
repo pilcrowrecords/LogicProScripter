@@ -147,21 +147,827 @@ const CHORD_TEMPLATES_LIB = {
     ],
 };
 
-const PITCH_TYPE_ROOT = 'rt';
-const PITCH_TYPE_DIATONIC = 'dt';
-const PITCH_TYPE_NONDIATONIC = 'nd';
-const PITCH_RECORD_KEY_TYPE = "t";
-const PITCH_RECORD_KEY_DEGREE = "d";
-const PITCH_RECORD_KEY_NAME = "n";
+const PITCH_TYPE_ROOT = 'root';
+const PITCH_TYPE_DIATONIC = 'diat';
+const PITCH_TYPE_NONDIATONIC = 'nond';
+const PITCH_RECORD_KEY_TYPE = "type";
+const PITCH_RECORD_KEY_DEGREE = "key_degree";
+const PITCH_RECORD_KEY_NAME = "key_name";
+const PITCH_RECORD_MIDI_PITCH = "midi_pitch";
 
- const SCALE = {"0":{"t":"rt","d":"I tonic","n":"C"},"1":{"t":"nd","n":"C♯/D♭"},"2":{"t":"dt","d":"II supertonic","n":"D"},"3":{"t":"nd","n":"D♯/E♭"},"4":{"t":"dt","d":"III mediant","n":"E"},"5":{"t":"dt","d":"IV subdominant","n":"F"},"6":{"t":"nd","n":"F♯/G♭"},"7":{"t":"dt","d":"V dominant","n":"G"},"8":{"t":"nd","n":"G♯/A♭"},"9":{"t":"dt","d":"VI submediant","n":"A"},"10":{"t":"nd","n":"A♯/B♭"},"11":{"t":"dt","d":"VII leading tone","n":"B"},"12":{"t":"rt","d":"I tonic","n":"C"},"13":{"t":"nd","n":"C♯/D♭"},"14":{"t":"dt","d":"II supertonic","n":"D"},"15":{"t":"nd","n":"D♯/E♭"},"16":{"t":"dt","d":"III mediant","n":"E"},"17":{"t":"dt","d":"IV subdominant","n":"F"},"18":{"t":"nd","n":"F♯/G♭"},"19":{"t":"dt","d":"V dominant","n":"G"},"20":{"t":"nd","n":"G♯/A♭"},"21":{"t":"dt","d":"VI submediant","n":"A"},"22":{"t":"nd","n":"A♯/B♭"},"23":{"t":"dt","d":"VII leading tone","n":"B"},"24":{"t":"rt","d":"I tonic","n":"C"},"25":{"t":"nd","n":"C♯/D♭"},"26":{"t":"dt","d":"II supertonic","n":"D"},"27":{"t":"nd","n":"D♯/E♭"},"28":{"t":"dt","d":"III mediant","n":"E"},"29":{"t":"dt","d":"IV subdominant","n":"F"},"30":{"t":"nd","n":"F♯/G♭"},"31":{"t":"dt","d":"V dominant","n":"G"},"32":{"t":"nd","n":"G♯/A♭"},"33":{"t":"dt","d":"VI submediant","n":"A"},"34":{"t":"nd","n":"A♯/B♭"},"35":{"t":"dt","d":"VII leading tone","n":"B"},"36":{"t":"rt","d":"I tonic","n":"C"},"37":{"t":"nd","n":"C♯/D♭"},"38":{"t":"dt","d":"II supertonic","n":"D"},"39":{"t":"nd","n":"D♯/E♭"},"40":{"t":"dt","d":"III mediant","n":"E"},"41":{"t":"dt","d":"IV subdominant","n":"F"},"42":{"t":"nd","n":"F♯/G♭"},"43":{"t":"dt","d":"V dominant","n":"G"},"44":{"t":"nd","n":"G♯/A♭"},"45":{"t":"dt","d":"VI submediant","n":"A"},"46":{"t":"nd","n":"A♯/B♭"},"47":{"t":"dt","d":"VII leading tone","n":"B"},"48":{"t":"rt","d":"I tonic","n":"C"},"49":{"t":"nd","n":"C♯/D♭"},"50":{"t":"dt","d":"II supertonic","n":"D"},"51":{"t":"nd","n":"D♯/E♭"},"52":{"t":"dt","d":"III mediant","n":"E"},"53":{"t":"dt","d":"IV subdominant","n":"F"},"54":{"t":"nd","n":"F♯/G♭"},"55":{"t":"dt","d":"V dominant","n":"G"},"56":{"t":"nd","n":"G♯/A♭"},"57":{"t":"dt","d":"VI submediant","n":"A"},"58":{"t":"nd","n":"A♯/B♭"},"59":{"t":"dt","d":"VII leading tone","n":"B"},"60":{"t":"rt","d":"I tonic","n":"C"},"61":{"t":"nd","n":"C♯/D♭"},"62":{"t":"dt","d":"II supertonic","n":"D"},"63":{"t":"nd","n":"D♯/E♭"},"64":{"t":"dt","d":"III mediant","n":"E"},"65":{"t":"dt","d":"IV subdominant","n":"F"},"66":{"t":"nd","n":"F♯/G♭"},"67":{"t":"dt","d":"V dominant","n":"G"},"68":{"t":"nd","n":"G♯/A♭"},"69":{"t":"dt","d":"VI submediant","n":"A"},"70":{"t":"nd","n":"A♯/B♭"},"71":{"t":"dt","d":"VII leading tone","n":"B"},"72":{"t":"rt","d":"I tonic","n":"C"},"73":{"t":"nd","n":"C♯/D♭"},"74":{"t":"dt","d":"II supertonic","n":"D"},"75":{"t":"nd","n":"D♯/E♭"},"76":{"t":"dt","d":"III mediant","n":"E"},"77":{"t":"dt","d":"IV subdominant","n":"F"},"78":{"t":"nd","n":"F♯/G♭"},"79":{"t":"dt","d":"V dominant","n":"G"},"80":{"t":"nd","n":"G♯/A♭"},"81":{"t":"dt","d":"VI submediant","n":"A"},"82":{"t":"nd","n":"A♯/B♭"},"83":{"t":"dt","d":"VII leading tone","n":"B"},"84":{"t":"rt","d":"I tonic","n":"C"},"85":{"t":"nd","n":"C♯/D♭"},"86":{"t":"dt","d":"II supertonic","n":"D"},"87":{"t":"nd","n":"D♯/E♭"},"88":{"t":"dt","d":"III mediant","n":"E"},"89":{"t":"dt","d":"IV subdominant","n":"F"},"90":{"t":"nd","n":"F♯/G♭"},"91":{"t":"dt","d":"V dominant","n":"G"},"92":{"t":"nd","n":"G♯/A♭"},"93":{"t":"dt","d":"VI submediant","n":"A"},"94":{"t":"nd","n":"A♯/B♭"},"95":{"t":"dt","d":"VII leading tone","n":"B"},"96":{"t":"rt","d":"I tonic","n":"C"},"97":{"t":"nd","n":"C♯/D♭"},"98":{"t":"dt","d":"II supertonic","n":"D"},"99":{"t":"nd","n":"D♯/E♭"},"100":{"t":"dt","d":"III mediant","n":"E"},"101":{"t":"dt","d":"IV subdominant","n":"F"},"102":{"t":"nd","n":"F♯/G♭"},"103":{"t":"dt","d":"V dominant","n":"G"},"104":{"t":"nd","n":"G♯/A♭"},"105":{"t":"dt","d":"VI submediant","n":"A"},"106":{"t":"nd","n":"A♯/B♭"},"107":{"t":"dt","d":"VII leading tone","n":"B"},"108":{"t":"rt","d":"I tonic","n":"C"},"109":{"t":"nd","n":"C♯/D♭"},"110":{"t":"dt","d":"II supertonic","n":"D"},"111":{"t":"nd","n":"D♯/E♭"},"112":{"t":"dt","d":"III mediant","n":"E"},"113":{"t":"dt","d":"IV subdominant","n":"F"},"114":{"t":"nd","n":"F♯/G♭"},"115":{"t":"dt","d":"V dominant","n":"G"},"116":{"t":"nd","n":"G♯/A♭"},"117":{"t":"dt","d":"VI submediant","n":"A"},"118":{"t":"nd","n":"A♯/B♭"},"119":{"t":"dt","d":"VII leading tone","n":"B"},"120":{"t":"rt","d":"I tonic","n":"C"},"121":{"t":"nd","n":"C♯/D♭"},"122":{"t":"dt","d":"II supertonic","n":"D"},"123":{"t":"nd","n":"D♯/E♭"},"124":{"t":"dt","d":"III mediant","n":"E"},"125":{"t":"dt","d":"IV subdominant","n":"F"},"126":{"t":"nd","n":"F♯/G♭"},"127":{"t":"dt","d":"V dominant","n":"G"},"128":{"t":"nd","n":"G♯/A♭"},"129":{"t":"dt","d":"VI submediant","n":"A"},"130":{"t":"nd","n":"A♯/B♭"},"131":{"t":"dt","d":"VII leading tone","n":"B"},"132":{"t":"rt","d":"I tonic","n":"C"},"133":{"t":"nd","n":"C♯/D♭"},"134":{"t":"dt","d":"II supertonic","n":"D"},"135":{"t":"nd","n":"D♯/E♭"},"136":{"t":"dt","d":"III mediant","n":"E"},"137":{"t":"dt","d":"IV subdominant","n":"F"},"138":{"t":"nd","n":"F♯/G♭"},"139":{"t":"dt","d":"V dominant","n":"G"},"140":{"t":"nd","n":"G♯/A♭"},"141":{"t":"dt","d":"VI submediant","n":"A"},"142":{"t":"nd","n":"A♯/B♭"},"143":{"t":"dt","d":"VII leading tone","n":"B"}}
+const SCALE = {
+    "0": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 0,
+    },
+    "1": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 1,
+    },
+    "2": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 2,
+    },
+    "3": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 3,
+    },
+    "4": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 4,
+    },
+    "5": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 5,
+    },
+    "6": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 6,
+    },
+    "7": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 7,
+    },
+    "8": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 8,
+    },
+    "9": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 9,
+    },
+    "10": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 10,
+    },
+    "11": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 11,
+    },
+    "12": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 12,
+    },
+    "13": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 13,
+    },
+    "14": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 14,
+    },
+    "15": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 15,
+    },
+    "16": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 16,
+    },
+    "17": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 17,
+    },
+    "18": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 18,
+    },
+    "19": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 19,
+    },
+    "20": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 20,
+    },
+    "21": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 21,
+    },
+    "22": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 22,
+    },
+    "23": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 23,
+    },
+    "24": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 24,
+    },
+    "25": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 25,
+    },
+    "26": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 26,
+    },
+    "27": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 27,
+    },
+    "28": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 28,
+    },
+    "29": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 29,
+    },
+    "30": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 30,
+    },
+    "31": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 31,
+    },
+    "32": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 32,
+    },
+    "33": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 33,
+    },
+    "34": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 34,
+    },
+    "35": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 35,
+    },
+    "36": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 36,
+    },
+    "37": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 37,
+    },
+    "38": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 38,
+    },
+    "39": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 39,
+    },
+    "40": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 40,
+    },
+    "41": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 41,
+    },
+    "42": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 42,
+    },
+    "43": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 43,
+    },
+    "44": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 44,
+    },
+    "45": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 45,
+    },
+    "46": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 46,
+    },
+    "47": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 47,
+    },
+    "48": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 48,
+    },
+    "49": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 49,
+    },
+    "50": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 50,
+    },
+    "51": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 51,
+    },
+    "52": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 52,
+    },
+    "53": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 53,
+    },
+    "54": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 54,
+    },
+    "55": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 55,
+    },
+    "56": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 56,
+    },
+    "57": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 57,
+    },
+    "58": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 58,
+    },
+    "59": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 59,
+    },
+    "60": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 60,
+    },
+    "61": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 61,
+    },
+    "62": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 62,
+    },
+    "63": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 63,
+    },
+    "64": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 64,
+    },
+    "65": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 65,
+    },
+    "66": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 66,
+    },
+    "67": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 67,
+    },
+    "68": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 68,
+    },
+    "69": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 69,
+    },
+    "70": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 70,
+    },
+    "71": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 71,
+    },
+    "72": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 72,
+    },
+    "73": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 73,
+    },
+    "74": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 74,
+    },
+    "75": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 75,
+    },
+    "76": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 76,
+    },
+    "77": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 77,
+    },
+    "78": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 78,
+    },
+    "79": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 79,
+    },
+    "80": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 80,
+    },
+    "81": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 81,
+    },
+    "82": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 82,
+    },
+    "83": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 83,
+    },
+    "84": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 84,
+    },
+    "85": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 85,
+    },
+    "86": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 86,
+    },
+    "87": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 87,
+    },
+    "88": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 88,
+    },
+    "89": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 89,
+    },
+    "90": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 90,
+    },
+    "91": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 91,
+    },
+    "92": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 92,
+    },
+    "93": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 93,
+    },
+    "94": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 94,
+    },
+    "95": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 95,
+    },
+    "96": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 96,
+    },
+    "97": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 97,
+    },
+    "98": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 98,
+    },
+    "99": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 99,
+    },
+    "100": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 100,
+    },
+    "101": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 101,
+    },
+    "102": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 102,
+    },
+    "103": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 103,
+    },
+    "104": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 104,
+    },
+    "105": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 105,
+    },
+    "106": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 106,
+    },
+    "107": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 107,
+    },
+    "108": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 108,
+    },
+    "109": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 109,
+    },
+    "110": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 110,
+    },
+    "111": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 111,
+    },
+    "112": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 112,
+    },
+    "113": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 113,
+    },
+    "114": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 114,
+    },
+    "115": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 115,
+    },
+    "116": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 116,
+    },
+    "117": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 117,
+    },
+    "118": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 118,
+    },
+    "119": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 119,
+    },
+    "120": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 120,
+    },
+    "121": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 121,
+    },
+    "122": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 122,
+    },
+    "123": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 123,
+    },
+    "124": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 124,
+    },
+    "125": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 125,
+    },
+    "126": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 126,
+    },
+    "127": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 127,
+    },
+    "128": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 128,
+    },
+    "129": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 129,
+    },
+    "130": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 130,
+    },
+    "131": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 131,
+    },
+    "132": {
+      type: "root",
+      key_degree: "I tonic",
+      key_name: "C",
+      midi_pitch: 132,
+    },
+    "133": {
+      type: "nond",
+      key_name: "C♯/D♭",
+      midi_pitch: 133,
+    },
+    "134": {
+      type: "diat",
+      key_degree: "II supertonic",
+      key_name: "D",
+      midi_pitch: 134,
+    },
+    "135": {
+      type: "nond",
+      key_name: "D♯/E♭",
+      midi_pitch: 135,
+    },
+    "136": {
+      type: "diat",
+      key_degree: "III mediant",
+      key_name: "E",
+      midi_pitch: 136,
+    },
+    "137": {
+      type: "diat",
+      key_degree: "IV subdominant",
+      key_name: "F",
+      midi_pitch: 137,
+    },
+    "138": {
+      type: "nond",
+      key_name: "F♯/G♭",
+      midi_pitch: 138,
+    },
+    "139": {
+      type: "diat",
+      key_degree: "V dominant",
+      key_name: "G",
+      midi_pitch: 139,
+    },
+    "140": {
+      type: "nond",
+      key_name: "G♯/A♭",
+      midi_pitch: 140,
+    },
+    "141": {
+      type: "diat",
+      key_degree: "VI submediant",
+      key_name: "A",
+      midi_pitch: 141,
+    },
+    "142": {
+      type: "nond",
+      key_name: "A♯/B♭",
+      midi_pitch: 142,
+    },
+    "143": {
+      type: "diat",
+      key_degree: "VII leading tone",
+      key_name: "B",
+      midi_pitch: 143,
+    },
+  }
  
  
  // const TONICS = [0, 2, 4, 5, 7, 9, 11];
 
 
 const TEST_CHORD_STRINGS = [
-    "V7"
+    "V"
 ];
 
 test();
@@ -187,9 +993,11 @@ function get_chord_voice_from_scale( degree, scale, tonic ) {
 }
 
 function create_chord_from_spelling( str, scale, tonic ) {
+    let pitches = [];
+    // capture the spelling for destructive editing to capture alternate bass
     let chord_spelling = str;
+    // cache for parsing
     let chord_settings = {};
-    chord_settings.chord_spelling = str;
     let cursor = 0;
 
     // does the chord have an accidental?
@@ -265,7 +1073,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
     } else {
         console.log("ERROR: chord spelling has no roman numeral.");
         return chord_spelling;
-    }
+    }    
 
     // does the chord have any other chord quality after?
 
@@ -305,6 +1113,30 @@ function create_chord_from_spelling( str, scale, tonic ) {
     } else {
         // no chord quality
     }
+
+    // TODO: build the basic triad
+    // determine the root
+
+    let chord_root = get_chord_voice_from_scale( chord_settings.chord_degree, scale, tonic );
+    let chord_root_midi_pitch = chord_root.midi_pitch;
+    switch ( chord_settings.chord_accidental ) {
+      case TOKEN_SHARP_MUSIC:
+        chord_root_midi_pitch += 1;
+        break;
+      case TOKEN_FLAT_MUSIC:
+        chord_root_midi_pitch -= 1;
+      default:
+        // do nothing
+        break;
+    }
+
+    let chord_template = CHORD_TEMPLATES_LIB[chord_settings.chord_quality];
+
+    chord_template.forEach( function ( interval ) {
+        let key = chord_root_midi_pitch + interval
+        let pitch = scale[ key ];
+        pitches.push( pitch ); 
+    });
 
     // does the chord have an alternate bass?
     // if so capture it and trim it off the spelling to get the extensions without interference
@@ -442,5 +1274,5 @@ function create_chord_from_spelling( str, scale, tonic ) {
         }
     });
 
-    return chord_settings;
+    return pitches;
 }
