@@ -967,7 +967,7 @@ const SCALE = {
 
 
 const TEST_CHORD_STRINGS = [
-    "V/1"
+    "V7/1"
 ];
 
 test();
@@ -1180,7 +1180,10 @@ function create_chord_from_spelling( str, scale, tonic ) {
 
     // does the chord have a 7th extension?
     if ( chord_spelling.indexOf("7", cursor) >= 0 ) {
-        chord_settings.chord_7 = 0;
+        // TODO: get 7th pitch
+        let seventh_pitch = get_chord_voice_from_scale ( 7, scale, tonic );
+        pitches.push( seventh_pitch );
+        // 
         cursor += 1;
     }
 
