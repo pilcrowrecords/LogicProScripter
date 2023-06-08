@@ -967,7 +967,7 @@ const SCALE = {
 
 
 const TEST_CHORD_STRINGS = [
-    "V7/1"
+    "V13"
 ];
 
 test();
@@ -1167,20 +1167,20 @@ function create_chord_from_spelling( str, scale, tonic ) {
             chord_settings.alt_bass_pitch = parseInt( deg );
         }
 
+        // Add the bass below the tonic
+    // get the bass pitch
+      let bass_pitch = get_chord_voice_from_scale( chord_settings.alt_bass_pitch, scale, tonic );
+      // transpose to below the chord root (pitches[0]);
+      bass_pitch.midi_pitch = ( bass_pitch.midi_pitch -= 12 );
+      pitches.push( bass_pitch );
+
         // trim alt bass notation and qualities off of chord spelling to prep for extensions
         chord_spelling = chord_spelling.slice(0, chord_spelling.length - ( alt_bass.length + 1 ) );
     }
-
-    // Add the bass below the tonic
-    // get the bass pitch
-    let bass_pitch = get_chord_voice_from_scale( chord_settings.alt_bass_pitch, scale, tonic );
-    // transpose to below the chord root (pitches[0]);
-    bass_pitch.midi_pitch = bass_pitch.midi_pitch -= 12;
-    pitches.push( bass_pitch );
-
     // does the chord have a 7th extension?
     if ( chord_spelling.indexOf("7", cursor) >= 0 ) {
         // get 7th pitch
+        chord_settings.seventh_pitch = true;
         let seventh_pitch = get_chord_voice_from_scale ( 7, scale, chord_root_midi_pitch );
         pitches.push( seventh_pitch );
         cursor += 1;
@@ -1197,91 +1197,155 @@ function create_chord_from_spelling( str, scale, tonic ) {
                     // // capture the extension
                     // chord_settings["extension_" + extension] = extension; 
                     // // check the value in the position just before the cursor
-                    let thirteenth = 13;
-                    let add = false;
+                    let add13 = false;
                     mod = chord_spelling.charAt( cursor - 1 );
                     switch ( mod ) {
                         case TOKEN_SHARP_MUSIC:
                         case TOKEN_SHARP_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
-                            thirteenth += 1;
+                            let thirteenth_pitch_sharp = get_chord_voice_from_scale( 13, scale, chord_root.midi_pitch );
+                            let interval_sharp = thirteenth_pitch.midi_pitch + 1;
+                            thirteenth_pitch_sharp = scale[ chord_root.midi_pitch + interval_sharp ];
+                            pitches.push( thirteenth_pitch_sharp );
                             break;
                         case TOKEN_FLAT_MUSIC:
                         case TOKEN_FLAT_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
-                            thirteenth -= 1;
+                            let thirteenth_pitch_flat = get_chord_voice_from_scale( 13, scale, chord_root.midi_pitch );
+                            let interval_flat = thirteenth_pitch.midi_pitch - 1;
+                            thirteenth_pitch_flat = scale[ chord_root.midi_pitch + interval_flat ];
+                            pitches.push( thirteenth_pitch_flat );
                             break;
                         case TOKEN_CHORD_EXT_ADD_FRAGMENT:
-                            add = true;
+                            add13 = true;
                             break;
                         default:
+                            let thirteenth_pitch_natural = get_chord_voice_from_scale( 13, scale, chord_root.midi_pitch );
+                            pitches.push( thirteenth_pitch_natural );
                             break;
                     }
+
+                    //add the 13th
+                    
+                    if ( add13 ) {
+                       let eleventh_pitch = get_chord_voice_from_scale( 11, scale, chord_root.midi_pitch );
+                       pitches.push( eleventh_pitch );
+                       let ninth_pitch = get_chord_voice_from_scale( 9, scale, chord_root.midi_pitch );
+                       pitches.push( ninth_pitch );
+                       if ( chord_settings.seventh_pitch == false ) {
+                        let seventh_pitch = get_chord_voice_from_scale( 7, scale, chord_root.midi_pitch );
+                        pitches.push( seventh_pitch );
+                       }
+                    }
+
                     break;
 
-                    // TODO: add the 13th
-                    
-                    if ( add ) {
-                       // TODO: If add then add 11th and 9th
-                    }
-                
                 case TOKEN_QUALITY_ELEVENTH:
                     // capture the extension
-                    chord_settings["extension_" + extension] = extension; 
+                    // chord_settings["extension_" + extension] = extension; 
                     // check the value in the position just before the cursor
+                    let eleventh = 11;
+                    let add11 = false;
                     mod = chord_spelling.charAt( cursor - 1 );
                     switch ( mod ) {
                         case TOKEN_SHARP_MUSIC:
                         case TOKEN_SHARP_ALPHA:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
+                            let eleventh_pitch_sharp = get_chord_voice_from_scale( 11, scale, chord_root.midi_pitch );
+                            let interval_sharp = eleventh_pitch.midi_pitch + 1;
+                            eleventh_pitch_sharp = scale[ chord_root.midi_pitch + interval_sharp ];
+                            pitches.push( eleventh_pitch_sharp );
                             break;
                         case TOKEN_FLAT_MUSIC:
                         case TOKEN_FLAT_ALPHA:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
+                            let eleventh_pitch_flat = get_chord_voice_from_scale( 11, scale, chord_root.midi_pitch );
+                            let interval_flat = eleventh_pitch.midi_pitch - 1;
+                            eleventh_pitch_flat = scale[ chord_root.midi_pitch + interval_flat ];
+                            pitches.push( eleventh_pitch_flat );
                             break;
                         case TOKEN_CHORD_EXT_ADD_FRAGMENT:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_CHORD_EXT_ADD;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_CHORD_EXT_ADD;
+                            add11 = true;
                             break;
                         default:
+                            let eleventh_pitch_natural = get_chord_voice_from_scale( 11, scale, chord_root.midi_pitch );
+                            pitches.push( eleventh_pitch_natural );
                             break;
                     }
+
+                    if ( add11 ) {
+                      let ninth_pitch = get_chord_voice_from_scale( 9, scale, chord_root.midi_pitch );
+                      pitches.push( ninth_pitch );
+                      if ( chord_settings.seventh_pitch == false ) {
+                       let seventh_pitch = get_chord_voice_from_scale( 7, scale, chord_root.midi_pitch );
+                       pitches.push( seventh_pitch );
+                      }
+                   }
+
                     break;
                 case TOKEN_QUALITY_NINTH:
                     // capture the extension
-                    chord_settings["extension_" + extension] = extension; 
+                    // chord_settings["extension_" + extension] = extension; 
                     // check the value in the position just before the cursor
+                    let add9 = false;
                     mod = chord_spelling.charAt( cursor - 1 );
                     switch ( mod ) {
                         case TOKEN_SHARP_MUSIC:
                         case TOKEN_SHARP_ALPHA:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
+                            let ninth_pitch_sharp = get_chord_voice_from_scale( 9, scale, chord_root.midi_pitch );
+                            let interval_sharp = ninth_pitch.midi_pitch + 1;
+                            ninth_pitch_sharp = scale[ chord_root.midi_pitch + interval_sharp ];
+                            pitches.push( ninth_pitch_sharp );
                             break;
                         case TOKEN_FLAT_MUSIC:
                         case TOKEN_FLAT_ALPHA:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
+                            let ninth_pitch_flat = get_chord_voice_from_scale( 9, scale, chord_root.midi_pitch );
+                            let interval_flat = ninth_pitch.midi_pitch - 1;
+                            ninth_pitch_flat = scale[ chord_root.midi_pitch + interval_flat ];
+                            pitches.push( ninth_pitch_flat );
                             break;
                         case TOKEN_CHORD_EXT_ADD_FRAGMENT:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_CHORD_EXT_ADD;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_CHORD_EXT_ADD;
+                            add9 = true;
                         default:
+                            let ninth_pitch_natural = get_chord_voice_from_scale( 9, scale, chord_root.midi_pitch );
+                            pitches.push( ninth_pitch_natural );
                             break;
                     }
+
+                    if ( add9 ) {
+                      if ( chord_settings.seventh_pitch == false ) {
+                       let seventh_pitch = get_chord_voice_from_scale( 7, scale, chord_root.midi_pitch );
+                       pitches.push( seventh_pitch );
+                      }
+                   }
+
                     break;
                 case TOKEN_QUALITY_FIFTH :
                     // capture the extension
-                    chord_settings["extension_" + extension] = extension; 
+                    // chord_settings["extension_" + extension] = extension; 
                     // check the value in the position just before the cursor
                     mod = chord_spelling.charAt( cursor - 1 );
                     switch ( mod ) {
                         case TOKEN_SHARP_MUSIC:
                         case TOKEN_SHARP_ALPHA:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
+                            // get the current 5th
+                            // recalculate the pitch
+                            // get the new 5th
+                            // swap out the current 5th with the new 5th
                             break;
                         case TOKEN_FLAT_MUSIC:
                         case TOKEN_FLAT_ALPHA:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
+                            // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
+                            // get the current 5th
+                            // recalculate the pitch
+                            // get the new 5th
+                            // swap out the current 5th with the new 5th
                             break;
-                        case TOKEN_CHORD_EXT_ADD_FRAGMENT:
-                            chord_settings["extension_" + extension + "_modifier"] = TOKEN_CHORD_EXT_ADD;
                         default:
                             break;
                     }
