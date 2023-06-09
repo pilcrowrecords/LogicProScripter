@@ -129,12 +129,7 @@ const CHORD_TEMPLATES_LIB = {
         INTERVALS_STN_LIB["3 m3 A2"], 
         INTERVALS_STN_LIB["7 P5 d6"],
     ],
-    "min"    :   [   
-        INTERVALS_STN_LIB["0 P1 d2"], 
-        INTERVALS_STN_LIB["4 M3 d4"], 
-        INTERVALS_STN_LIB["8 m6 A5"],
-    ],
-    "˚"    :   [   
+    "dim"    :   [   
         INTERVALS_STN_LIB["0 P1 d2"], 
         INTERVALS_STN_LIB["3 m3 A2"], 
         INTERVALS_STN_LIB["6 d5 A4 TT"],
@@ -967,7 +962,27 @@ const SCALE = {
 
 
 const TEST_CHORD_STRINGS = [
-    "V13"
+  "I",
+  "ii",
+  "iii",
+  "IV",
+  "V",
+  "vi",
+  "vii˚",
+  "I7",
+  "ii9",
+  "iiiadd9",
+  "IV11",
+  "Vadd11",
+  "vi13",
+  "vii˚add13",
+  "Isus2",
+  "iisus4",
+  "iiib9",
+  "IV#11",
+  "Vb13",
+  "vi#9b11#13",
+  "vii˚/5"
 ];
 
 test();
@@ -975,7 +990,7 @@ test();
 function test() {
     TEST_CHORD_STRINGS.forEach( function ( str ) {
         let chord_pitches = create_chord_from_spelling( str, SCALE, 0 );
-        console.log( JSON.stringify( chord_pitches ) );
+        console.log( str + "\t" + JSON.stringify( chord_pitches ) );
     });
 }
 
@@ -985,6 +1000,12 @@ function get_chord_voice_from_scale( degree, scale, tonic ) {
     while ( degrees <= degree ) {
         scale_index++;
         let pitch = scale[scale_index];
+
+        if ( !pitch ) {
+          console.log( pitch );
+          return null;
+        }
+
         if ( pitch[PITCH_RECORD_KEY_TYPE] != PITCH_TYPE_NONDIATONIC ) {
             degrees++;
         }
@@ -1132,6 +1153,11 @@ function create_chord_from_spelling( str, scale, tonic ) {
 
     let chord_template = CHORD_TEMPLATES_LIB[chord_settings.chord_quality];
 
+    if ( !chord_template ) {
+      console.log( JSON.stringify( chord_settings ) );
+      return pitches;
+    }
+
     chord_template.forEach( function ( interval ) {
         let key = chord_root_midi_pitch + interval
         let pitch = scale[ key ];
@@ -1204,7 +1230,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
                         case TOKEN_SHARP_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
                             let thirteenth_pitch_sharp = get_chord_voice_from_scale( 13, scale, chord_root.midi_pitch );
-                            let interval_sharp = thirteenth_pitch.midi_pitch + 1;
+                            let interval_sharp = thirteenth_pitch_sharp.midi_pitch + 1;
                             thirteenth_pitch_sharp = scale[ chord_root.midi_pitch + interval_sharp ];
                             pitches.push( thirteenth_pitch_sharp );
                             break;
@@ -1212,7 +1238,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
                         case TOKEN_FLAT_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
                             let thirteenth_pitch_flat = get_chord_voice_from_scale( 13, scale, chord_root.midi_pitch );
-                            let interval_flat = thirteenth_pitch.midi_pitch - 1;
+                            let interval_flat = thirteenth_pitch_flat.midi_pitch - 1;
                             thirteenth_pitch_flat = scale[ chord_root.midi_pitch + interval_flat ];
                             pitches.push( thirteenth_pitch_flat );
                             break;
@@ -1252,7 +1278,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
                         case TOKEN_SHARP_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
                             let eleventh_pitch_sharp = get_chord_voice_from_scale( 11, scale, chord_root.midi_pitch );
-                            let interval_sharp = eleventh_pitch.midi_pitch + 1;
+                            let interval_sharp = eleventh_pitch_sharp.midi_pitch + 1;
                             eleventh_pitch_sharp = scale[ chord_root.midi_pitch + interval_sharp ];
                             pitches.push( eleventh_pitch_sharp );
                             break;
@@ -1260,7 +1286,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
                         case TOKEN_FLAT_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
                             let eleventh_pitch_flat = get_chord_voice_from_scale( 11, scale, chord_root.midi_pitch );
-                            let interval_flat = eleventh_pitch.midi_pitch - 1;
+                            let interval_flat = eleventh_pitch_flat.midi_pitch - 1;
                             eleventh_pitch_flat = scale[ chord_root.midi_pitch + interval_flat ];
                             pitches.push( eleventh_pitch_flat );
                             break;
@@ -1295,7 +1321,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
                         case TOKEN_SHARP_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
                             let ninth_pitch_sharp = get_chord_voice_from_scale( 9, scale, chord_root.midi_pitch );
-                            let interval_sharp = ninth_pitch.midi_pitch + 1;
+                            let interval_sharp = ninth_pitch_sharp.midi_pitch + 1;
                             ninth_pitch_sharp = scale[ chord_root.midi_pitch + interval_sharp ];
                             pitches.push( ninth_pitch_sharp );
                             break;
@@ -1303,7 +1329,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
                         case TOKEN_FLAT_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
                             let ninth_pitch_flat = get_chord_voice_from_scale( 9, scale, chord_root.midi_pitch );
-                            let interval_flat = ninth_pitch.midi_pitch - 1;
+                            let interval_flat = ninth_pitch_flat.midi_pitch - 1;
                             ninth_pitch_flat = scale[ chord_root.midi_pitch + interval_flat ];
                             pitches.push( ninth_pitch_flat );
                             break;
@@ -1334,17 +1360,28 @@ function create_chord_from_spelling( str, scale, tonic ) {
                         case TOKEN_SHARP_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_SHARP_MUSIC;
                             // get the current 5th
+                            let fifth_pitch_sharp_curr = ( pitches.splice( 2, 1 ) )[0];
                             // recalculate the pitch
+                            let fifth_pitch_sharp_midi = fifth_pitch_sharp_curr.midi_pitch;
+                            fifth_pitch_sharp_midi += 1;
                             // get the new 5th
+                            let fifth_pitch_sharp_new = scale[ fifth_pitch_sharp_midi ];
                             // swap out the current 5th with the new 5th
+                            pitches.splice( 2, 1, fifth_pitch_sharp_new );
                             break;
                         case TOKEN_FLAT_MUSIC:
                         case TOKEN_FLAT_ALPHA:
                             // chord_settings["extension_" + extension + "_modifier"] = TOKEN_FLAT_MUSIC;
                             // get the current 5th
+                            // get the current 5th
+                            let fifth_pitch_flat_curr = ( pitches.splice( 2, 1 ) )[0];
                             // recalculate the pitch
+                            let fifth_pitch_flat_midi = fifth_pitch_flat_curr.midi_pitch;
+                            fifth_pitch_flat_midi += 1;
                             // get the new 5th
+                            let fifth_pitch_flat_new = scale[ fifth_pitch_flat_midi ];
                             // swap out the current 5th with the new 5th
+                            pitches.splice( 2, 1, fifth_pitch_flat_new );
                             break;
                         default:
                             break;
