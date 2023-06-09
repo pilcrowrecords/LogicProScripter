@@ -25,7 +25,7 @@ Chord symbol syntax
     * natural
 * extensions
     * voice: arabic numbers 1-7
-    * TODO: add: `add'
+    * `add'
     * Accidentals
         * TODO: doubles
 * alt bass: arabic numbers 1-7
