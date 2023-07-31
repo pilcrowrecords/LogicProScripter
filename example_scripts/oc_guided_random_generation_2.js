@@ -874,9 +874,39 @@ const MAP_MAJOR_LEAN_I = {
 	}
 }
 
+const MAP_IONIAN 		= {"START":"I","I":{"5":"I","8":"iii","11":"V","total":11,"weight":5},"ii":{"2":"ii","4":"IV","6":"vi","total":6,"weight":2},"iii":{"3":"iii","6":"V","8":"vii˚","total":8,"weight":3},"IV":{"2":"IV","4":"vi","9":"I","total":9,"weight":2},"V":{"3":"V","5":"vii˚","7":"ii","total":7,"weight":3},"vi":{"2":"vi","7":"I","10":"iii","total":10,"weight":2},"vii˚":{"2":"vii˚","4":"ii","6":"IV","total":6,"weight":2}};
+const MAP_DORIAN 		= {"START":"i","i":{"4":"i","6":"III","8":"v","total":8,"weight":4},"ii":{"3":"ii","6":"IV","9":"vi˚","total":9,"weight":3},"III":{"2":"III","4":"v","6":"VII","total":6,"weight":2},"IV":{"3":"IV","6":"vi˚","10":"i","total":10,"weight":3},"v":{"2":"v","4":"VII","7":"ii","total":7,"weight":2},"vi˚":{"3":"vi˚","7":"i","9":"III","total":9,"weight":3},"VII":{"2":"VII","5":"ii","8":"IV","total":8,"weight":2}};
+const MAP_PHRYGIAN 		= {"START":"i","i":{"4":"i","6":"III","9":"v˚","total":9,"weight":4},"II":{"3":"II","5":"iv","7":"VI","total":7,"weight":3},"III":{"2":"III","5":"v˚","8":"vii","total":8,"weight":2},"iv":{"2":"iv","4":"VI","8":"i","total":8,"weight":2},"v˚":{"3":"v˚","6":"vii","9":"II","total":9,"weight":3},"VI":{"2":"VI","6":"i","8":"III","total":8,"weight":2},"vii":{"3":"vii","6":"II","8":"iv","total":8,"weight":3}}
+const MAP_LYDIAN 		= {"START":"I","I":{"4":"I","6":"iii","8":"V","total":8,"weight":4},"II":{"3":"II","6":"iv˚","8":"vi","total":8,"weight":3},"iii":{"2":"iii","4":"V","7":"vii","total":7,"weight":2},"iv˚":{"3":"iv˚","5":"vi","9":"I","total":9,"weight":3},"V":{"2":"V","5":"vii","8":"II","total":8,"weight":2},"vi":{"2":"vi","6":"I","8":"iii","total":8,"weight":2},"vii":{"3":"vii","6":"II","9":"iv˚","total":9,"weight":3}};
+const MAP_MIXOLYDIAN 	= {"START":"I","I":{"4":"I","7":"iii˚","10":"v","total":10,"weight":4},"ii":{"2":"ii","4":"IV","6":"vi","total":6,"weight":2},"iii˚":{"3":"iii˚","6":"v","9":"VII","total":9,"weight":3},"IV":{"2":"IV","4":"vi","8":"I","total":8,"weight":2},"v":{"3":"v","6":"VII","8":"ii","total":8,"weight":3},"vi":{"2":"vi","6":"I","9":"iii˚","total":9,"weight":2},"VII":{"3":"VII","5":"ii","7":"IV","total":7,"weight":3}};
+const MAP_AEOLIAN 		= {"START":"i","i":{"5":"i","8":"III","11":"v","total":11,"weight":5},"ii˚":{"2":"ii˚","4":"iv","6":"VI","total":6,"weight":2},"III":{"3":"III","6":"v","8":"VII","total":8,"weight":3},"iv":{"2":"iv","4":"VI","9":"i","total":9,"weight":2},"v":{"3":"v","5":"VII","7":"ii˚","total":7,"weight":3},"VI":{"2":"VI","7":"i","10":"III","total":10,"weight":2},"VII":{"2":"VII","4":"ii˚","6":"iv","total":6,"weight":2}};
+const MAP_LOCRIAN 		= {"START":"i˚","i˚":{"5":"i˚","8":"iii","11":"V","total":11,"weight":5},"II":{"2":"II","4":"iv","6":"VI","total":6,"weight":2},"iii":{"3":"iii","6":"V","8":"vii","total":8,"weight":3},"iv":{"2":"iv","4":"VI","9":"i˚","total":9,"weight":2},"V":{"3":"V","5":"vii","7":"II","total":7,"weight":3},"VI":{"2":"VI","7":"i˚","10":"iii","total":10,"weight":2},"vii":{"2":"vii","4":"II","6":"iv","total":6,"weight":2}};
+
+const MAP_IONIAN7 		= {"START":"I7","I7":{"5":"I7","8":"iii7","11":"V7","13":"vii˚7","total":13,"weight":5},"ii7":{"2":"ii7","4":"IV7","7":"vi7","12":"I7","total":12,"weight":2},"iii7":{"3":"iii7","6":"V7","8":"vii˚7","10":"ii7","total":10,"weight":3},"IV7":{"2":"IV7","5":"vi7","10":"I7","13":"iii7","total":13,"weight":2},"V7":{"3":"V7","5":"vii˚7","7":"ii7","9":"IV7","total":9,"weight":3},"vi7":{"3":"vi7","8":"I7","11":"iii7","14":"V7","total":14,"weight":3},"vii˚7":{"2":"vii˚7","4":"ii7","6":"IV7","9":"vi7","total":9,"weight":2}}
+const MAP_DORIAN7 		= {"START":"i7","i7":{"4":"i7","6":"III7","8":"v7","11":"VII7","total":11,"weight":4},"ii7":{"3":"ii7","6":"IV7","9":"vi˚7","13":"i7","total":13,"weight":3},"III7":{"2":"III7","4":"v7","7":"VII7","10":"ii7","total":10,"weight":2},"IV7":{"3":"IV7","6":"vi˚7","10":"i7","12":"III7","total":12,"weight":3},"v7":{"2":"v7","5":"VII7","8":"ii7","11":"IV7","total":11,"weight":2},"vi˚7":{"3":"vi˚7","7":"i7","9":"III7","11":"v7","total":11,"weight":3},"VII7":{"3":"VII7","6":"ii7","9":"IV7","12":"vi˚7","total":12,"weight":3}}
+const MAP_PHRYGIAN7 	= {"START":"i7","i7":{"4":"i7","7":"III7","10":"v˚7","13":"vii7","total":13,"weight":4},"II7":{"3":"II7","5":"iv7","7":"VI7","11":"i7","total":11,"weight":3},"III7":{"3":"III7","6":"v˚7","9":"vii7","12":"II7","total":12,"weight":3},"iv7":{"2":"iv7","4":"VI7","8":"i7","11":"III7","total":11,"weight":2},"v˚7":{"3":"v˚7","6":"vii7","9":"II7","11":"iv7","total":11,"weight":3},"VI7":{"2":"VI7","6":"i7","9":"III7","12":"v˚7","total":12,"weight":2},"vii7":{"3":"vii7","6":"II7","8":"iv7","10":"VI7","total":10,"weight":3}}
+const MAP_LYDIAN7 		= {"START":"I7","I7":{"4":"I7","6":"iii7","9":"V7","12":"vii7","total":12,"weight":4},"II7":{"3":"II7","6":"iv˚7","8":"vi7","12":"I7","total":12,"weight":3},"iii7":{"2":"iii7","5":"V7","8":"vii7","11":"II7","total":11,"weight":2},"iv˚7":{"3":"iv˚7","5":"vi7","9":"I7","11":"iii7","total":11,"weight":3},"V7":{"3":"V7","6":"vii7","9":"II7","12":"iv˚7","total":12,"weight":3},"vi7":{"2":"vi7","6":"I7","8":"iii7","11":"V7","total":11,"weight":2},"vii7":{"3":"vii7","6":"II7","9":"iv˚7","11":"vi7","total":11,"weight":3}}
+const MAP_MIXOLYDIAN7 	= {"START":"I7","I7":{"5":"I7","8":"iii˚7","11":"v7","14":"VII7","total":14,"weight":5},"ii7":{"2":"ii7","4":"IV7","6":"vi7","11":"I7","total":11,"weight":2},"iii˚7":{"3":"iii˚7","6":"v7","9":"VII7","11":"ii7","total":11,"weight":3},"IV7":{"2":"IV7","4":"vi7","9":"I7","12":"iii˚7","total":12,"weight":2},"v7":{"3":"v7","6":"VII7","8":"ii7","10":"IV7","total":10,"weight":3},"vi7":{"2":"vi7","7":"I7","10":"iii˚7","13":"v7","total":13,"weight":2},"VII7":{"3":"VII7","5":"ii7","7":"IV7","9":"vi7","total":9,"weight":3}}
+const MAP_AEOLIAN7 		= {"START":"i7","i7":{"5":"i7","8":"III7","11":"v7","13":"VII7","total":13,"weight":5},"ii˚7":{"2":"ii˚7","4":"iv7","7":"VI7","12":"i7","total":12,"weight":2},"III7":{"3":"III7","6":"v7","8":"VII7","10":"ii˚7","total":10,"weight":3},"iv7":{"2":"iv7","5":"VI7","10":"i7","13":"III7","total":13,"weight":2},"v7":{"3":"v7","5":"VII7","7":"ii˚7","9":"iv7","total":9,"weight":3},"VI7":{"3":"VI7","8":"i7","11":"III7","14":"v7","total":14,"weight":3},"VII7":{"2":"VII7","4":"ii˚7","6":"iv7","9":"VI7","total":9,"weight":2}}
+const MAP_LOCRIAN7 		= {"START":"i˚7","i˚7":{"5":"i˚7","8":"iii7","11":"V7","13":"vii7","total":13,"weight":5},"II7":{"2":"II7","4":"iv7","7":"VI7","12":"i˚7","total":12,"weight":2},"iii7":{"3":"iii7","6":"V7","8":"vii7","10":"II7","total":10,"weight":3},"iv7":{"2":"iv7","5":"VI7","10":"i˚7","13":"iii7","total":13,"weight":2},"V7":{"3":"V7","5":"vii7","7":"II7","9":"iv7","total":9,"weight":3},"VI7":{"3":"VI7","8":"i˚7","11":"iii7","14":"V7","total":14,"weight":3},"vii7":{"2":"vii7","4":"II7","6":"iv7","9":"VI7","total":9,"weight":2}}
+
 const PROGRESSION_MAPS = {
   "Major Full" : MAP_MAJOR_FULL,
-  "Major Lean I" : MAP_MAJOR_LEAN_I
+  "Major Lean I" : MAP_MAJOR_LEAN_I,
+  "Ionian [ I, ii, iii, IV, V, vi, vii˚ ]" : MAP_IONIAN,
+  "Dorian [ i, ii, III, IV, v, vi˚, VII ]" : MAP_DORIAN,
+  "Phrygian [ i, II, III, iv, v˚, VI, vii ]" : MAP_PHRYGIAN,
+  "Lydian [ I, II, iii, iv˚, V, vi, vii ]" : MAP_LYDIAN,
+  "Mixolydian [ I, ii, iii˚, IV, v, vi, VII ]" : MAP_MIXOLYDIAN,
+  "Aeolien [ i, ii˚,III, iv, v, VI, VII ]" : MAP_AEOLIAN,
+  "Locrian [ i˚, II, iii, iv, V, VI, vii ]" : MAP_LOCRIAN,
+  "Ionian 7 [ I7, ii7, iii7, IV7, V7, vi7, vii˚7 ]" : MAP_IONIAN7,
+  "Dorian 7 [ i7, ii7, III7, IV7, v7, vi˚7, VII7 ]" : MAP_DORIAN7,
+  "Phrygian 7 [ i7, II7, III7, iv7, v˚7, VI7, vii7 ]" : MAP_PHRYGIAN7,
+  "Lydian 7 [ I7, II7, iii7, iv˚7, V7, vi7, vii7 ]" : MAP_LYDIAN7,
+  "Mixolydian 7 [ I7, ii7, iii˚7, IV7, v7, vi7, VII7 ]" : MAP_MIXOLYDIAN7,
+  "Aeolien 7 [ i7, ii˚7,III7, iv7, v7, VI7, VII7 ]" : MAP_AEOLIAN7,
+  "Locrian 7 [ i˚7, II7, iii7, iv7, V7, VI7, vii7 ]" : MAP_LOCRIAN7
 };
 
 const PROGRESSION_MAP_KEYS = Object.keys( PROGRESSION_MAPS );
@@ -1033,7 +1063,7 @@ var PARAM_CHORD_PLAY_LENGTH = NOTE_LENGTHS_LIB[NOTE_LENGTH_KEYS[21]];
 var MAP_LAST_SELECTION = "";
 var MAP_STARTED = false;
 
-var MAP = MAP_MAJOR_LEAN_I;
+// var MAP = MAP_MAJOR_LEAN_I;
 var SCALE = calculate_scale_pitches( PARAM_SCALE_ROOT , 0 );
 
 // the trigger variable is where the next note (or rest) is to be played
@@ -1042,7 +1072,7 @@ var SCALE = calculate_scale_pitches( PARAM_SCALE_ROOT , 0 );
 // cursor is handled locally because only the current process block matters while playing
 const RESET_VALUE = -1.0;
 var TRIGGER = RESET_VALUE;
-const CURSOR_INCREMENT = 0.001; // smallest note length = 0.125
+const CURSOR_INCREMENT = 0.00001; // smallest note length = 0.125
 
 // currently set up to only track one played note at a time.
 var ACTIVE_RGEN_NOTES = [];
@@ -1151,18 +1181,18 @@ function ProcessMIDI() {
             let iteration_selection = "";
 
 			if ( !MAP_STARTED ) {
-				iteration_key = MAP["START"];
-                pool = MAP[ iteration_key ];
+				iteration_key = PARAM_MAP["START"];
+                pool = PARAM_MAP[ iteration_key ];
                 // select a pitch from the pool
                 iteration_selection = getRandomValueFromWeightPool( pool );
                 MAP_LAST_SELECTION = iteration_selection;
                 MAP_STARTED = true;
 			} else {
 				iteration_key = MAP_LAST_SELECTION;
-                pool = MAP[ iteration_key ];
+                pool = PARAM_MAP[ iteration_key ];
                 if ( !pool ) {
                     iteration_key = CHAIN["START"];
-                    pool = MAP[ iteration_key ];
+                    pool = PARAM_MAP[ iteration_key ];
                 }
                 iteration_selection = getRandomValueFromWeightPool( pool );
                 MAP_LAST_SELECTION = iteration_selection;
@@ -1255,6 +1285,7 @@ function ProcessMIDI() {
 
 function ParameterChanged( param , value ) {
 	if ( UPDATING_CONTROLS ) {
+		Trace("Updating controls");
 		return;
 	}
 	switch (param) {
@@ -1287,13 +1318,13 @@ function ParameterChanged( param , value ) {
 			CHORD_VOICE_SETTINGS = CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[value]];
 			// changes will happen on next chord calc
 			Trace(CHORD_VOICE_OPTIONS_KEYS[value]);
-			UPDATING_CONTROLS = true;
+			// UPDATING_CONTROLS = true;
 			let cursor = 6;
 			CHORD_VOICE_MODIFIER_KEYS.forEach( function ( voice_key ) {
 				SetParameter( cursor, CHORD_VOICE_SETTINGS[ voice_key ] );
 				cursor++;
 			});
-			UPDATING_CONTROLS = false;
+			// UPDATING_CONTROLS = false;
 		break;
 
 		case 6:
