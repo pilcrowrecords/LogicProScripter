@@ -145,7 +145,7 @@ var pitchBendMax = PITCHBEND_SHIFT_DEF;
 
 const PITCHBEND_EVENT_TRIGGER_VALUES = ["One New NoteOn", "On New Process Block", "On Both New NoteOn and ProcessBlock"];
 const PITCHBEND_EVENT_TRIGGER_PCNAME = "PitchBend Event Triggers";
-const pitchBendEventValue = 0;
+var pitchBendEventValue = 0;
 
 const PITCHBEND_PROB_PCNAME = "PitchBend % Chance";
 var pitchBendProb = PROBABILITY_SLIDER_DEF;
@@ -166,7 +166,7 @@ function HandleMIDI( event ) {
 		
 	}
 	
-	if ( pitchBendEventValue = 0 || pitchBendEventValue == 2 ) {
+	if ( pitchBendEventValue == 0 || pitchBendEventValue == 2 ) {
 		var pitchBendValue = getRandomPitchBend();
 		if ( pitchBendValue != 0 ) {
 			var pitchBend = new PitchBend();
@@ -184,7 +184,7 @@ function ProcessMIDI() {
 	var timingInfo = GetTimingInfo();
 	if ( timingInfo.playing ) {
 	
-		if ( pitchBendEventValue = 1 || pitchBendEventValue == 2 ) {
+		if ( pitchBendEventValue == 1 || pitchBendEventValue == 2 ) {
 		var pitchBendValue = getRandomPitchBend();
 		if ( pitchBendValue != 0 ) {
 			var pitchBend = new PitchBend();
