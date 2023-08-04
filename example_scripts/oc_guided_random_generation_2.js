@@ -874,39 +874,52 @@ const MAP_MAJOR_LEAN_I = {
 	}
 }
 
-const MAP_IONIAN 		= {"START":"I","I":{"5":"I","8":"iii","11":"V","total":11,"weight":5},"ii":{"2":"ii","4":"IV","6":"vi","total":6,"weight":2},"iii":{"3":"iii","6":"V","8":"vii˚","total":8,"weight":3},"IV":{"2":"IV","4":"vi","9":"I","total":9,"weight":2},"V":{"3":"V","5":"vii˚","7":"ii","total":7,"weight":3},"vi":{"2":"vi","7":"I","10":"iii","total":10,"weight":2},"vii˚":{"2":"vii˚","4":"ii","6":"IV","total":6,"weight":2}};
-const MAP_DORIAN 		= {"START":"i","i":{"4":"i","6":"III","8":"v","total":8,"weight":4},"ii":{"3":"ii","6":"IV","9":"vi˚","total":9,"weight":3},"III":{"2":"III","4":"v","6":"VII","total":6,"weight":2},"IV":{"3":"IV","6":"vi˚","10":"i","total":10,"weight":3},"v":{"2":"v","4":"VII","7":"ii","total":7,"weight":2},"vi˚":{"3":"vi˚","7":"i","9":"III","total":9,"weight":3},"VII":{"2":"VII","5":"ii","8":"IV","total":8,"weight":2}};
-const MAP_PHRYGIAN 		= {"START":"i","i":{"4":"i","6":"III","9":"v˚","total":9,"weight":4},"II":{"3":"II","5":"iv","7":"VI","total":7,"weight":3},"III":{"2":"III","5":"v˚","8":"vii","total":8,"weight":2},"iv":{"2":"iv","4":"VI","8":"i","total":8,"weight":2},"v˚":{"3":"v˚","6":"vii","9":"II","total":9,"weight":3},"VI":{"2":"VI","6":"i","8":"III","total":8,"weight":2},"vii":{"3":"vii","6":"II","8":"iv","total":8,"weight":3}}
-const MAP_LYDIAN 		= {"START":"I","I":{"4":"I","6":"iii","8":"V","total":8,"weight":4},"II":{"3":"II","6":"iv˚","8":"vi","total":8,"weight":3},"iii":{"2":"iii","4":"V","7":"vii","total":7,"weight":2},"iv˚":{"3":"iv˚","5":"vi","9":"I","total":9,"weight":3},"V":{"2":"V","5":"vii","8":"II","total":8,"weight":2},"vi":{"2":"vi","6":"I","8":"iii","total":8,"weight":2},"vii":{"3":"vii","6":"II","9":"iv˚","total":9,"weight":3}};
-const MAP_MIXOLYDIAN 	= {"START":"I","I":{"4":"I","7":"iii˚","10":"v","total":10,"weight":4},"ii":{"2":"ii","4":"IV","6":"vi","total":6,"weight":2},"iii˚":{"3":"iii˚","6":"v","9":"VII","total":9,"weight":3},"IV":{"2":"IV","4":"vi","8":"I","total":8,"weight":2},"v":{"3":"v","6":"VII","8":"ii","total":8,"weight":3},"vi":{"2":"vi","6":"I","9":"iii˚","total":9,"weight":2},"VII":{"3":"VII","5":"ii","7":"IV","total":7,"weight":3}};
-const MAP_AEOLIAN 		= {"START":"i","i":{"5":"i","8":"III","11":"v","total":11,"weight":5},"ii˚":{"2":"ii˚","4":"iv","6":"VI","total":6,"weight":2},"III":{"3":"III","6":"v","8":"VII","total":8,"weight":3},"iv":{"2":"iv","4":"VI","9":"i","total":9,"weight":2},"v":{"3":"v","5":"VII","7":"ii˚","total":7,"weight":3},"VI":{"2":"VI","7":"i","10":"III","total":10,"weight":2},"VII":{"2":"VII","4":"ii˚","6":"iv","total":6,"weight":2}};
-const MAP_LOCRIAN 		= {"START":"i˚","i˚":{"5":"i˚","8":"iii","11":"V","total":11,"weight":5},"II":{"2":"II","4":"iv","6":"VI","total":6,"weight":2},"iii":{"3":"iii","6":"V","8":"vii","total":8,"weight":3},"iv":{"2":"iv","4":"VI","9":"i˚","total":9,"weight":2},"V":{"3":"V","5":"vii","7":"II","total":7,"weight":3},"VI":{"2":"VI","7":"i˚","10":"iii","total":10,"weight":2},"vii":{"2":"vii","4":"II","6":"iv","total":6,"weight":2}};
-
-const MAP_IONIAN7 		= {"START":"I7","I7":{"5":"I7","8":"iii7","11":"V7","13":"vii˚7","total":13,"weight":5},"ii7":{"2":"ii7","4":"IV7","7":"vi7","12":"I7","total":12,"weight":2},"iii7":{"3":"iii7","6":"V7","8":"vii˚7","10":"ii7","total":10,"weight":3},"IV7":{"2":"IV7","5":"vi7","10":"I7","13":"iii7","total":13,"weight":2},"V7":{"3":"V7","5":"vii˚7","7":"ii7","9":"IV7","total":9,"weight":3},"vi7":{"3":"vi7","8":"I7","11":"iii7","14":"V7","total":14,"weight":3},"vii˚7":{"2":"vii˚7","4":"ii7","6":"IV7","9":"vi7","total":9,"weight":2}}
-const MAP_DORIAN7 		= {"START":"i7","i7":{"4":"i7","6":"III7","8":"v7","11":"VII7","total":11,"weight":4},"ii7":{"3":"ii7","6":"IV7","9":"vi˚7","13":"i7","total":13,"weight":3},"III7":{"2":"III7","4":"v7","7":"VII7","10":"ii7","total":10,"weight":2},"IV7":{"3":"IV7","6":"vi˚7","10":"i7","12":"III7","total":12,"weight":3},"v7":{"2":"v7","5":"VII7","8":"ii7","11":"IV7","total":11,"weight":2},"vi˚7":{"3":"vi˚7","7":"i7","9":"III7","11":"v7","total":11,"weight":3},"VII7":{"3":"VII7","6":"ii7","9":"IV7","12":"vi˚7","total":12,"weight":3}}
-const MAP_PHRYGIAN7 	= {"START":"i7","i7":{"4":"i7","7":"III7","10":"v˚7","13":"vii7","total":13,"weight":4},"II7":{"3":"II7","5":"iv7","7":"VI7","11":"i7","total":11,"weight":3},"III7":{"3":"III7","6":"v˚7","9":"vii7","12":"II7","total":12,"weight":3},"iv7":{"2":"iv7","4":"VI7","8":"i7","11":"III7","total":11,"weight":2},"v˚7":{"3":"v˚7","6":"vii7","9":"II7","11":"iv7","total":11,"weight":3},"VI7":{"2":"VI7","6":"i7","9":"III7","12":"v˚7","total":12,"weight":2},"vii7":{"3":"vii7","6":"II7","8":"iv7","10":"VI7","total":10,"weight":3}}
-const MAP_LYDIAN7 		= {"START":"I7","I7":{"4":"I7","6":"iii7","9":"V7","12":"vii7","total":12,"weight":4},"II7":{"3":"II7","6":"iv˚7","8":"vi7","12":"I7","total":12,"weight":3},"iii7":{"2":"iii7","5":"V7","8":"vii7","11":"II7","total":11,"weight":2},"iv˚7":{"3":"iv˚7","5":"vi7","9":"I7","11":"iii7","total":11,"weight":3},"V7":{"3":"V7","6":"vii7","9":"II7","12":"iv˚7","total":12,"weight":3},"vi7":{"2":"vi7","6":"I7","8":"iii7","11":"V7","total":11,"weight":2},"vii7":{"3":"vii7","6":"II7","9":"iv˚7","11":"vi7","total":11,"weight":3}}
-const MAP_MIXOLYDIAN7 	= {"START":"I7","I7":{"5":"I7","8":"iii˚7","11":"v7","14":"VII7","total":14,"weight":5},"ii7":{"2":"ii7","4":"IV7","6":"vi7","11":"I7","total":11,"weight":2},"iii˚7":{"3":"iii˚7","6":"v7","9":"VII7","11":"ii7","total":11,"weight":3},"IV7":{"2":"IV7","4":"vi7","9":"I7","12":"iii˚7","total":12,"weight":2},"v7":{"3":"v7","6":"VII7","8":"ii7","10":"IV7","total":10,"weight":3},"vi7":{"2":"vi7","7":"I7","10":"iii˚7","13":"v7","total":13,"weight":2},"VII7":{"3":"VII7","5":"ii7","7":"IV7","9":"vi7","total":9,"weight":3}}
-const MAP_AEOLIAN7 		= {"START":"i7","i7":{"5":"i7","8":"III7","11":"v7","13":"VII7","total":13,"weight":5},"ii˚7":{"2":"ii˚7","4":"iv7","7":"VI7","12":"i7","total":12,"weight":2},"III7":{"3":"III7","6":"v7","8":"VII7","10":"ii˚7","total":10,"weight":3},"iv7":{"2":"iv7","5":"VI7","10":"i7","13":"III7","total":13,"weight":2},"v7":{"3":"v7","5":"VII7","7":"ii˚7","9":"iv7","total":9,"weight":3},"VI7":{"3":"VI7","8":"i7","11":"III7","14":"v7","total":14,"weight":3},"VII7":{"2":"VII7","4":"ii˚7","6":"iv7","9":"VI7","total":9,"weight":2}}
-const MAP_LOCRIAN7 		= {"START":"i˚7","i˚7":{"5":"i˚7","8":"iii7","11":"V7","13":"vii7","total":13,"weight":5},"II7":{"2":"II7","4":"iv7","7":"VI7","12":"i˚7","total":12,"weight":2},"iii7":{"3":"iii7","6":"V7","8":"vii7","10":"II7","total":10,"weight":3},"iv7":{"2":"iv7","5":"VI7","10":"i˚7","13":"iii7","total":13,"weight":2},"V7":{"3":"V7","5":"vii7","7":"II7","9":"iv7","total":9,"weight":3},"VI7":{"3":"VI7","8":"i˚7","11":"iii7","14":"V7","total":14,"weight":3},"vii7":{"2":"vii7","4":"II7","6":"iv7","9":"VI7","total":9,"weight":2}}
+const MAP_IONIAN_TRIAD 			= {"START":"I","I":{"1":"I","4":"iii","13":"V","total":13,"weight":4},"ii":{"1":"ii","3":"IV","5":"vi","total":5,"weight":2},"iii":{"1":"iii","4":"V","6":"vii˚","total":6,"weight":3},"IV":{"1":"IV","3":"vi","13":"I","total":13,"weight":2},"V":{"1":"V","3":"vii˚","5":"ii","total":5,"weight":3},"vi":{"1":"vi","5":"I","8":"iii","total":8,"weight":2},"vii˚":{"1":"vii˚","3":"ii","5":"IV","total":5,"weight":2}}
+const MAP_DORIAN_TRIAD 			= {"START":"i","i":{"1":"i","3":"III","5":"v","total":5,"weight":3},"ii":{"1":"ii","4":"IV","13":"vi˚","total":13,"weight":3},"III":{"1":"III","3":"v","5":"VII","total":5,"weight":2},"IV":{"1":"IV","4":"vi˚","13":"i","total":13,"weight":3},"v":{"1":"v","3":"VII","6":"ii","total":6,"weight":2},"vi˚":{"1":"vi˚","4":"i","6":"III","total":6,"weight":3},"VII":{"1":"VII","4":"ii","13":"IV","total":13,"weight":2}}
+const MAP_PHRYGIAN_TRIAD 		= {"START":"i","i":{"1":"i","3":"III","6":"v˚","total":6,"weight":3},"II":{"1":"II","3":"iv","5":"VI","total":5,"weight":3},"III":{"1":"III","4":"v˚","13":"vii","total":13,"weight":2},"iv":{"1":"iv","3":"VI","6":"i","total":6,"weight":2},"v˚":{"1":"v˚","4":"vii","13":"II","total":13,"weight":3},"VI":{"1":"VI","4":"i","6":"III","total":6,"weight":2},"vii":{"1":"vii","4":"II","6":"iv","total":6,"weight":3}}
+const MAP_LYDIAN_TRIAD 			= {"START":"I","I":{"1":"I","3":"iii","5":"V","total":5,"weight":3},"II":{"1":"II","4":"iv˚","6":"vi","total":6,"weight":3},"iii":{"1":"iii","3":"V","6":"vii","total":6,"weight":2},"iv˚":{"1":"iv˚","3":"vi","6":"I","total":6,"weight":3},"V":{"1":"V","4":"vii","13":"II","total":13,"weight":2},"vi":{"1":"vi","4":"I","6":"iii","total":6,"weight":2},"vii":{"1":"vii","4":"II","13":"iv˚","total":13,"weight":3}}
+const MAP_MIXOLYDIAN_TRIAD 		= {"START":"I","I":{"1":"I","4":"iii˚","13":"v","total":13,"weight":3},"ii":{"1":"ii","3":"IV","5":"vi","total":5,"weight":2},"iii˚":{"1":"iii˚","4":"v","13":"VII","total":13,"weight":3},"IV":{"1":"IV","3":"vi","6":"I","total":6,"weight":2},"v":{"1":"v","4":"VII","6":"ii","total":6,"weight":3},"vi":{"1":"vi","4":"I","13":"iii˚","total":13,"weight":2},"VII":{"1":"VII","3":"ii","5":"IV","total":5,"weight":3}}
+const MAP_AEOLIAN_TRIAD 		= {"START":"i","i":{"1":"i","4":"III","13":"v","total":13,"weight":4},"ii˚":{"1":"ii˚","3":"iv","5":"VI","total":5,"weight":2},"III":{"1":"III","4":"v","6":"VII","total":6,"weight":3},"iv":{"1":"iv","3":"VI","13":"i","total":13,"weight":2},"v":{"1":"v","3":"VII","5":"ii˚","total":5,"weight":3},"VI":{"1":"VI","5":"i","8":"III","total":8,"weight":2},"VII":{"1":"VII","3":"ii˚","5":"iv","total":5,"weight":2}}
+const MAP_LOCRIAN_TRIAD 		= {"START":"i˚","i˚":{"1":"i˚","4":"iii","13":"V","total":13,"weight":4},"II":{"1":"II","3":"iv","5":"VI","total":5,"weight":2},"iii":{"1":"iii","4":"V","6":"vii","total":6,"weight":3},"iv":{"1":"iv","3":"VI","13":"i˚","total":13,"weight":2},"V":{"1":"V","3":"vii","5":"II","total":5,"weight":3},"VI":{"1":"VI","5":"i˚","8":"iii","total":8,"weight":2},"vii":{"1":"vii","3":"II","5":"iv","total":5,"weight":2}}
+const MAP_IONIAN_7 				= {"START":"I7","I7":{"1":"I7","4":"iii7","7":"V7","9":"vii˚7","total":9,"weight":4},"ii7":{"1":"ii7","3":"IV7","6":"vi7","10":"I7","total":10,"weight":2},"iii7":{"1":"iii7","4":"V7","6":"vii˚7","8":"ii7","total":8,"weight":3},"IV7":{"1":"IV7","4":"vi7","8":"I7","11":"iii7","total":11,"weight":2},"V7":{"1":"V7","3":"vii˚7","5":"ii7","7":"IV7","total":7,"weight":3},"vi7":{"1":"vi7","5":"I7","8":"iii7","11":"V7","total":11,"weight":3},"vii˚7":{"1":"vii˚7","3":"ii7","5":"IV7","8":"vi7","total":8,"weight":2}}
+const MAP_DORIAN_7 				= {"START":"i7","i7":{"1":"i7","3":"III7","5":"v7","8":"VII7","total":8,"weight":3},"ii7":{"1":"ii7","4":"IV7","7":"vi˚7","10":"i7","total":10,"weight":3},"III7":{"1":"III7","3":"v7","6":"VII7","9":"ii7","total":9,"weight":2},"IV7":{"1":"IV7","4":"vi˚7","7":"i7","9":"III7","total":9,"weight":3},"v7":{"1":"v7","4":"VII7","7":"ii7","10":"IV7","total":10,"weight":2},"vi˚7":{"1":"vi˚7","4":"i7","6":"III7","8":"v7","total":8,"weight":3},"VII7":{"1":"VII7","4":"ii7","7":"IV7","10":"vi˚7","total":10,"weight":3}}
+const MAP_PHRYGIAN_7 			= {"START":"i7","i7":{"1":"i7","4":"III7","7":"v˚7","10":"vii7","total":10,"weight":3},"II7":{"1":"II7","3":"iv7","5":"VI7","8":"i7","total":8,"weight":3},"III7":{"1":"III7","4":"v˚7","7":"vii7","10":"II7","total":10,"weight":3},"iv7":{"1":"iv7","3":"VI7","6":"i7","9":"III7","total":9,"weight":2},"v˚7":{"1":"v˚7","4":"vii7","7":"II7","9":"iv7","total":9,"weight":3},"VI7":{"1":"VI7","4":"i7","7":"III7","10":"v˚7","total":10,"weight":2},"vii7":{"1":"vii7","4":"II7","6":"iv7","8":"VI7","total":8,"weight":3}}
+const MAP_LYDIAN_7 				= {"START":"I7","I7":{"1":"I7","3":"iii7","6":"V7","9":"vii7","total":9,"weight":3},"II7":{"1":"II7","4":"iv˚7","6":"vi7","9":"I7","total":9,"weight":3},"iii7":{"1":"iii7","4":"V7","7":"vii7","10":"II7","total":10,"weight":2},"iv˚7":{"1":"iv˚7","3":"vi7","6":"I7","8":"iii7","total":8,"weight":3},"V7":{"1":"V7","4":"vii7","7":"II7","10":"iv˚7","total":10,"weight":3},"vi7":{"1":"vi7","4":"I7","6":"iii7","9":"V7","total":9,"weight":2},"vii7":{"1":"vii7","4":"II7","7":"iv˚7","9":"vi7","total":9,"weight":3}}
+const MAP_MIXOLYDIAN_7 			= {"START":"I7","I7":{"1":"I7","4":"iii˚7","7":"v7","10":"VII7","total":10,"weight":4},"ii7":{"1":"ii7","3":"IV7","5":"vi7","9":"I7","total":9,"weight":2},"iii˚7":{"1":"iii˚7","4":"v7","7":"VII7","9":"ii7","total":9,"weight":3},"IV7":{"1":"IV7","3":"vi7","7":"I7","10":"iii˚7","total":10,"weight":2},"v7":{"1":"v7","4":"VII7","6":"ii7","8":"IV7","total":8,"weight":3},"vi7":{"1":"vi7","5":"I7","8":"iii˚7","11":"v7","total":11,"weight":2},"VII7":{"1":"VII7","3":"ii7","5":"IV7","7":"vi7","total":7,"weight":3}}
+const MAP_AEOLIAN_7 			= {"START":"i7","i7":{"1":"i7","4":"III7","7":"v7","9":"VII7","total":9,"weight":4},"ii˚7":{"1":"ii˚7","3":"iv7","6":"VI7","10":"i7","total":10,"weight":2},"III7":{"1":"III7","4":"v7","6":"VII7","8":"ii˚7","total":8,"weight":3},"iv7":{"1":"iv7","4":"VI7","8":"i7","11":"III7","total":11,"weight":2},"v7":{"1":"v7","3":"VII7","5":"ii˚7","7":"iv7","total":7,"weight":3},"VI7":{"1":"VI7","5":"i7","8":"III7","11":"v7","total":11,"weight":3},"VII7":{"1":"VII7","3":"ii˚7","5":"iv7","8":"VI7","total":8,"weight":2}}
+const MAP_LOCRIAN_7 			= {"START":"i˚7","i˚7":{"1":"i˚7","4":"iii7","7":"V7","9":"vii7","total":9,"weight":4},"II7":{"1":"II7","3":"iv7","6":"VI7","10":"i˚7","total":10,"weight":2},"iii7":{"1":"iii7","4":"V7","6":"vii7","8":"II7","total":8,"weight":3},"iv7":{"1":"iv7","4":"VI7","8":"i˚7","11":"iii7","total":11,"weight":2},"V7":{"1":"V7","3":"vii7","5":"II7","7":"iv7","total":7,"weight":3},"VI7":{"1":"VI7","5":"i˚7","8":"iii7","11":"V7","total":11,"weight":3},"vii7":{"1":"vii7","3":"II7","5":"iv7","8":"VI7","total":8,"weight":2}}
+const MAP_IONIAN_7_13			= {"START":"I13","I13":{"1":"I13","4":"iii13","7":"V13","9":"vii˚13","total":9,"weight":4},"ii13":{"1":"ii13","3":"IV13","6":"vi13","10":"I13","total":10,"weight":2},"iii13":{"1":"iii13","4":"V13","6":"vii˚13","8":"ii13","total":8,"weight":3},"IV13":{"1":"IV13","4":"vi13","8":"I13","11":"iii13","total":11,"weight":2},"V13":{"1":"V13","3":"vii˚13","5":"ii13","7":"IV13","total":7,"weight":3},"vi13":{"1":"vi13","5":"I13","8":"iii13","11":"V13","total":11,"weight":3},"vii˚13":{"1":"vii˚13","3":"ii13","5":"IV13","8":"vi13","total":8,"weight":2}}
+const MAP_DORIAN_7_13			= {"START":"i13","i13":{"1":"i13","3":"III13","5":"v13","8":"VII13","total":8,"weight":3},"ii13":{"1":"ii13","4":"IV13","7":"vi˚13","10":"i13","total":10,"weight":3},"III13":{"1":"III13","3":"v13","6":"VII13","9":"ii13","total":9,"weight":2},"IV13":{"1":"IV13","4":"vi˚13","7":"i13","9":"III13","total":9,"weight":3},"v13":{"1":"v13","4":"VII13","7":"ii13","10":"IV13","total":10,"weight":2},"vi˚13":{"1":"vi˚13","4":"i13","6":"III13","8":"v13","total":8,"weight":3},"VII13":{"1":"VII13","4":"ii13","7":"IV13","10":"vi˚13","total":10,"weight":3}}
+const MAP_PHRYGIAN_7_13			= {"START":"i13","i13":{"1":"i13","4":"III13","7":"v˚13","10":"vii13","total":10,"weight":3},"II13":{"1":"II13","3":"iv13","5":"VI13","8":"i13","total":8,"weight":3},"III13":{"1":"III13","4":"v˚13","7":"vii13","10":"II13","total":10,"weight":3},"iv13":{"1":"iv13","3":"VI13","6":"i13","9":"III13","total":9,"weight":2},"v˚13":{"1":"v˚13","4":"vii13","7":"II13","9":"iv13","total":9,"weight":3},"VI13":{"1":"VI13","4":"i13","7":"III13","10":"v˚13","total":10,"weight":2},"vii13":{"1":"vii13","4":"II13","6":"iv13","8":"VI13","total":8,"weight":3}}
+const MAP_LYDIAN_7_13			= {"START":"I13","I13":{"1":"I13","3":"iii13","6":"V13","9":"vii13","total":9,"weight":3},"II13":{"1":"II13","4":"iv˚13","6":"vi13","9":"I13","total":9,"weight":3},"iii13":{"1":"iii13","4":"V13","7":"vii13","10":"II13","total":10,"weight":2},"iv˚13":{"1":"iv˚13","3":"vi13","6":"I13","8":"iii13","total":8,"weight":3},"V13":{"1":"V13","4":"vii13","7":"II13","10":"iv˚13","total":10,"weight":3},"vi13":{"1":"vi13","4":"I13","6":"iii13","9":"V13","total":9,"weight":2},"vii13":{"1":"vii13","4":"II13","7":"iv˚13","9":"vi13","total":9,"weight":3}}
+const MAP_MIXOLYDIAN_7_13 		= {"START":"I13","I13":{"1":"I13","4":"iii˚13","7":"v13","10":"VII13","total":10,"weight":4},"ii13":{"1":"ii13","3":"IV13","5":"vi13","9":"I13","total":9,"weight":2},"iii˚13":{"1":"iii˚13","4":"v13","7":"VII13","9":"ii13","total":9,"weight":3},"IV13":{"1":"IV13","3":"vi13","7":"I13","10":"iii˚13","total":10,"weight":2},"v13":{"1":"v13","4":"VII13","6":"ii13","8":"IV13","total":8,"weight":3},"vi13":{"1":"vi13","5":"I13","8":"iii˚13","11":"v13","total":11,"weight":2},"VII13":{"1":"VII13","3":"ii13","5":"IV13","7":"vi13","total":7,"weight":3}}
+const MAP_AEOLIAN_7_13			= {"START":"i13","i13":{"1":"i13","4":"III13","7":"v13","9":"VII13","total":9,"weight":4},"ii˚13":{"1":"ii˚13","3":"iv13","6":"VI13","10":"i13","total":10,"weight":2},"III13":{"1":"III13","4":"v13","6":"VII13","8":"ii˚13","total":8,"weight":3},"iv13":{"1":"iv13","4":"VI13","8":"i13","11":"III13","total":11,"weight":2},"v13":{"1":"v13","3":"VII13","5":"ii˚13","7":"iv13","total":7,"weight":3},"VI13":{"1":"VI13","5":"i13","8":"III13","11":"v13","total":11,"weight":3},"VII13":{"1":"VII13","3":"ii˚13","5":"iv13","8":"VI13","total":8,"weight":2}}
+const MAP_LOCRIAN_7_13			= {"START":"i˚13","i˚13":{"1":"i˚13","4":"iii13","7":"V13","9":"vii13","total":9,"weight":4},"II13":{"1":"II13","3":"iv13","6":"VI13","10":"i˚13","total":10,"weight":2},"iii13":{"1":"iii13","4":"V13","6":"vii13","8":"II13","total":8,"weight":3},"iv13":{"1":"iv13","4":"VI13","8":"i˚13","11":"iii13","total":11,"weight":2},"V13":{"1":"V13","3":"vii13","5":"II13","7":"iv13","total":7,"weight":3},"VI13":{"1":"VI13","5":"i˚13","8":"iii13","11":"V13","total":11,"weight":3},"vii13":{"1":"vii13","3":"II13","5":"iv13","8":"VI13","total":8,"weight":2}}
 
 const PROGRESSION_MAPS = {
   "Major Full" : MAP_MAJOR_FULL,
   "Major Lean I" : MAP_MAJOR_LEAN_I,
-  "Ionian [ I, ii, iii, IV, V, vi, vii˚ ]" : MAP_IONIAN,
-  "Dorian [ i, ii, III, IV, v, vi˚, VII ]" : MAP_DORIAN,
-  "Phrygian [ i, II, III, iv, v˚, VI, vii ]" : MAP_PHRYGIAN,
-  "Lydian [ I, II, iii, iv˚, V, vi, vii ]" : MAP_LYDIAN,
-  "Mixolydian [ I, ii, iii˚, IV, v, vi, VII ]" : MAP_MIXOLYDIAN,
-  "Aeolien [ i, ii˚,III, iv, v, VI, VII ]" : MAP_AEOLIAN,
-  "Locrian [ i˚, II, iii, iv, V, VI, vii ]" : MAP_LOCRIAN,
-  "Ionian 7 [ I7, ii7, iii7, IV7, V7, vi7, vii˚7 ]" : MAP_IONIAN7,
-  "Dorian 7 [ i7, ii7, III7, IV7, v7, vi˚7, VII7 ]" : MAP_DORIAN7,
-  "Phrygian 7 [ i7, II7, III7, iv7, v˚7, VI7, vii7 ]" : MAP_PHRYGIAN7,
-  "Lydian 7 [ I7, II7, iii7, iv˚7, V7, vi7, vii7 ]" : MAP_LYDIAN7,
-  "Mixolydian 7 [ I7, ii7, iii˚7, IV7, v7, vi7, VII7 ]" : MAP_MIXOLYDIAN7,
-  "Aeolien 7 [ i7, ii˚7,III7, iv7, v7, VI7, VII7 ]" : MAP_AEOLIAN7,
-  "Locrian 7 [ i˚7, II7, iii7, iv7, V7, VI7, vii7 ]" : MAP_LOCRIAN7
+  "Ionian [ I, ii, iii, IV, V, vi, vii˚ ]" : MAP_IONIAN_TRIAD,
+  "Dorian [ i, ii, III, IV, v, vi˚, VII ]" : MAP_DORIAN_TRIAD,
+  "Phrygian [ i, II, III, iv, v˚, VI, vii ]" : MAP_PHRYGIAN_TRIAD,
+  "Lydian [ I, II, iii, iv˚, V, vi, vii ]" : MAP_LYDIAN_TRIAD,
+  "Mixolydian [ I, ii, iii˚, IV, v, vi, VII ]" : MAP_MIXOLYDIAN_TRIAD,
+  "Aeolian [ i, ii˚,III, iv, v, VI, VII ]" : MAP_AEOLIAN_TRIAD,
+  "Locrian [ i˚, II, iii, iv, V, VI, vii ]" : MAP_LOCRIAN_TRIAD,
+  "Ionian 7 [ I7, ii7, iii7, IV7, V7, vi7, vii˚7 ]" : MAP_IONIAN_7,
+  "Dorian 7 [ i7, ii7, III7, IV7, v7, vi˚7, VII7 ]" : MAP_DORIAN_7,
+  "Phrygian 7 [ i7, II7, III7, iv7, v˚7, VI7, vii7 ]" : MAP_PHRYGIAN_7,
+  "Lydian 7 [ I7, II7, iii7, iv˚7, V7, vi7, vii7 ]" : MAP_LYDIAN_7,
+  "Mixolydian 7 [ I7, ii7, iii˚7, IV7, v7, vi7, VII7 ]" : MAP_MIXOLYDIAN_7,
+  "Aeolian 7 [ i7, ii˚7,III7, iv7, v7, VI7, VII7 ]" : MAP_AEOLIAN_7,
+  "Locrian 7 [ i˚7, II7, iii7, iv7, V7, VI7, vii7 ]" : MAP_LOCRIAN_7,
+  "Ionian 7x13 [ I13, ii13, iii13, IV13, V13, vi13, vii˚13 ]" : MAP_IONIAN_7_13,
+  "Dorian 7x13 [ i13, ii13, III13, IV13, v13, vi˚13, VII13 ]" : MAP_DORIAN_7_13,
+  "Phrygian 7x13 [ i13, II13, III13, iv13, v˚13, VI13, vii13 ]" : MAP_PHRYGIAN_7_13,
+  "Lydian 7x13 [ I13, II13, iii13, iv˚13, V13, vi13, vii13 ]" : MAP_LYDIAN_7_13,
+  "Mixolydian 7x13 [ I13, ii13, iii˚13, IV13, v13, vi13, VII13 ]" : MAP_MIXOLYDIAN_7_13,
+  "Aeolian 7x13 [ i13, ii˚13,III13, iv13, v13, VI13, VII13 ]" : MAP_AEOLIAN_7_13,
+  "Locrian 7x13 [ i˚13, II13, iii13, iv13, V13, VI13, vii13 ]" : MAP_LOCRIAN_7_13
 };
 
 const PROGRESSION_MAP_KEYS = Object.keys( PROGRESSION_MAPS );
@@ -1044,7 +1057,12 @@ const NOTE_LENGTHS_LIB = {
     "1/2t"	    :	1.667,
     "1 bar"		:	4.000,
 	"1.5 bars"  :   6.000,
-	"2 bars"	:	8.000
+	"2 bars"	:	8.000,
+	"3 bars"	:	12.000,
+	"4 bars"	:	16.000,
+	"8 bars" 	:	32.000,
+	"12 bars"	:	48.000,
+	"16 bars"	:	64.000
 };
 var NOTE_LENGTH_KEYS = Object.keys( NOTE_LENGTHS_LIB );
 
@@ -1184,6 +1202,10 @@ function ProcessMIDI() {
 				iteration_key = PARAM_MAP["START"];
                 pool = PARAM_MAP[ iteration_key ];
                 // select a pitch from the pool
+				if ( !pool ) {
+                    iteration_key = PARAM_MAP["START"];
+                    pool = PARAM_MAP[ iteration_key ];
+                }
                 iteration_selection = getRandomValueFromWeightPool( pool );
                 MAP_LAST_SELECTION = iteration_selection;
                 MAP_STARTED = true;
@@ -1191,7 +1213,7 @@ function ProcessMIDI() {
 				iteration_key = MAP_LAST_SELECTION;
                 pool = PARAM_MAP[ iteration_key ];
                 if ( !pool ) {
-                    iteration_key = CHAIN["START"];
+                    iteration_key = PARAM_MAP["START"];
                     pool = PARAM_MAP[ iteration_key ];
                 }
                 iteration_selection = getRandomValueFromWeightPool( pool );

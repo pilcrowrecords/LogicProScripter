@@ -238,7 +238,7 @@ function ParameterChanged( param, value ) {
 		case 12:
 			pitchBendEventValue = value;
 		default:
-			Trace("ERROR: ParameterChanged");
+			Trace("ERROR: ParameterChanged: (" + param + ", " + value + ")");
 	}
 }
 
@@ -307,7 +307,7 @@ PARAMETER CONTROL MANAGEMENT
 
 -> Remember to update ParameterChanged() 
 */
-
+// 0
 PluginParameters.push({
 	name: BEATSHIFT_PROB_PCNAME,
 	type: "lin",
@@ -317,7 +317,7 @@ PluginParameters.push({
 	numberOfSteps: PROBABILITY_SLIDER_STEPS,
 	unit:"%"
 });
-
+// 1
 PluginParameters.push({
 	name: BEATSHIFT_MIN_PCNAME,
 	type: "lin",
@@ -327,7 +327,7 @@ PluginParameters.push({
 	numberOfSteps: BEATSHIFT_STEPS,
 	unit:"Integer"
 });
-
+// 2
 PluginParameters.push({
 	name: BEATSHIFT_MAX_PCNAME,
 	type: "lin",
