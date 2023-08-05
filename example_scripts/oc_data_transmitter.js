@@ -23,6 +23,12 @@ Scripter has little to say about how to use those events outside of the MIDI
 spec. This example script is really about clearly defining context for those
 events.
 
+Events are shared using the IAC Driver Bus, found in the External Instrument
+plug-in. Doing this ensures the data begins at the beginning of the target
+track's data-signal chain. Connection outputs in the Environment will not 
+work here because doing so bypasses the MIDI Effects data chain and goes
+straight to the track's instrument to begin the audio signal chain.
+
 There are two scripts involved: the transmitter and receiver. The transmitter 
 encodes musical data as a series of Control Change events, the series being the
 "packet", and sends them to the next item in the data chain. The receiver 
