@@ -14,6 +14,8 @@ Purpose:
 		* Transposition by semitones which goes beyond Logic Pro's default
 * Documentation about the data structures needed to do the calculations is 
 included in the comments below.
+
+Markov Chains
 * Uses a Markov Chain to better guide random music generation.
     * While the weighted random music generation would select a note based upon 
     the weights at a particular point in time, the Markov Chain will make a 
@@ -418,244 +420,7 @@ var SCALE_MAP = {}
 var NOTE_PITCH_POOL = [];
 
 // I chord jumps to any other chord based on weight
-const MAP_MAJOR_FULL = {
-	"START" : "I",
-	"I" : {					// 4
-		"4" : "I",
-		"5" : "I/3",
-		"6" : "I/5",
-		"10" : "i6",
-		"11" : "#i˚7",
-		"13" : "II",
-		"14" : "bII7",		// from
-		"18" : "ii",
-		"19" : "#ii˚7",
-		"21" : "III",
-		"22" : "iii7b5",
-		"26" : "iii",		// from
-		"30" : "IV",
-		"31" : "bIV",
-		"35" : "IV/1",
-		"36" : "iv7",		// from
-		"37" : "#iv7b5",
-		"41" : "V",			// from
-		"45" : "V/1",		// from
-		"47" : "V/2",
-		"48" : "v",			// from
-		"49" : "#v˚7",
-		"51" : "VI",
-		"53" : "bVI7",
-		"57" : "vi",
-		"58" : "vi7b5/3",
-		"60" : "VII",
-		"61" : "bVII",		// from
-		"62" : "bVII9",
-		"63" : "vii7b5",
-		"total" : 63
-	},
-	"I/3" : {
-		"4" : "I",			// from
-		"8" : "ii",			// to
-		"12" : "IV",		// from
-		"total" : 12
-	},
-	"I/5" : {				// 4
-		"4" : "I",			// from
-		"8" : "ii",			// from
-		"12" : "IV",		// from
-		"13" : "#iv7b5",	// from	
-		"17" : "V",			// from
-		"18" : "bVI7",		// from
-		"19" : "bVII9",		// from
-		"total" : 19
-	},
-	"i6" : {
-		"4" : "I",			// from
-		"6" : "II",			// to
-		"8" : "V/2",		// to
-		"total" : 8
-	},
-	"#i˚7" : {
-		"4" : "I",			// from
-		"8" : "ii",			// to
-		"total" : 8
-	},
-	"II" : {				// 2
-		"4" : "I",			// from
-		"8" : "V",			// to
-		"9" : "vi7b5/3",	// from
-		"total" : 9
-	},
-	"bII7" : {
-		"4" : "I",			// to
-		"8" : "ii",			// from
-		"total" : 8
-	},
-	"ii" : {				// 4
-		"4" : "I",			// from
-		"5" : "I/3",			// from
-		"9" : "I/5",		// to
-		"10" : "#i˚7",		// from
-		"11" : "bII7",		// to
-		"15" : "iii",		// to
-		"19" : "IV",		// from
-		"20" : "iv7",		// to
-		"24" : "V",			// to
-		"26" : "V/2",		// from
-		"28" : "VI",		// from
-		"29" : "vi7b5/3",	// from
-		"total" : 29
-	},
-	"#ii˚7" : {
-		"4" : "I",			// from
-		"8" : "iii",		// to
-		"total" : 8
-	},
-	"III" : {				// 2
-		"4" : "I",			// from
-		"5" : "#v˚7",		// from
-		"9" : "vi",			// to
-		"10" : "vii7b5",	// from
-		"total" : 10
-	},
-	"iii7b5" : {
-		"4" : "I",			// from
-		"8" : "IV",			// to
-		"10" : "VI",		// to
-		"total" : 10
-	},
-	"iii" : {				// 4
-		"4" : "I",			// to
-		"8" : "ii",			// from
-		"10" : "#ii˚7",		// from
-		"14" : "IV",			// to
-		"18" : "V",			// from
-		"22" : "vi",			// to
-		"24" : "VII",		// from
-		"total" : 24
-	},
-	
-	"IV" : {				// 4
-		"4" : "I",			// from
-		"5" : "I/3",		// to
-		"9" : "I/5",		// to
-		"13" : "ii",			// to
-		"17" : "iii",		// from
-		"18" : "iii7b5",		// from
-		"22" : "V",			// to
-		"26" : "vi",		// from
-		"total" : 26
-	},
-	"bIV" : {
-		"4" : "I",			// from
-		"5" : "bVII",		// to
-		"6" : "bVII",		// from
-		"total" : 6
-	},
-	"IV/1" : {				// 4
-		"4" : "I",			// to+from
-		"total" : 4
-	},
-	"iv7" : {
-		"4" : "I",			// to
-		"8" : "I",			// from
-		"12" : "ii",		// from
-		"total" : 12
-	},
-	"#iv7b5" : {
-		"4" : "I",			// from
-		"8" : "I/5",		// to
-		"12" : "V",			// to
-		"14" : "VII",		// to
-		"total" : 14
-	},
-	"V" : {					// 4
-		"4" : "I",			// to
-		"8" : "I",			// from
-		"12" : "I/5",		// from
-		"14" : "ii",		// from
-		"16" : "II",		// from
-		"20" : "iii",		// from
-		"24" : "IV",		// from
-		"25" : "#iv7b5",	// from
-		"29" : "vi",		// to
-		"33" : "vi",		// from
-		"total" : 33
-	},
-	"V/1" : {				// 4
-		"4" : "I",			// to+from
-		"total" : 4
-	},
-	"V/2" : {				// 2
-		"4" : "I",			// from
-		"5" : "i6",			// from
-		"9" : "ii",			// to
-		"total" : 9
-	},
-	"v" : {
-		"4":"I",			// to+from
-		"total" : 4
-	},
-	"#v˚7" : {
-		"4" : "I",			// from
-		"6" : "III",		// to
-		"total" : 6
-	},
-	"VI" : {				// 2
-		"4" : "I",			// from
-		"8"  : "ii",		// to
-		"9" : "iii7b5",		// from
-		"total" : 9
-	},
-	"bVI7" : {				// 2
-		"4" : "I",			// from
-		"8" : "I/5",		// to
-		"10" : "bVI7",		// from
-		"total" : 10
-	},
-	"vi" : {				// 4
-		"4" : "I",			// from
-		"6" : "II",			// to
-		"8" : "III",		// from
-		"12" : "iii",		// from
-		"16" : "IV",		// to
-		"20" : "IV",		// from
-		"24" : "V",			// to
-		"28" : "V",			// from
-		"total" : 28
-	},
-	"vi7b5/3" : {
-		"4" : "I",			// from
-		"6" : "II",			// from
-		"10" : "ii",		// to
-		"14" : "ii",		// from
-		"total" : 14
-	},
-	"VII" : {				// 2
-		"4" : "I",			// from
-		"8" : "iii",		// to
-		"9" : "#iv7b5",		// from
-		"total" : 9
-	},
-	"bVII" : {
-		"4" : "I",			// to
-		"8" : "I",			// from
-		"9" : "bIV",		// to
-		"10" : "bIV",		// from
-		"total" : 10
-	},
-	"bVII9" : {
-		"4" : "I",			// from
-		"8" : "I/5",		// to
-		"total" : 8
-	},
-	"vii7b5" : {
-		"4" : "I",			// from
-		"6" : "III",		// to
-		"8" : "III",		// from
-		"total" : 8
-	}
-};
+const MAP_MAJOR_FULL = {"START":"I","I":{"3":"I","6":"I/3","9":"I/5","10":"i6","11":"#i˚7","13":"II","14":"bII7","17":"ii","18":"#ii˚7","20":"III","21":"iii7b5","24":"iii","27":"IV","28":"bIV","31":"IV/1","32":"iv7","33":"#iv7b5","36":"V","39":"V/1","41":"V/2","42":"v","43":"#v˚7","45":"VI","47":"bVI7","50":"vi","51":"vi7b5/3","53":"VII","54":"bVII","55":"bVII9","56":"vii7b5","total":56,"weight":3},"I/3":{"3":"I","6":"ii","9":"IV","total":9,"weight":3},"I/5":{"3":"I","6":"ii","9":"IV","10":"#iv7b5","13":"V","15":"bVI7","16":"bVII9","total":16,"weight":3},"i6":{"3":"I","5":"II","7":"V/2","total":7,"weight":1},"#i˚7":{"3":"I","6":"ii","total":6,"weight":1},"II":{"3":"I","6":"V","7":"vi7b5/3","total":7,"weight":2},"bII7":{"3":"I","6":"ii","total":6,"weight":1},"ii":{"3":"I","6":"I/3","9":"I/5","10":"#i˚7","11":"bII7","14":"iii","17":"IV","18":"iv7","21":"V","23":"V/2","25":"VI","26":"vi7b5/3","total":26,"weight":3},"#ii˚7":{"3":"I","6":"iii","total":6,"weight":1},"III":{"3":"I","4":"#v˚7","7":"vi","8":"vii7b5","total":8,"weight":2},"iii7b5":{"3":"I","6":"IV","8":"VI","total":8,"weight":1},"iii":{"3":"I","6":"ii","7":"#ii˚7","10":"IV","13":"V","16":"vi","18":"VII","total":18,"weight":3},"IV":{"3":"I","6":"I/3","9":"I/5","12":"ii","15":"iii","16":"iii7b5","19":"V","22":"vi","total":22,"weight":3},"bIV":{"3":"I","4":"bVII","5":"bVII","total":5,"weight":1},"IV/1":{"3":"I","total":3,"weight":3},"iv7":{"3":"I","6":"I","9":"ii","total":9,"weight":1},"#iv7b5":{"3":"I","6":"I/5","9":"V","11":"VII","total":11,"weight":1},"V":{"3":"I","6":"I","9":"I/5","12":"ii","14":"II","17":"iii","20":"IV","21":"#iv7b5","24":"vi","27":"vi","total":27,"weight":3},"V/1":{"3":"I","total":3,"weight":3},"V/2":{"3":"I","4":"i6","7":"ii","total":7,"weight":2},"v":{"3":"I","total":3,"weight":1},"#v˚7":{"3":"I","5":"III","total":5,"weight":1},"VI":{"3":"I","6":"ii","7":"iii7b5","total":7,"weight":2},"bVI7":{"3":"I","6":"I/5","8":"bVI7","total":8,"weight":2},"vi":{"3":"I","5":"II","7":"III","10":"iii","13":"IV","16":"IV","19":"V","22":"V","total":22,"weight":3},"vi7b5/3":{"3":"I","5":"II","8":"ii","11":"ii","total":11,"weight":1},"VII":{"3":"I","6":"iii","7":"#iv7b5","total":7,"weight":2},"bVII":{"3":"I","6":"I","7":"bIV","8":"bIV","total":8,"weight":1},"bVII9":{"3":"I","6":"I/5","total":6,"weight":1},"vii7b5":{"3":"I","5":"III","7":"III","total":7,"weight":1}};
 
 // connects I to only those chords directly connected
 const MAP_MAJOR_LEAN_I = {
@@ -874,6 +639,17 @@ const MAP_MAJOR_LEAN_I = {
 	}
 }
 
+const MAP_MAJOR_FULL_INVERTED_WEIGHT = {"START":"I","I":{"1":"I","2":"I/3","3":"I/5","6":"i6","9":"#i˚7","11":"II","14":"bII7","15":"ii","18":"#ii˚7","20":"III","23":"iii7b5","24":"iii","25":"IV","28":"bIV","29":"IV/1","32":"iv7","35":"#iv7b5","36":"V","37":"V/1","39":"V/2","42":"v","45":"#v˚7","47":"VI","49":"bVI7","50":"vi","53":"vi7b5/3","55":"VII","58":"bVII","61":"bVII9","64":"vii7b5","total":64,"weight":1},"I/3":{"1":"I","2":"ii","3":"IV","total":3,"weight":1},"I/5":{"1":"I","2":"ii","3":"IV","6":"#iv7b5","7":"V","9":"bVI7","12":"bVII9","total":12,"weight":1},"i6":{"1":"I","3":"II","5":"V/2","total":5,"weight":3},"#i˚7":{"1":"I","2":"ii","total":2,"weight":3},"II":{"1":"I","2":"V","5":"vi7b5/3","total":5,"weight":2},"bII7":{"1":"I","2":"ii","total":2,"weight":3},"ii":{"1":"I","2":"I/3","3":"I/5","6":"#i˚7","9":"bII7","10":"iii","11":"IV","14":"iv7","15":"V","17":"V/2","19":"VI","22":"vi7b5/3","total":22,"weight":1},"#ii˚7":{"1":"I","2":"iii","total":2,"weight":3},"III":{"1":"I","4":"#v˚7","5":"vi","8":"vii7b5","total":8,"weight":2},"iii7b5":{"1":"I","2":"IV","4":"VI","total":4,"weight":3},"iii":{"1":"I","2":"ii","5":"#ii˚7","6":"IV","7":"V","8":"vi","10":"VII","total":10,"weight":1},"IV":{"1":"I","2":"I/3","3":"I/5","4":"ii","5":"iii","8":"iii7b5","9":"V","10":"vi","total":10,"weight":1},"bIV":{"1":"I","4":"bVII","7":"bVII","total":7,"weight":3},"IV/1":{"1":"I","total":1,"weight":1},"iv7":{"1":"I","2":"I","3":"ii","total":3,"weight":3},"#iv7b5":{"1":"I","2":"I/5","3":"V","5":"VII","total":5,"weight":3},"V":{"1":"I","2":"I","3":"I/5","4":"ii","6":"II","7":"iii","8":"IV","11":"#iv7b5","12":"vi","13":"vi","total":13,"weight":1},"V/1":{"1":"I","total":1,"weight":1},"V/2":{"1":"I","4":"i6","5":"ii","total":5,"weight":2},"v":{"1":"I","total":1,"weight":3},"#v˚7":{"1":"I","3":"III","total":3,"weight":3},"VI":{"1":"I","2":"ii","5":"iii7b5","total":5,"weight":2},"bVI7":{"1":"I","2":"I/5","4":"bVI7","total":4,"weight":2},"vi":{"1":"I","3":"II","5":"III","6":"iii","7":"IV","8":"IV","9":"V","10":"V","total":10,"weight":1},"vi7b5/3":{"1":"I","3":"II","4":"ii","5":"ii","total":5,"weight":3},"VII":{"1":"I","2":"iii","5":"#iv7b5","total":5,"weight":2},"bVII":{"1":"I","2":"I","5":"bIV","8":"bIV","total":8,"weight":3},"bVII9":{"1":"I","2":"I/5","total":2,"weight":3},"vii7b5":{"1":"I","3":"III","5":"III","total":5,"weight":3}};
+
+const reverse_harmony_ION = {"I":{"8":"i","14":"vi","17":"bVI","23":"v","28":"bV","35":"iv","41":"iii","44":"bIII","51":"IV","57":"bv","63":"V","total":63,"weight":8},"i":{"8":"I","11":"bVII","17":"vi","23":"v","28":"bV","35":"iv","41":"iii","48":"IV","54":"bv","60":"V","total":60,"weight":8},"bVII":{"8":"i","12":"vii","17":"bV","24":"iii","28":"bIII","32":"bII","38":"V","40":"bvii˚","42":"vii˚","total":42,"weight":3},"vi":{"8":"i","16":"I","19":"bVI","25":"iv","31":"iii","34":"bIII","39":"bII","44":"ii","50":"IV","total":50,"weight":6},"bVI":{"8":"I","14":"vi","20":"iii","23":"bIII","28":"bII","33":"ii","39":"IV","total":39,"weight":3},"v":{"9":"i","18":"I","22":"vii","27":"bV","33":"iii","35":"ii˚","36":"bii˚","40":"bII","44":"ii","50":"bv","56":"V","58":"bvii˚","60":"vii˚","total":60,"weight":6},"bV":{"9":"i","18":"I","22":"vii","25":"bVII","31":"v","37":"iii","40":"bIII","42":"ii˚","43":"bii˚","47":"bII","51":"ii","57":"bv","63":"V","65":"bvii˚","67":"vii˚","total":67,"weight":5},"iv":{"8":"i","16":"I","22":"vi","25":"bIII","27":"ii˚","28":"bii˚","32":"ii","38":"IV","41":"bvii˚","44":"vii˚","total":44,"weight":6},"iii":{"8":"i","16":"I","20":"vii","23":"bVII","30":"vi","34":"bVI","40":"v","45":"bV","48":"bIII","54":"bv","60":"V","62":"bvii˚","64":"vii˚","total":64,"weight":6},"bIII":{"8":"I","12":"vii","15":"bVII","22":"vi","26":"bVI","31":"bV","37":"iv","43":"iii","45":"ii˚","46":"bii˚","52":"V","54":"bvii˚","56":"vii˚","total":56,"weight":3},"vii":{"3":"bVII","9":"v","14":"bV","21":"iii","25":"bIII","27":"ii˚","28":"bii˚","32":"bII","36":"ii","42":"bv","48":"V","50":"bvii˚","52":"vii˚","total":52,"weight":4},"ii˚":{"4":"vii","11":"v","17":"bV","23":"iv","26":"bIII","27":"bii˚","31":"bII","35":"ii","41":"IV","48":"bv","55":"V","57":"bvii˚","59":"vii˚","total":59,"weight":2},"bii˚":{"4":"vii","11":"v","17":"bV","23":"iv","26":"bIII","28":"ii˚","32":"bII","36":"ii","42":"IV","49":"bv","56":"V","58":"bvii˚","60":"vii˚","total":60,"weight":1},"bII":{"4":"vii","7":"bVII","13":"vi","16":"bVI","23":"v","29":"bV","31":"ii˚","32":"bii˚","36":"ii","42":"IV","49":"bv","56":"V","58":"bvii˚","60":"vii˚","total":60,"weight":4},"ii":{"4":"vii","10":"vi","13":"bVI","20":"v","26":"bV","32":"iv","34":"ii˚","35":"bii˚","39":"bII","45":"IV","52":"bv","59":"V","61":"bvii˚","63":"vii˚","total":63,"weight":4},"IV":{"8":"I","16":"i","22":"vi","25":"bVI","31":"iv","33":"ii˚","34":"bii˚","38":"bII","42":"ii","45":"bvii˚","48":"vii˚","total":48,"weight":6},"bv":{"9":"I","18":"i","22":"vii","28":"v","33":"bV","39":"iii","41":"ii˚","42":"bii˚","46":"bII","50":"ii","56":"V","58":"bvii˚","60":"vii˚","total":60,"weight":6},"V":{"9":"I","18":"i","22":"vii","25":"bVII","31":"v","36":"bV","42":"iii","45":"bIII","47":"ii˚","48":"bii˚","52":"bII","56":"ii","62":"bv","64":"bvii˚","66":"vii˚","total":66,"weight":6},"bvii˚":{"4":"vii","7":"bVII","13":"v","18":"bV","24":"iv","31":"iii","35":"bIII","37":"ii˚","38":"bii˚","42":"bII","46":"ii","52":"IV","58":"bv","64":"V","66":"vii˚","total":66,"weight":2},"vii˚":{"4":"vii","7":"bVII","13":"v","18":"bV","24":"iv","31":"iii","35":"bIII","37":"ii˚","38":"bii˚","42":"bII","46":"ii","52":"IV","58":"bv","64":"V","66":"bvii˚","total":66,"weight":2},"START":"I"};
+const reverse_harmony_dor = {"i":{"7":"I","13":"bvi","18":"v","22":"bv","30":"IV","33":"iii˚","35":"biii˚","39":"biii","44":"III","49":"bV","54":"bvi˚","59":"vi˚","total":59,"weight":7},"I":{"7":"i","12":"VI","18":"bvi","23":"v","27":"bv","35":"IV","40":"III","45":"bV","50":"bvi˚","55":"vi˚","total":55,"weight":7},"VI":{"7":"I","11":"vii","17":"bvi","24":"IV","27":"iii˚","29":"biii˚","35":"II","40":"bii","46":"bII","52":"ii","57":"bvi˚","62":"vi˚","66":"bvii","total":66,"weight":5},"bvi":{"7":"I","14":"i","19":"VI","26":"IV","29":"iii˚","31":"biii˚","37":"II","42":"bii","48":"bII","54":"ii","59":"bvi˚","64":"vi˚","total":64,"weight":6},"v":{"8":"I","16":"i","20":"vii","23":"bVII","27":"bv","32":"II","36":"bii","41":"bII","46":"ii","50":"biii","55":"III","60":"bV","64":"bvii","68":"VII","total":68,"weight":5},"bv":{"8":"I","16":"i","20":"vii","23":"bVII","28":"v","33":"II","37":"bii","42":"bII","47":"ii","51":"biii","56":"III","61":"bV","65":"bvii","69":"VII","total":69,"weight":4},"IV":{"7":"I","14":"i","19":"vii","23":"bVII","28":"VI","34":"bvi","37":"iii˚","39":"biii˚","44":"II","48":"bii","53":"bII","58":"ii","63":"bvi˚","68":"vi˚","73":"bvii","78":"VII","total":78,"weight":7},"iii˚":{"7":"i","13":"VI","20":"bvi","27":"IV","29":"biii˚","34":"II","38":"bii","43":"bII","48":"ii","52":"biii","57":"III","63":"bvi˚","69":"vi˚","total":69,"weight":3},"biii˚":{"7":"i","13":"VI","20":"bvi","27":"IV","30":"iii˚","35":"II","39":"bii","44":"bII","49":"ii","53":"biii","58":"III","64":"bvi˚","70":"vi˚","total":70,"weight":2},"vii":{"3":"bVII","8":"VI","13":"v","17":"bv","24":"IV","28":"bii","33":"ii","38":"biii","44":"III","48":"bvii","52":"VII","total":52,"weight":4},"bVII":{"4":"vii","9":"v","13":"bv","20":"IV","25":"II","29":"bii","34":"bII","39":"ii","44":"biii","50":"III","55":"bV","59":"bvii","63":"VII","total":63,"weight":3},"bii":{"4":"vii","7":"bVII","12":"VI","18":"bvi","24":"v","29":"bv","36":"IV","39":"iii˚","41":"biii˚","46":"II","51":"bII","56":"ii","62":"bV","67":"bvi˚","72":"vi˚","76":"bvii","80":"VII","total":80,"weight":4},"II":{"3":"bVII","8":"VI","14":"bvi","20":"v","25":"bv","32":"IV","35":"iii˚","37":"biii˚","41":"bii","46":"bII","51":"ii","55":"biii","61":"bV","66":"bvi˚","71":"vi˚","75":"VII","total":75,"weight":5},"bII":{"3":"bVII","8":"VI","14":"bvi","20":"v","25":"bv","32":"IV","35":"iii˚","37":"biii˚","42":"II","46":"bii","51":"ii","55":"biii","61":"bV","66":"bvi˚","71":"vi˚","75":"VII","total":75,"weight":5},"ii":{"4":"vii","7":"bVII","12":"VI","18":"bvi","24":"v","29":"bv","36":"IV","39":"iii˚","41":"biii˚","46":"II","50":"bii","55":"bII","61":"bV","66":"bvi˚","71":"vi˚","75":"bvii","79":"VII","total":79,"weight":5},"biii":{"7":"i","11":"vii","14":"bVII","19":"v","23":"bv","26":"iii˚","28":"biii˚","33":"II","38":"bII","43":"III","49":"bvi˚","55":"vi˚","59":"bvii","63":"VII","total":63,"weight":4},"III":{"7":"i","14":"I","18":"vii","21":"bVII","26":"v","30":"bv","33":"iii˚","35":"biii˚","39":"biii","44":"bV","50":"bvi˚","56":"vi˚","60":"bvii","64":"VII","total":64,"weight":5},"bV":{"8":"i","16":"I","19":"bVII","24":"v","28":"bv","33":"II","37":"bii","42":"bII","47":"ii","52":"III","56":"VII","total":56,"weight":5},"bvi˚":{"7":"i","14":"I","19":"VI","25":"bvi","32":"IV","35":"iii˚","37":"biii˚","43":"II","48":"bii","54":"bII","60":"ii","64":"biii","69":"III","74":"vi˚","total":74,"weight":5},"vi˚":{"7":"i","14":"I","19":"VI","25":"bvi","32":"IV","35":"iii˚","37":"biii˚","43":"II","48":"bii","54":"bII","60":"ii","64":"biii","69":"III","74":"bvi˚","total":74,"weight":5},"bvii":{"4":"vii","7":"bVII","12":"VI","17":"v","21":"bv","28":"IV","32":"bii","37":"ii","42":"biii","48":"III","52":"VII","total":52,"weight":4},"VII":{"4":"vii","7":"bVII","12":"v","16":"bv","23":"IV","28":"II","32":"bii","37":"bII","42":"ii","47":"biii","53":"III","58":"bV","62":"bvii","total":62,"weight":4},"START":"i"}
+const reverse_harmony_phr = {"i":{"7":"I","13":"VI","16":"bvi","21":"V","24":"bv˚","29":"III","32":"biii","39":"iv","43":"v˚","total":43,"weight":7},"I":{"7":"i","13":"VI","18":"V","21":"bv˚","26":"III","31":"ii","36":"bii","43":"iv","47":"v˚","total":47,"weight":7},"VI":{"7":"I","14":"i","17":"bvi","19":"iv˚","24":"III","27":"biii","33":"ii","38":"bII","44":"bii","50":"II","56":"iv","total":56,"weight":6},"bvi":{"7":"i","13":"VI","18":"V","20":"iv˚","25":"III","28":"biii","34":"ii","39":"bII","45":"bii","51":"II","57":"iv","total":57,"weight":3},"V":{"8":"I","16":"i","20":"VII","23":"bvi","26":"bv˚","28":"iv˚","33":"III","37":"v˚","41":"bVII","total":41,"weight":5},"bv˚":{"8":"I","16":"i","20":"VII","24":"bvii","29":"V","34":"III","37":"biii","42":"ii","46":"bII","51":"bii","56":"II","60":"v˚","64":"bVII","69":"vii","total":69,"weight":3},"III":{"7":"I","14":"i","18":"VII","22":"bvii","29":"VI","33":"bvi","38":"V","41":"bv˚","44":"biii","48":"v˚","52":"bVII","57":"vii","total":57,"weight":5},"biii":{"7":"i","11":"VII","15":"bvii","22":"VI","26":"bvi","29":"bv˚","34":"III","38":"v˚","42":"bVII","47":"vii","total":47,"weight":3},"ii":{"7":"I","11":"bvii","17":"VI","20":"bvi","24":"bv˚","26":"iv˚","30":"bII","35":"bii","40":"II","46":"iv","51":"v˚","56":"vii","total":56,"weight":5},"VII":{"4":"bvii","9":"V","12":"bv˚","14":"iv˚","20":"III","24":"biii","28":"bII","33":"II","39":"iv","43":"v˚","47":"bVII","52":"vii","total":52,"weight":4},"bvii":{"4":"VII","7":"bv˚","9":"iv˚","15":"III","19":"biii","24":"ii","28":"bII","33":"bii","38":"II","44":"iv","48":"v˚","52":"bVII","57":"vii","total":57,"weight":4},"iv˚":{"5":"VII","10":"bvii","16":"VI","19":"bvi","24":"V","29":"ii","33":"bII","38":"bii","43":"II","49":"iv","54":"bVII","60":"vii","total":60,"weight":2},"bII":{"4":"VII","8":"bvii","14":"VI","17":"bvi","21":"bv˚","23":"iv˚","28":"ii","33":"bii","38":"II","44":"iv","49":"v˚","53":"bVII","58":"vii","total":58,"weight":4},"bii":{"7":"I","11":"bvii","17":"VI","20":"bvi","24":"bv˚","26":"iv˚","31":"ii","35":"bII","40":"II","46":"iv","51":"v˚","56":"vii","total":56,"weight":5},"II":{"4":"VII","8":"bvii","14":"VI","17":"bvi","21":"bv˚","23":"iv˚","28":"ii","32":"bII","37":"bii","43":"iv","48":"v˚","52":"bVII","57":"vii","total":57,"weight":5},"iv":{"7":"i","14":"I","19":"VII","24":"bvii","30":"VI","33":"bvi","35":"iv˚","40":"ii","44":"bII","49":"bii","54":"II","59":"bVII","65":"vii","total":65,"weight":6},"v˚":{"8":"i","16":"I","20":"VII","24":"bvii","29":"V","32":"bv˚","37":"III","40":"biii","45":"ii","49":"bII","54":"bii","59":"II","63":"bVII","68":"vii","total":68,"weight":4},"bVII":{"4":"VII","8":"bvii","13":"V","16":"bv˚","18":"iv˚","24":"III","28":"biii","32":"bII","37":"II","43":"iv","47":"v˚","52":"vii","total":52,"weight":4},"vii":{"4":"VII","8":"bvii","11":"bv˚","13":"iv˚","19":"III","23":"biii","28":"ii","32":"bII","37":"bii","42":"II","48":"iv","52":"v˚","56":"bVII","total":56,"weight":5},"START":"i"}
+const reverse_harmony_LYD = {"I":{"7":"i","13":"vi","16":"bVI","19":"v˚","23":"bV","28":"iii","31":"bIII","37":"iv˚","42":"bv","47":"V","total":47,"weight":7},"i":{"7":"I","12":"VII","18":"vi","21":"v˚","25":"bV","30":"iii","36":"iv˚","41":"bv","46":"V","51":"bVII","total":51,"weight":7},"VII":{"7":"i","11":"bvii","15":"bV","20":"iv","26":"iii","30":"bIII","34":"bII","39":"II","44":"iv˚","49":"V","54":"bVII","59":"vii","total":59,"weight":5},"vi":{"7":"i","14":"I","17":"bVI","22":"iv","27":"iii","30":"bIII","35":"ii","40":"bII","45":"bii","51":"II","56":"iv˚","total":56,"weight":6},"bVI":{"7":"I","13":"vi","16":"v˚","21":"iv","26":"iii","29":"bIII","34":"ii","39":"bII","44":"bii","50":"II","55":"iv˚","total":55,"weight":3},"v˚":{"8":"i","16":"I","19":"bVI","23":"bV","28":"iv","33":"iii","38":"bv","43":"V","total":43,"weight":3},"bV":{"8":"i","16":"I","21":"VII","25":"bvii","28":"v˚","33":"iii","36":"bIII","40":"ii","44":"bII","48":"bii","53":"II","58":"bv","63":"V","68":"bVII","73":"vii","total":73,"weight":4},"iii":{"7":"i","14":"I","19":"VII","23":"bvii","30":"vi","34":"bVI","37":"v˚","41":"bV","44":"bIII","49":"bv","54":"V","59":"bVII","64":"vii","total":64,"weight":5},"bIII":{"7":"I","12":"VII","16":"bvii","23":"vi","27":"bVI","31":"bV","36":"iii","41":"V","46":"bVII","51":"vii","total":51,"weight":3},"bvii":{"5":"VII","9":"bV","14":"iv","20":"iii","24":"bIII","28":"ii","32":"bII","36":"bii","41":"II","46":"iv˚","51":"bv","56":"V","61":"bVII","66":"vii","total":66,"weight":4},"iv":{"6":"VII","11":"bvii","17":"vi","20":"bVI","23":"v˚","27":"ii","31":"bII","35":"bii","40":"II","45":"iv˚","51":"bVII","57":"vii","total":57,"weight":5},"bII":{"5":"VII","9":"bvii","15":"vi","18":"bVI","23":"bV","28":"iv","32":"ii","36":"bii","41":"II","46":"iv˚","52":"bv","58":"V","63":"bVII","68":"vii","total":68,"weight":4},"ii":{"4":"bvii","10":"vi","13":"bVI","18":"bV","23":"iv","27":"bII","31":"bii","36":"II","41":"iv˚","47":"bv","53":"V","58":"vii","total":58,"weight":4},"bii":{"4":"bvii","10":"vi","13":"bVI","18":"bV","23":"iv","27":"ii","31":"bII","36":"II","41":"iv˚","47":"bv","53":"V","58":"vii","total":58,"weight":4},"II":{"5":"VII","9":"bvii","15":"vi","18":"bVI","23":"bV","28":"iv","32":"ii","36":"bII","40":"bii","45":"iv˚","51":"bv","57":"V","62":"bVII","67":"vii","total":67,"weight":5},"iv˚":{"7":"I","14":"i","20":"VII","25":"bvii","31":"vi","34":"bVI","39":"iv","43":"ii","47":"bII","51":"bii","56":"II","62":"bVII","68":"vii","total":68,"weight":5},"bv":{"8":"I","16":"i","20":"bvii","23":"v˚","27":"bV","32":"iii","36":"ii","40":"bII","44":"bii","49":"II","54":"V","59":"vii","total":59,"weight":5},"V":{"8":"I","16":"i","21":"VII","25":"bvii","28":"v˚","32":"bV","37":"iii","40":"bIII","44":"ii","48":"bII","52":"bii","57":"II","62":"bv","67":"bVII","72":"vii","total":72,"weight":5},"bVII":{"7":"i","12":"VII","16":"bvii","20":"bV","25":"iv","31":"iii","35":"bIII","39":"bII","44":"II","49":"iv˚","54":"V","59":"vii","total":59,"weight":5},"vii":{"5":"VII","9":"bvii","13":"bV","18":"iv","24":"iii","28":"bIII","32":"ii","36":"bII","40":"bii","45":"II","50":"iv˚","55":"bv","60":"V","65":"bVII","total":65,"weight":5},"START":"I"}
+const reverse_harmony_MIX = {"I":{"7":"i","11":"vi˚","15":"Bvi˚","21":"v","26":"bv","33":"IV","38":"iii","41":"bIII","45":"biii˚","49":"iii˚","54":"bV","58":"bVI","64":"vi","total":64,"weight":7},"i":{"7":"I","11":"vi˚","15":"Bvi˚","21":"v","26":"bv","33":"IV","38":"iii","42":"biii˚","46":"iii˚","51":"bV","57":"vi","total":57,"weight":7},"vi˚":{"7":"i","14":"I","18":"Bvi˚","24":"IV","29":"II","33":"bii","38":"bII","43":"ii","47":"bVI","53":"vi","total":53,"weight":4},"Bvi˚":{"7":"i","14":"I","18":"vi˚","24":"IV","29":"II","33":"bii","38":"bII","43":"ii","47":"bVI","53":"vi","total":53,"weight":4},"v":{"8":"i","16":"I","21":"vii","25":"bVII","30":"bv","35":"iii","39":"II","42":"bii","46":"bII","50":"ii","54":"biii˚","58":"iii˚","63":"bV","68":"bvii","73":"VII","total":73,"weight":6},"bv":{"8":"i","16":"I","21":"vii","25":"bVII","31":"v","36":"iii","40":"II","43":"bii","47":"bII","51":"ii","55":"biii˚","59":"iii˚","64":"bV","69":"bvii","74":"VII","total":74,"weight":5},"IV":{"7":"i","14":"I","20":"vii","25":"bVII","29":"vi˚","33":"Bvi˚","37":"II","40":"bii","44":"bII","48":"ii","52":"bVI","58":"vi","64":"bvii","70":"VII","total":70,"weight":6},"iii":{"7":"i","14":"I","20":"v","25":"bv","28":"bIII","32":"biii˚","36":"iii˚","41":"bV","46":"bVI","53":"vi","total":53,"weight":5},"bIII":{"7":"I","12":"iii","16":"biii˚","20":"iii˚","25":"bV","30":"bVI","37":"vi","total":37,"weight":3},"vii":{"4":"bVII","10":"v","15":"bv","21":"IV","24":"bii","28":"ii","33":"biii˚","38":"iii˚","42":"bVI","47":"bvii","52":"VII","total":52,"weight":5},"bVII":{"5":"vii","11":"v","16":"bv","22":"IV","26":"II","29":"bii","33":"bII","37":"ii","42":"biii˚","47":"iii˚","52":"bV","57":"bvii","62":"VII","total":62,"weight":4},"bii":{"5":"vii","9":"bVII","13":"vi˚","17":"Bvi˚","24":"v","30":"bv","36":"IV","40":"II","44":"bII","48":"ii","54":"bV","58":"bVI","64":"vi","69":"bvii","74":"VII","total":74,"weight":3},"II":{"4":"bVII","8":"vi˚","12":"Bvi˚","19":"v","25":"bv","31":"IV","34":"bii","38":"bII","42":"ii","48":"bV","52":"bVI","58":"vi","63":"VII","total":63,"weight":4},"bII":{"4":"bVII","8":"vi˚","12":"Bvi˚","19":"v","25":"bv","31":"IV","35":"II","38":"bii","42":"ii","48":"bV","52":"bVI","58":"vi","63":"VII","total":63,"weight":4},"ii":{"5":"vii","9":"bVII","13":"vi˚","17":"Bvi˚","24":"v","30":"bv","36":"IV","40":"II","43":"bii","47":"bII","53":"bV","57":"bVI","63":"vi","68":"bvii","73":"VII","total":73,"weight":4},"biii˚":{"7":"I","14":"i","19":"vii","23":"bVII","29":"v","34":"bv","39":"iii","42":"bIII","46":"iii˚","51":"bV","56":"bVI","63":"vi","68":"bvii","73":"VII","total":73,"weight":4},"iii˚":{"7":"I","14":"i","19":"vii","23":"bVII","29":"v","34":"bv","39":"iii","42":"bIII","46":"biii˚","51":"bV","56":"bVI","63":"vi","68":"bvii","73":"VII","total":73,"weight":4},"bV":{"8":"I","16":"i","20":"bVII","26":"v","31":"bv","36":"iii","39":"bIII","43":"II","46":"bii","50":"bII","54":"ii","58":"biii˚","62":"iii˚","67":"VII","total":67,"weight":5},"bVI":{"7":"I","12":"vii","16":"vi˚","20":"Bvi˚","26":"IV","31":"iii","34":"bIII","39":"II","43":"bii","48":"bII","53":"ii","57":"biii˚","61":"iii˚","67":"vi","72":"bvii","total":72,"weight":4},"vi":{"7":"I","14":"i","18":"vi˚","22":"Bvi˚","28":"IV","33":"iii","36":"bIII","41":"II","45":"bii","50":"bII","55":"ii","59":"biii˚","63":"iii˚","67":"bVI","total":67,"weight":6},"bvii":{"5":"vii","9":"bVII","15":"v","20":"bv","26":"IV","29":"bii","33":"ii","38":"biii˚","43":"iii˚","47":"bVI","52":"VII","total":52,"weight":5},"VII":{"5":"vii","9":"bVII","15":"v","20":"bv","26":"IV","30":"II","33":"bii","37":"bII","41":"ii","46":"biii˚","51":"iii˚","56":"bV","61":"bvii","total":61,"weight":5},"START":"I"}
+const reverse_harmony_aeo = {"i":{"8":"I","14":"VI","17":"bvi","23":"V","28":"bv","35":"IV","41":"III","44":"biii","51":"iv","57":"bV","63":"v","total":63,"weight":8},"I":{"8":"i","10":"vii˚","11":"bvii˚","17":"VI","23":"V","28":"bv","35":"IV","41":"III","48":"iv","54":"bV","60":"v","total":60,"weight":8},"vii˚":{"8":"I","9":"bvii˚","14":"bv","21":"III","25":"biii","31":"v","35":"bvii","39":"VII","total":39,"weight":2},"bvii˚":{"8":"I","10":"vii˚","15":"bv","22":"III","26":"biii","32":"v","36":"bvii","40":"VII","total":40,"weight":1},"VI":{"8":"I","16":"i","19":"bvi","25":"IV","31":"III","34":"biii","37":"bii˚","40":"ii˚","46":"iv","total":46,"weight":6},"bvi":{"8":"i","14":"VI","20":"V","26":"III","29":"biii","32":"bii˚","35":"ii˚","41":"iv","47":"bV","total":47,"weight":3},"V":{"9":"I","18":"i","21":"bvi","26":"bv","32":"III","36":"II","39":"bii","41":"bii˚","43":"ii˚","49":"bV","55":"v","59":"VII","total":59,"weight":6},"bv":{"9":"I","18":"i","20":"vii˚","21":"bvii˚","27":"V","33":"III","36":"biii","40":"II","43":"bii","45":"bii˚","47":"ii˚","53":"bV","59":"v","63":"bvii","67":"VII","total":67,"weight":5},"IV":{"8":"I","16":"i","22":"VI","26":"II","29":"bii","31":"bii˚","33":"ii˚","39":"iv","44":"bvii","49":"VII","total":49,"weight":6},"III":{"8":"I","16":"i","18":"vii˚","19":"bvii˚","26":"VI","30":"bvi","36":"V","41":"bv","44":"biii","50":"bV","56":"v","60":"bvii","64":"VII","total":64,"weight":6},"biii":{"8":"i","10":"vii˚","11":"bvii˚","18":"VI","22":"bvi","27":"bv","33":"III","37":"II","43":"v","47":"bvii","51":"VII","total":51,"weight":3},"II":{"7":"V","13":"bv","19":"IV","22":"biii","25":"bii","27":"bii˚","29":"ii˚","36":"bV","43":"v","47":"VII","total":47,"weight":4},"bii":{"7":"V","13":"bv","19":"IV","23":"II","25":"bii˚","27":"ii˚","33":"iv","40":"bV","47":"v","51":"bvii","55":"VII","total":55,"weight":3},"bii˚":{"6":"VI","9":"bvi","16":"V","22":"bv","28":"IV","32":"II","35":"bii","37":"ii˚","43":"iv","50":"bV","57":"v","61":"bvii","65":"VII","total":65,"weight":2},"ii˚":{"6":"VI","9":"bvi","16":"V","22":"bv","28":"IV","32":"II","35":"bii","37":"bii˚","43":"iv","50":"bV","57":"v","61":"bvii","65":"VII","total":65,"weight":2},"iv":{"8":"i","16":"I","22":"VI","25":"bvi","31":"IV","34":"bii","36":"bii˚","38":"ii˚","43":"bvii","48":"VII","total":48,"weight":6},"bV":{"9":"i","18":"I","21":"bvi","27":"V","32":"bv","38":"III","42":"II","45":"bii","47":"bii˚","49":"ii˚","55":"v","59":"VII","total":59,"weight":6},"v":{"9":"i","18":"I","20":"vii˚","21":"bvii˚","27":"V","32":"bv","38":"III","41":"biii","45":"II","48":"bii","50":"bii˚","52":"ii˚","58":"bV","62":"bvii","66":"VII","total":66,"weight":6},"bvii":{"2":"vii˚","3":"bvii˚","8":"bv","14":"IV","21":"III","25":"biii","28":"bii","30":"bii˚","32":"ii˚","38":"iv","44":"v","48":"VII","total":48,"weight":4},"VII":{"2":"vii˚","3":"bvii˚","9":"V","14":"bv","20":"IV","27":"III","31":"biii","35":"II","38":"bii","40":"bii˚","42":"ii˚","48":"iv","54":"bV","60":"v","64":"bvii","total":64,"weight":4},"START":"i"}
+const reverse_harmony_loc = {"i˚":{"4":"vi","9":"bVI","15":"V","20":"bV","27":"iv","31":"III","36":"biii","40":"bIII","46":"iii","52":"bv","56":"bvi","62":"VI","total":62,"weight":6},"vi":{"6":"i˚","11":"bVI","17":"iv","21":"III","26":"biii","31":"ii","35":"bII","40":"bii","45":"II","49":"bIII","55":"iii","59":"bvi","65":"VI","total":65,"weight":4},"bVI":{"6":"i˚","10":"vi","16":"iv","20":"III","25":"biii","30":"ii","34":"bII","39":"bii","44":"II","48":"bIII","54":"iii","58":"bvi","64":"VI","total":64,"weight":5},"V":{"7":"i˚","11":"VII","14":"bvii","19":"bV","23":"III","28":"biii","32":"ii","35":"bII","39":"bii","43":"II","47":"bIII","53":"iii","59":"bv","63":"bVII","67":"vii","total":67,"weight":6},"bV":{"7":"i˚","11":"VII","14":"bvii","20":"V","24":"III","29":"biii","33":"ii","36":"bII","40":"bii","44":"II","48":"bIII","54":"iii","60":"bv","64":"bVII","68":"vii","total":68,"weight":5},"iv":{"6":"i˚","11":"VII","15":"bvii","19":"vi","24":"bVI","28":"ii","31":"bII","35":"bii","39":"II","43":"bvi","49":"VI","54":"bVII","59":"vii","total":59,"weight":6},"III":{"6":"i˚","10":"VII","13":"bvii","18":"vi","24":"bVI","30":"V","35":"bV","40":"biii","44":"bIII","50":"iii","55":"bvi","62":"VI","66":"bVII","70":"vii","total":70,"weight":4},"biii":{"6":"i˚","10":"VII","13":"bvii","18":"vi","24":"bVI","30":"V","35":"bV","39":"III","43":"bIII","49":"iii","55":"bv","60":"bvi","67":"VI","71":"bVII","75":"vii","total":75,"weight":5},"VII":{"3":"bvii","9":"V","14":"bV","20":"iv","25":"III","31":"biii","34":"bII","38":"II","43":"bIII","50":"iii","54":"bVII","58":"vii","total":58,"weight":4},"bvii":{"4":"VII","10":"V","15":"bV","21":"iv","26":"III","32":"biii","36":"ii","39":"bII","43":"bii","47":"II","52":"bIII","59":"iii","65":"bv","69":"bVII","73":"vii","total":73,"weight":3},"bII":{"4":"VII","7":"bvii","11":"vi","16":"bVI","23":"V","29":"bV","35":"iv","39":"ii","43":"bii","47":"II","54":"bv","58":"bvi","64":"VI","68":"bVII","72":"vii","total":72,"weight":3},"ii":{"3":"bvii","7":"vi","12":"bVI","19":"V","25":"bV","31":"iv","34":"bII","38":"bii","42":"II","49":"bv","53":"bvi","59":"VI","63":"vii","total":63,"weight":4},"bii":{"3":"bvii","7":"vi","12":"bVI","19":"V","25":"bV","31":"iv","35":"ii","38":"bII","42":"II","49":"bv","53":"bvi","59":"VI","63":"vii","total":63,"weight":4},"II":{"4":"VII","7":"bvii","11":"vi","16":"bVI","23":"V","29":"bV","35":"iv","39":"ii","42":"bII","46":"bii","53":"bv","57":"bvi","63":"VI","67":"bVII","71":"vii","total":71,"weight":4},"bIII":{"6":"i˚","10":"VII","13":"bvii","18":"vi","24":"bVI","30":"V","35":"bV","39":"III","44":"biii","50":"iii","55":"bvi","62":"VI","66":"bVII","70":"vii","total":70,"weight":4},"iii":{"6":"i˚","10":"VII","13":"bvii","18":"vi","24":"bVI","30":"V","35":"bV","39":"III","44":"biii","48":"bIII","54":"bv","59":"bvi","66":"VI","70":"bVII","74":"vii","total":74,"weight":6},"bv":{"7":"i˚","10":"bvii","16":"V","21":"bV","26":"biii","30":"ii","33":"bII","37":"bii","41":"II","47":"iii","51":"vii","total":51,"weight":6},"bvi":{"6":"i˚","10":"vi","15":"bVI","21":"iv","25":"III","30":"biii","35":"ii","39":"bII","44":"bii","49":"II","53":"bIII","59":"iii","65":"VI","total":65,"weight":4},"VI":{"6":"i˚","10":"vi","15":"bVI","21":"iv","25":"III","30":"biii","35":"ii","39":"bII","44":"bii","49":"II","53":"bIII","59":"iii","63":"bvi","total":63,"weight":6},"bVII":{"4":"VII","7":"bvii","13":"V","18":"bV","24":"iv","29":"III","35":"biii","38":"bII","42":"II","47":"bIII","54":"iii","58":"vii","total":58,"weight":4},"vii":{"4":"VII","7":"bvii","13":"V","18":"bV","24":"iv","29":"III","35":"biii","39":"ii","42":"bII","46":"bii","50":"II","55":"bIII","62":"iii","68":"bv","72":"bVII","total":72,"weight":4},"START":"i˚"}
+
+
 const MAP_IONIAN_TRIAD 			= {"START":"I","I":{"1":"I","4":"iii","13":"V","total":13,"weight":4},"ii":{"1":"ii","3":"IV","5":"vi","total":5,"weight":2},"iii":{"1":"iii","4":"V","6":"vii˚","total":6,"weight":3},"IV":{"1":"IV","3":"vi","13":"I","total":13,"weight":2},"V":{"1":"V","3":"vii˚","5":"ii","total":5,"weight":3},"vi":{"1":"vi","5":"I","8":"iii","total":8,"weight":2},"vii˚":{"1":"vii˚","3":"ii","5":"IV","total":5,"weight":2}}
 const MAP_DORIAN_TRIAD 			= {"START":"i","i":{"1":"i","3":"III","5":"v","total":5,"weight":3},"ii":{"1":"ii","4":"IV","13":"vi˚","total":13,"weight":3},"III":{"1":"III","3":"v","5":"VII","total":5,"weight":2},"IV":{"1":"IV","4":"vi˚","13":"i","total":13,"weight":3},"v":{"1":"v","3":"VII","6":"ii","total":6,"weight":2},"vi˚":{"1":"vi˚","4":"i","6":"III","total":6,"weight":3},"VII":{"1":"VII","4":"ii","13":"IV","total":13,"weight":2}}
 const MAP_PHRYGIAN_TRIAD 		= {"START":"i","i":{"1":"i","3":"III","6":"v˚","total":6,"weight":3},"II":{"1":"II","3":"iv","5":"VI","total":5,"weight":3},"III":{"1":"III","4":"v˚","13":"vii","total":13,"weight":2},"iv":{"1":"iv","3":"VI","6":"i","total":6,"weight":2},"v˚":{"1":"v˚","4":"vii","13":"II","total":13,"weight":3},"VI":{"1":"VI","4":"i","6":"III","total":6,"weight":2},"vii":{"1":"vii","4":"II","6":"iv","total":6,"weight":3}}
@@ -919,7 +695,14 @@ const PROGRESSION_MAPS = {
   "Lydian 7x13 [ I13, II13, iii13, iv˚13, V13, vi13, vii13 ]" : MAP_LYDIAN_7_13,
   "Mixolydian 7x13 [ I13, ii13, iii˚13, IV13, v13, vi13, VII13 ]" : MAP_MIXOLYDIAN_7_13,
   "Aeolian 7x13 [ i13, ii˚13,III13, iv13, v13, VI13, VII13 ]" : MAP_AEOLIAN_7_13,
-  "Locrian 7x13 [ i˚13, II13, iii13, iv13, V13, VI13, vii13 ]" : MAP_LOCRIAN_7_13
+  "Locrian 7x13 [ i˚13, II13, iii13, iv13, V13, VI13, vii13 ]" : MAP_LOCRIAN_7_13,
+  "Ionian RH [ I, ii, iii, IV, V, vi, vii˚ ]" : reverse_harmony_ION,
+  "Dorian RH [ i, ii, III, IV, v, vi˚, VII ]" : reverse_harmony_dor,
+  "Phrygian RH [ i, II, III, iv, v˚, VI, vii ]" : reverse_harmony_phr,
+  "Lydian RH [ I, II, iii, iv˚, V, vi, vii ]" : reverse_harmony_LYD,
+  "Mixolydian RH [ I, ii, iii˚, IV, v, vi, VII ]" : reverse_harmony_MIX,
+  "Aeolian RH [ i, ii˚,III, iv, v, VI, VII ]" : reverse_harmony_aeo,
+  "Locrian RH [ i˚, II, iii, iv, V, VI, vii ]" : reverse_harmony_loc
 };
 
 const PROGRESSION_MAP_KEYS = Object.keys( PROGRESSION_MAPS );
@@ -1060,29 +843,132 @@ const NOTE_LENGTHS_LIB = {
 	"2 bars"	:	8.000,
 	"3 bars"	:	12.000,
 	"4 bars"	:	16.000,
-	"8 bars" 	:	32.000,
-	"12 bars"	:	48.000,
-	"16 bars"	:	64.000
+	"8 bars"	:	32.000
 };
 var NOTE_LENGTH_KEYS = Object.keys( NOTE_LENGTHS_LIB );
 
+/* PARAMETER CONTROLS */
+
+// control order models full calculation and modification sequence
+
+// 0
+PluginParameters.push({
+	name: "Chord Generation",
+	type: "text"
+});
+
+// 1
+PluginParameters.push({
+	name:"Scale Root", 
+	type:"menu", 
+	valueStrings: CHROMATIC_SCALE_STRINGS,
+	defaultValue:0
+});
+
+// 2
+PluginParameters.push({
+	name:"Scale Type", 
+	type:"menu", 
+	valueStrings: SCALE_KEYS, 
+	defaultValue:0
+});
+
+// 3
+PluginParameters.push({
+	name:"Progression Map", 
+	type:"menu", 
+	valueStrings:PROGRESSION_MAP_KEYS, 
+	// defaultValue:0
+});
+
+// 4
+PluginParameters.push({
+	name: "Chord Types",
+	type: "text"
+});
+
+// 5
+PluginParameters.push({
+	name:"Voice Modification", 
+	type:"menu", 
+	valueStrings:CHORD_VOICE_OPTIONS_KEYS, 
+	defaultValue:0
+});
+
+// 6-13
+CHORD_VOICE_MODIFIER_KEYS.forEach( function( voice_key ) {
+	PluginParameters.push({
+		name:"Play/Mute " + voice_key, 
+		type:"checkbox", 
+		valueStrings:voice_key, 
+		defaultValue:1
+	});
+});
+
+// 14
+PluginParameters.push({
+	name: "Transpositions",
+	type: "text"
+});
+
+// 15
+PluginParameters.push({
+	name:"Target Octave", 
+	type:"menu", 
+	valueStrings:TARGET_OCTAVE_KEYS, 
+	defaultValue:5
+});
+
+// 16
+PluginParameters.push({
+	name:"Transpose High Fulcrum", 
+	type:"menu", 
+	valueStrings:PITCH_STRINGS, 
+	defaultValue:71
+});
+
+// 17
+PluginParameters.push({
+	name:"Transpose Low Fulcrum", 
+	type:"menu", 
+	valueStrings:PITCH_STRINGS, 
+	defaultValue:60
+});
+
+// 18
+PluginParameters.push({
+	name:"Semitones", 
+	type:"lin", 
+	minValue:-36, 
+	maxValue:36, 
+	numberOfSteps:72, 
+	defaultValue:0
+});
+
+// 19
+PluginParameters.push({
+	name:"Chord Play Length", 
+	type:"menu", 
+	valueStrings: NOTE_LENGTH_KEYS,
+	defaultValue: 21
+});
+
 /* RUNTIME */
 
-var PARAM_SCALE_ROOT = 0;
-var PARAM_SCALE_TYPE = 0;
-var PARAM_MAP = PROGRESSION_MAPS[PROGRESSION_MAP_KEYS[0]];
-var CHORD_VOICE_SETTINGS = CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[0]];
+var PARAM_SCALE_ROOT = GetParameter( 1 );
+var PARAM_SCALE_TYPE = GetParameter( 2 );
+var PARAM_MAP = PROGRESSION_MAPS[PROGRESSION_MAP_KEYS[GetParameter( 3 )]];
+var CHORD_VOICE_SETTINGS = CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[GetParameter( 5 )]];
 var PARAM_TARGET_OCTAVE = TARGET_OCTAVE_LIB["3 (Middle C)"];
-var PARAM_TRANSPOSE_HIGH_FULCRUM = 71;
-var PARAM_TRANSPOSE_LOW_FULCRUM = 60;
-var PARAM_SEMITONES = 0;
-var PARAM_CHORD_PLAY_LENGTH = NOTE_LENGTHS_LIB[NOTE_LENGTH_KEYS[21]];
+var PARAM_TRANSPOSE_HIGH_FULCRUM = GetParameter( 16 );
+var PARAM_TRANSPOSE_LOW_FULCRUM = GetParameter( 17 );
+var PARAM_SEMITONES = GetParameter( 18 );
+var PARAM_CHORD_PLAY_LENGTH = NOTE_LENGTHS_LIB[NOTE_LENGTH_KEYS[GetParameter( 19 )]];
 
 var MAP_LAST_SELECTION = "";
 var MAP_STARTED = false;
 
-// var MAP = MAP_MAJOR_LEAN_I;
-var SCALE = calculate_scale_pitches( PARAM_SCALE_ROOT , 0 );
+var SCALE = calculate_scale_pitches( GetParameter( 1), GetParameter( 2 ) );
 
 // the trigger variable is where the next note (or rest) is to be played
 // trigger is global to track it across process blocks
@@ -1090,7 +976,7 @@ var SCALE = calculate_scale_pitches( PARAM_SCALE_ROOT , 0 );
 // cursor is handled locally because only the current process block matters while playing
 const RESET_VALUE = -1.0;
 var TRIGGER = RESET_VALUE;
-const CURSOR_INCREMENT = 0.00001; // smallest note length = 0.125
+const CURSOR_INCREMENT = 0.001; // smallest note length = 0.125
 
 // currently set up to only track one played note at a time.
 var ACTIVE_RGEN_NOTES = [];
@@ -1135,6 +1021,16 @@ function HandleMIDI( event ) {
 function ProcessMIDI() {
 	var timing_info = GetTimingInfo();
 
+	PARAM_SCALE_ROOT = GetParameter( 1 );
+	PARAM_SCALE_TYPE = GetParameter( 2 );
+	PARAM_MAP = PROGRESSION_MAPS[PROGRESSION_MAP_KEYS[GetParameter( 3 )]];
+	CHORD_VOICE_SETTINGS = CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[GetParameter( 5 )]];
+	PARAM_TARGET_OCTAVE = TARGET_OCTAVE_LIB["3 (Middle C)"];
+	PARAM_TRANSPOSE_HIGH_FULCRUM = GetParameter( 16 );
+	PARAM_TRANSPOSE_LOW_FULCRUM = GetParameter( 17 );
+	PARAM_SEMITONES = GetParameter( 18 );
+	PARAM_CHORD_PLAY_LENGTH = NOTE_LENGTHS_LIB[NOTE_LENGTH_KEYS[GetParameter( 19 )]];	
+
 	// when the transport stops, stop any playing notes and track the cursor and trigger so play can begin uninterrupted
 	if ( !timing_info.playing ){
 		ACTIVE_RGEN_NOTES.forEach( function ( note_on ) {
@@ -1143,7 +1039,8 @@ function ProcessMIDI() {
 		});
 		cursor = timing_info.blockStartBeat;
 		TRIGGER = RESET_VALUE;
-		MAP_STARTED = false;
+		MAP_STARTED = false;	
+
 		return;
 	}
 	
@@ -1199,16 +1096,9 @@ function ProcessMIDI() {
             let iteration_selection = "";
 
 			if ( !MAP_STARTED ) {
-				iteration_key = PARAM_MAP["START"];
-                pool = PARAM_MAP[ iteration_key ];
-                // select a pitch from the pool
-				if ( !pool ) {
-                    iteration_key = PARAM_MAP["START"];
-                    pool = PARAM_MAP[ iteration_key ];
-                }
-                iteration_selection = getRandomValueFromWeightPool( pool );
-                MAP_LAST_SELECTION = iteration_selection;
+				iteration_selection = PARAM_MAP["START"];
                 MAP_STARTED = true;
+				MAP_LAST_SELECTION = iteration_selection;
 			} else {
 				iteration_key = MAP_LAST_SELECTION;
                 pool = PARAM_MAP[ iteration_key ];
@@ -1217,12 +1107,14 @@ function ProcessMIDI() {
                     pool = PARAM_MAP[ iteration_key ];
                 }
                 iteration_selection = getRandomValueFromWeightPool( pool );
+                Trace(iteration_selection);
                 MAP_LAST_SELECTION = iteration_selection;
 			}
-
+			
 			// build the chord from the iteration selection
 			let chord = create_chord_from_spelling( iteration_selection, SCALE, PARAM_SCALE_ROOT );
-			Trace( iteration_selection + " --> " + JSON.stringify(chord) );
+			Trace(iteration_selection);
+			// Trace( iteration_selection + " --> " + JSON.stringify(chord) );
 			// modify the chord
 			// transpose the notes in the chord
 			// to target octave
@@ -1232,6 +1124,36 @@ function ProcessMIDI() {
 			// play the notes
 
 			var note_off_beat = TRIGGER + PARAM_CHORD_PLAY_LENGTH;
+
+			//Trace(JSON.stringify({
+			//	instance: 1,
+			//	cursor:cursor,
+			//	TRIGGER:TRIGGER,
+			//	note_off_beat:note_off_beat,
+			//	PARAM_CHORD_PLAY_LENGTH: PARAM_CHORD_PLAY_LENGTH,
+			//	rightCycleBeat:timing_info.rightCycleBeat
+			//}));
+
+			// stop the notes the length ahead
+					// adjust for the cycle buffers
+			if ( timing_info.cycling && note_off_beat >= timing_info.rightCycleBeat ) {
+				while ( note_off_beat >= timing_info.rightCycleBeat ) {
+					note_off_beat -= ( timing_info.rightCycleBeat - timing_info.leftCycleBeat ); //cycleBeats
+					// ERROR: note_off_beat = null
+					// ATTEMPT: chaining cycleBeats to actual calc crams events at the end of the cycle
+				}
+			}
+
+			TRIGGER = note_off_beat;
+
+			//Trace(JSON.stringify({
+			//	instance:2,
+			//	cursor:cursor,
+			//	TRIGGER:TRIGGER,
+			//	note_off_beat:note_off_beat,
+			//	PARAM_CHORD_PLAY_LENGTH: PARAM_CHORD_PLAY_LENGTH,
+			//	rightCycleBeat:timing_info.rightCycleBeat
+			//}));
 
 			CHORD_VOICE_MODIFIER_KEYS.forEach( function ( key ) {
 				let pitch_obj = chord[ key ];
@@ -1275,39 +1197,25 @@ function ProcessMIDI() {
 
             		let note_off = new NoteOff( note_on );
 
-					// stop the notes the length ahead
-					// adjust for the cycle buffers
-					if ( timing_info.cycling && note_off_beat >= timing_info.rightCycleBeat ) {
-						while ( note_off_beat >= timing_info.rightCycleBeat ) {
-							note_off_beat -= cycleBeats;
-							// ERROR: note_off_beat = null
-							// ATTEMPT: chaning cycleBeats to actual calc crams events at the end of the cycle
-						}
-					}
-
 					note_off.sendAtBeat( note_off_beat );
-
-					// Trace( note_on );
-					// Trace( note_off );
 				}
 						
 			});
-
-			TRIGGER = note_off_beat;
 
 		}
 
 		// advance the cursor and trigger to the next beat
 		cursor += CURSOR_INCREMENT;
 		if ( TRIGGER < cursor ) {
+			// Trace( TRIGGER + " < " + cursor );
 			TRIGGER = cursor;
 		}
+		
 	}
 }
 
 function ParameterChanged( param , value ) {
 	if ( UPDATING_CONTROLS ) {
-		Trace("Updating controls");
 		return;
 	}
 	switch (param) {
@@ -1328,8 +1236,8 @@ function ParameterChanged( param , value ) {
 		break;
 		case 3:
 			// Progression Map; menu
-			PARAM_MAP = PROGRESSION_MAPS[PROGRESSION_MAP_KEYS[value]];
-			Trace(PROGRESSION_MAP_KEYS[value]);
+			PARAM_MAP = PROGRESSION_MAPS[ PROGRESSION_MAP_KEYS[ value ] ];
+			Trace( PROGRESSION_MAP_KEYS[ value ] );
 			MAP_STARTED = false;
 		break;
 		case 4:
@@ -1340,13 +1248,13 @@ function ParameterChanged( param , value ) {
 			CHORD_VOICE_SETTINGS = CHORD_VOICE_OPTIONS[CHORD_VOICE_OPTIONS_KEYS[value]];
 			// changes will happen on next chord calc
 			Trace(CHORD_VOICE_OPTIONS_KEYS[value]);
-			// UPDATING_CONTROLS = true;
+			UPDATING_CONTROLS = true;
 			let cursor = 6;
 			CHORD_VOICE_MODIFIER_KEYS.forEach( function ( voice_key ) {
 				SetParameter( cursor, CHORD_VOICE_SETTINGS[ voice_key ] );
 				cursor++;
 			});
-			// UPDATING_CONTROLS = false;
+			UPDATING_CONTROLS = false;
 		break;
 
 		case 6:
@@ -2071,109 +1979,3 @@ function transposePitchToTargetOctave( pitch, targetOctave ) {
 	let transposedPitch = pitch + ( targetOctave * 12 );
 	return transposedPitch;
 }
-
-/* PARAMETER CONTROLS */
-
-// control order models full calculation and modification sequence
-
-// 0
-PluginParameters.push({
-	name: "Chord Generation",
-	type: "text"
-});
-
-// 1
-PluginParameters.push({
-	name:"Scale Root", 
-	type:"menu", 
-	valueStrings: CHROMATIC_SCALE_STRINGS,
-	defaultValue:0
-});
-
-// 2
-PluginParameters.push({
-	name:"Scale Type", 
-	type:"menu", 
-	valueStrings: SCALE_KEYS, 
-	defaultValue:0
-});
-
-// 3
-PluginParameters.push({
-	name:"Progression Map", 
-	type:"menu", 
-	valueStrings:PROGRESSION_MAP_KEYS, 
-	defaultValue:0
-});
-
-// 4
-PluginParameters.push({
-	name: "Chord Types",
-	type: "text"
-});
-
-// 5
-PluginParameters.push({
-	name:"Voice Modification", 
-	type:"menu", 
-	valueStrings:CHORD_VOICE_OPTIONS_KEYS, 
-	defaultValue:0
-});
-
-// 6-13
-CHORD_VOICE_MODIFIER_KEYS.forEach( function( voice_key ) {
-	PluginParameters.push({
-		name:"Play/Mute " + voice_key, 
-		type:"checkbox", 
-		valueStrings:voice_key, 
-		defaultValue:1
-	});
-});
-
-// 14
-PluginParameters.push({
-	name: "Transpositions",
-	type: "text"
-});
-
-// 15
-PluginParameters.push({
-	name:"Target Octave", 
-	type:"menu", 
-	valueStrings:TARGET_OCTAVE_KEYS, 
-	defaultValue:5
-});
-
-// 16
-PluginParameters.push({
-	name:"Transpose High Fulcrum", 
-	type:"menu", 
-	valueStrings:PITCH_STRINGS, 
-	defaultValue:71
-});
-
-// 17
-PluginParameters.push({
-	name:"Transpose Low Fulcrum", 
-	type:"menu", 
-	valueStrings:PITCH_STRINGS, 
-	defaultValue:60
-});
-
-// 18
-PluginParameters.push({
-	name:"Semitones", 
-	type:"lin", 
-	minValue:-36, 
-	maxValue:36, 
-	numberOfSteps:72, 
-	defaultValue:0
-});
-
-// 19
-PluginParameters.push({
-	name:"Chord Play Length", 
-	type:"menu", 
-	valueStrings: NOTE_LENGTH_KEYS,
-	defaultValue: 21
-});
