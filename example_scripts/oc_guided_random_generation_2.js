@@ -1107,7 +1107,6 @@ function ProcessMIDI() {
                     pool = PARAM_MAP[ iteration_key ];
                 }
                 iteration_selection = getRandomValueFromWeightPool( pool );
-                Trace(iteration_selection);
                 MAP_LAST_SELECTION = iteration_selection;
 			}
 			
