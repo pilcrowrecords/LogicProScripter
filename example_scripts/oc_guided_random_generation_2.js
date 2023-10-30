@@ -819,29 +819,27 @@ const CHORD_VOICE_OPTION_KEY_ROOTLESS_SEVENTH = "Rootless V7 (3, 7, 9, 13, alt b
 const CHORD_VOICE_OPTION_KEY_SHELL = "Shell (3, 7, alt bass)";	
 
 const NOTE_LENGTHS_LIB = {
-    "1/128t"	:	0.0416,
-    "1/64"      :   0.063,
-    "1/64d"     :   0.094,
-    "1/64t"     :   0.021,
-    "1/32"	    :	0.125,
-    "1/32d"	    :	0.188,
-    "1/32t"	    :	0.041,
-    "1/16"	    :	0.250,
-    "1/16d"	    :	0.375,
-    "1/16t"	    :	0.333,
-    "1/8" 	    :	0.500,
-    "1/8d"	    :	0.750,
-    "1/8t"	    :	0.1667,
-    "1/4" 	    :	1.000,
-    "1/4d"	    :	1.500,
-    "1/4t"	    :	0.300,
-    "1/2" 	    :	2.000,
-    "1/2d"	    :	3.000,
-    "1/2t"	    :	1.667,
-    "1 bar"		:	4.000,
-	"1.5 bars"  :   6.000,
+    "1/64"		:	0.063,
+	"1/64d"		:	0.094,
+	"1/64t"		:	0.021,
+	"1/32"		:	0.125,
+	"1/32d"		:	0.188,
+	"1/32t"		:	0.042,
+	"1/16"		:	0.250,
+	"1/16d"		:	0.375,
+	"1/16t"		:	0.083,
+	"1/8"		:	0.500,
+	"1/8d"		:	0.750,
+	"1/8t"		:	0.167,
+	"1/4"		:	1.000,
+	"1/4d"		:	1.500,
+	"1/4t"		:	0.333,
+	"1/2"		:	2.000,
+	"1/2d"		:	3.000,
+	"1/2t"		:	0.667,
+	"1 bar"		:	4.000,
+	"1.5 bars"	:	6.000,
 	"2 bars"	:	8.000,
-	"3 bars"	:	12.000,
 	"4 bars"	:	16.000,
 	"8 bars"	:	32.000
 };
@@ -950,7 +948,7 @@ PluginParameters.push({
 	name:"Chord Play Length", 
 	type:"menu", 
 	valueStrings: NOTE_LENGTH_KEYS,
-	defaultValue: 21
+	defaultValue: 18
 });
 
 /* RUNTIME */
@@ -970,6 +968,11 @@ var MAP_STARTED = false;
 
 var SCALE = calculate_scale_pitches( GetParameter( 1), GetParameter( 2 ) );
 
+// Used by beatToSchedule and TRIGGER to align musically
+// determines how many notes are in the time siqnature denominator
+// 0.25 = 1/1 note, 1 = 1/4 note, 4 = 1/16, 8 = 1/32
+const TIME_SIG_DENOM_DIVISION = 16; // beatToSchedule results in 1/64 notes
+
 // the trigger variable is where the next note (or rest) is to be played
 // trigger is global to track it across process blocks
 // the cursor is a simulated location of the transport/playhead in the track
@@ -977,6 +980,7 @@ var SCALE = calculate_scale_pitches( GetParameter( 1), GetParameter( 2 ) );
 const RESET_VALUE = -1.0;
 var TRIGGER = RESET_VALUE;
 const CURSOR_INCREMENT = 0.001; // smallest note length = 0.125
+Trace("init TRIGGER\t" + TRIGGER);
 
 // currently set up to only track one played note at a time.
 var ACTIVE_RGEN_NOTES = [];
@@ -1032,7 +1036,114 @@ function ProcessMIDI() {
 	PARAM_CHORD_PLAY_LENGTH = NOTE_LENGTHS_LIB[NOTE_LENGTH_KEYS[GetParameter( 19 )]];	
 
 	// when the transport stops, stop any playing notes and track the cursor and trigger so play can begin uninterrupted
-	if ( !timing_info.playing ){
+	if ( timing_info.playing ){
+		// init the values to calculate beats
+		var beatToSchedule = align_beat_to_bar_division( timing_info.blockStartBeat, TIME_SIG_DENOM_DIVISION );
+		if ( TRIGGER == RESET_VALUE ) {
+			TRIGGER = beatToSchedule;
+		}
+
+		// loop through the beats that fall within this buffer
+		while ( beats_fall_within_buffer( beatToSchedule, timing_info ) ) {
+			// adjust for cycle
+			beatToSchedule = handle_beat_wraparound( beatToSchedule, timing_info );
+			TRIGGER = handle_beat_wraparound( TRIGGER, timing_info );
+			
+			// the cursor has come to the trigger
+			if ( beatToSchedule == TRIGGER ) {
+
+				//  select a pitch from the selected markov chain
+				let iteration_key = "";
+				let pool = {};
+				let iteration_selection = "";
+
+				if ( !MAP_STARTED ) {
+					iteration_selection = PARAM_MAP["START"];
+					MAP_STARTED = true;
+					MAP_LAST_SELECTION = iteration_selection;
+				} else {
+					iteration_key = MAP_LAST_SELECTION;
+					pool = PARAM_MAP[ iteration_key ];
+					if ( !pool ) {
+						iteration_key = PARAM_MAP["START"];
+						pool = PARAM_MAP[ iteration_key ];
+					}
+					iteration_selection = getRandomValueFromWeightPool( pool );
+					MAP_LAST_SELECTION = iteration_selection;
+				}
+				
+				// build the chord from the iteration selection
+				let chord = create_chord_from_spelling( iteration_selection, SCALE, PARAM_SCALE_ROOT );
+				Trace(iteration_selection);
+
+				// modify the chord
+				// transpose the notes in the chord
+				// to target octave
+				// to below high fulcrum
+				// to push up above low fulfcrum
+				// adjust by semitones
+				// play the notes
+
+				var note_off_beat = beatToSchedule + PARAM_CHORD_PLAY_LENGTH;
+
+				handle_beat_wraparound(note_off_beat, timing_info);
+
+				// advance the trigger
+				TRIGGER += PARAM_CHORD_PLAY_LENGTH;
+
+				CHORD_VOICE_MODIFIER_KEYS.forEach( function ( key ) {
+					let pitch_obj = chord[ key ];
+					if ( pitch_obj ) {
+						let note_on = new NoteOn();
+						let pitch = pitch_obj.pitch;
+						// to target octave
+						pitch = pitch + ( PARAM_TARGET_OCTAVE * CHROMATIC_HALF_STEPS );
+						if ( pitch < 0 ) {
+							pitch = Math.abs( pitch );
+						}
+						
+						// alt_bass needs to remain a bass note
+						if ( key != "alt_bass" ) {
+							// to below high fulcrum
+							if ( pitch > PARAM_TRANSPOSE_HIGH_FULCRUM ) {
+								while ( pitch > PARAM_TRANSPOSE_HIGH_FULCRUM ) {
+									pitch -= CHROMATIC_HALF_STEPS;
+								}
+							}
+
+							// to above low fulcrum
+							if ( pitch < PARAM_TRANSPOSE_LOW_FULCRUM ) {
+								while ( pitch <= PARAM_TRANSPOSE_HIGH_FULCRUM ) {
+									pitch += CHROMATIC_HALF_STEPS;
+								}
+							}
+						}
+						
+						// semitones
+						if ( PARAM_SEMITONES != 0 ) {
+							pitch += PARAM_SEMITONES;
+						}
+
+						note_on.pitch = pitch;
+						note_on.velocity = 100;
+
+						note_on.sendAtBeat( beatToSchedule ); 
+						ACTIVE_RGEN_NOTES.push( note_on );
+
+						let note_off = new NoteOff( note_on );
+
+						note_off.sendAtBeat( note_off_beat );
+					}
+							
+				});
+
+			}
+
+			// advance to next beat
+			beatToSchedule += CURSOR_INCREMENT;
+			beatToSchedule = align_beat_to_bar_division( beatToSchedule, TIME_SIG_DENOM_DIVISION );
+		}
+	} else {
 		ACTIVE_RGEN_NOTES.forEach( function ( note_on ) {
 			var note_off = new NoteOff( note_on );
 			note_off.send();
@@ -1040,177 +1151,35 @@ function ProcessMIDI() {
 		cursor = timing_info.blockStartBeat;
 		TRIGGER = RESET_VALUE;
 		MAP_STARTED = false;	
-
-		return;
 	}
-	
-	
-	// calculate beat to schedule
-	var lookAheadEnd = timing_info.blockEndBeat;
-	var cursor = timing_info.blockStartBeat;
-	if ( TRIGGER == RESET_VALUE ) {
-		TRIGGER = timing_info.blockStartBeat;
-	}
+}
 
-	// trigger can get stuck outside of cycle causing whole cycle loss of music
-	if ( timing_info.cycling && ( !TRIGGER || TRIGGER > timing_info.rightCycleBeat ) ) {
-		TRIGGER = ( timing_info.rightCycleBeat > timing_info.blockEndBeat ? timing_info.rightCycleBeat : timing_info.blockEndBeat ); 
-		// Assumes the cycle is on a whole number (quarter beat/bottom denominator in time sig);
-		if ( TRIGGER == timing_info.rightCycleBeat && Math.trunc(cursor) == timing_info.leftCycleBeat ) {
-			TRIGGER = timing_info.blockStartBeat;
-		}
-			
-	}
+// aligns any float value to the beats
+// ceiling used because all recordable beats are >= 1.000
+function align_beat_to_bar_division( value, division ) {
+    return Math.ceil( value * division ) / division;
+}
 
-    // cycling the playhead cretes buffers which need to be managed
-    // the buffers are the edges of the cycle
-    // process blocks do not line up with cycle bounds
-	// when cycling, find the beats that wrap around the last buffer
-	if ( timing_info.cycling && lookAheadEnd >= timing_info.rightCycleBeat ) {
-        // is the end of the process block past the end of the cycle?
-		if ( lookAheadEnd >= timing_info.rightCycleBeat ) {
-            // get the length of the process block
-			var cycleBeats = timing_info.rightCycleBeat - timing_info.leftCycleBeat;
-            // get the difference between the end of the process block and the cycle length
-            // this will be the relative shift back to the beginning of the cycle
-			var cycleEnd = lookAheadEnd - cycleBeats;
-		}
-	}
+// when the intended beat falls outside the cycle, wrap it proportionally 
+// from the cycle start
+function handle_beat_wraparound( value, timing_info ) {
+    if ( timing_info.cycling && value >= timing_info.rightCycleBeat ) {
+        value -= ( timing_info.rightCycleBeat - timing_info.leftCycleBeat );
+    }
+    return value;
+}
 
-	// increment the cursor through the beats that fall within this cycle's buffers
-	while ((cursor >= timing_info.blockStartBeat && cursor < lookAheadEnd)
-	// including beats that wrap around the cycle point
-	|| (timing_info.cycling && cursor < cycleEnd)) {
-		// adjust the cursor and the trigger for the cycle
-		if (timing_info.cycling && cursor >= timing_info.rightCycleBeat) {
-			cursor -= (timing_info.rightCycleBeat - timing_info.leftCycleBeat);
-			TRIGGER = cursor;
-		}
-        
-        // the cursor has come to the trigger
-		if ( cursor == TRIGGER ) {
-
-			//  select a pitch from the selected markov chain
-            let iteration_key = "";
-            let pool = {};
-            let iteration_selection = "";
-
-			if ( !MAP_STARTED ) {
-				iteration_selection = PARAM_MAP["START"];
-                MAP_STARTED = true;
-				MAP_LAST_SELECTION = iteration_selection;
-			} else {
-				iteration_key = MAP_LAST_SELECTION;
-                pool = PARAM_MAP[ iteration_key ];
-                if ( !pool ) {
-                    iteration_key = PARAM_MAP["START"];
-                    pool = PARAM_MAP[ iteration_key ];
-                }
-                iteration_selection = getRandomValueFromWeightPool( pool );
-                MAP_LAST_SELECTION = iteration_selection;
-			}
-			
-			// build the chord from the iteration selection
-			let chord = create_chord_from_spelling( iteration_selection, SCALE, PARAM_SCALE_ROOT );
-			Trace(iteration_selection);
-			// Trace( iteration_selection + " --> " + JSON.stringify(chord) );
-			// modify the chord
-			// transpose the notes in the chord
-			// to target octave
-			// to below high fulcrum
-			// to push up above low fulfcrum
-			// adjust by semitones
-			// play the notes
-
-			var note_off_beat = TRIGGER + PARAM_CHORD_PLAY_LENGTH;
-
-			//Trace(JSON.stringify({
-			//	instance: 1,
-			//	cursor:cursor,
-			//	TRIGGER:TRIGGER,
-			//	note_off_beat:note_off_beat,
-			//	PARAM_CHORD_PLAY_LENGTH: PARAM_CHORD_PLAY_LENGTH,
-			//	rightCycleBeat:timing_info.rightCycleBeat
-			//}));
-
-			// stop the notes the length ahead
-					// adjust for the cycle buffers
-			if ( timing_info.cycling && note_off_beat >= timing_info.rightCycleBeat ) {
-				while ( note_off_beat >= timing_info.rightCycleBeat ) {
-					note_off_beat -= ( timing_info.rightCycleBeat - timing_info.leftCycleBeat ); //cycleBeats
-					// ERROR: note_off_beat = null
-					// ATTEMPT: chaining cycleBeats to actual calc crams events at the end of the cycle
-				}
-			}
-
-			TRIGGER = note_off_beat;
-
-			//Trace(JSON.stringify({
-			//	instance:2,
-			//	cursor:cursor,
-			//	TRIGGER:TRIGGER,
-			//	note_off_beat:note_off_beat,
-			//	PARAM_CHORD_PLAY_LENGTH: PARAM_CHORD_PLAY_LENGTH,
-			//	rightCycleBeat:timing_info.rightCycleBeat
-			//}));
-
-			CHORD_VOICE_MODIFIER_KEYS.forEach( function ( key ) {
-				let pitch_obj = chord[ key ];
-				if ( pitch_obj ) {
-					let note_on = new NoteOn();
-					let pitch = pitch_obj.pitch;
-					// to target octave
-					pitch = pitch + ( PARAM_TARGET_OCTAVE * CHROMATIC_HALF_STEPS );
-					if ( pitch < 0 ) {
-						pitch = Math.abs( pitch );
-					}
-					
-					// alt_bass needs to remain a bass note
-					if ( key != "alt_bass" ) {
-						// to below high fulcrum
-						if ( pitch > PARAM_TRANSPOSE_HIGH_FULCRUM ) {
-							while ( pitch > PARAM_TRANSPOSE_HIGH_FULCRUM ) {
-								pitch -= CHROMATIC_HALF_STEPS;
-							}
-						}
-
-						// to above low fulcrum
-						if ( pitch < PARAM_TRANSPOSE_LOW_FULCRUM ) {
-							while ( pitch <= PARAM_TRANSPOSE_HIGH_FULCRUM ) {
-								pitch += CHROMATIC_HALF_STEPS;
-							}
-						}
-					}
-					
-
-					// semitones
-					if ( PARAM_SEMITONES != 0 ) {
-						pitch += PARAM_SEMITONES;
-					}
-
-            		note_on.pitch = pitch;
-            		note_on.velocity = 100;
-
-            		note_on.sendAtBeat( cursor ); 
-            		ACTIVE_RGEN_NOTES.push( note_on );
-
-            		let note_off = new NoteOff( note_on );
-
-					note_off.sendAtBeat( note_off_beat );
-				}
-						
-			});
-
-		}
-
-		// advance the cursor and trigger to the next beat
-		cursor += CURSOR_INCREMENT;
-		if ( TRIGGER < cursor ) {
-			// Trace( TRIGGER + " < " + cursor );
-			TRIGGER = cursor;
-		}
-		
-	}
+// loop through the beats that fall within this buffer
+// including beats that wrap around the cycle point
+// return false by default
+function beats_fall_within_buffer ( beatToSchedule, timing_info ) {
+    let lookAheadEnd = timing_info.blockEndBeat;
+    let cycleBeats = timing_info.rightCycleBeat - timing_info.leftCycleBeat;
+    let cycleEnd = lookAheadEnd - cycleBeats;
+    if ( beatToSchedule >= timing_info.blockStartBeat && beatToSchedule < lookAheadEnd || (timing_info.cycling && beatToSchedule < cycleEnd)) {
+        return true;
+    }
+    return false;
 }
 
 function ParameterChanged( param , value ) {
@@ -1330,7 +1299,6 @@ function ParameterChanged( param , value ) {
 
 /* SCALE MANAGEMENT */
 
-// converts the half- and whole-step jumps into the transposition and pitch shift maps
 function calculate_scale_pitches( root, templateIndex ) {
 	Trace( "calculate_scale_pitches( " + root + " , " + templateIndex + " )" );
 	// root index maps directly to MIDI pitches 0-11
