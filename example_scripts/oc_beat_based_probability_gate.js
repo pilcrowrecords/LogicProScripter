@@ -60,6 +60,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 var NeedsTimingInfo = true;
 var PluginParameters = [];
 
+const TIME_SIG_DENOM_DIVISION = 16; // beatToSchedule results in 1/64 notes
+
 const PROBS_LIB = {
     "Original"		:	[96, 90, 84, 78, 72, 66, 60, 54, 48, 42, 36, 30, 24, 18, 12, 6],
     "Reverse"		:	[6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96],
@@ -95,7 +97,7 @@ var PROBS_ARR = PROBS_LIB["Original"];
 var PATTERN_START = 1;
 var PATTERN_LENGTH = 15;
 var PROB_SKEW = 0;
-var DIVISION = NOTE_LENGTHS_LIB["1/4"];
+var DIVISION = NOTE_LENGTHS_LIB["1/16"];
 
 // controls
 const BEAT_PARAM_OFFSET = 5;
@@ -133,77 +135,82 @@ function HandleMIDI( event ) {
         		ACTIVE_NOTES[ pitch ] = notes;
 		}
         event.send();
-	}
+	} else {
+        // pass through
+        event.send();
+    }
 
 }
 
 function ProcessMIDI() {
 	var timing_info = GetTimingInfo();
 
-	if ( !timing_info.playing ){
-		cursor = timing_info.blockStartBeat;
-		TRIGGER = RESET_VALUE;
-		return;
-	}
-	
-	// calculate beat to schedule
-	var lookAheadEnd = timing_info.blockEndBeat;
-	var cursor = timing_info.blockStartBeat;
-	if ( TRIGGER == RESET_VALUE ) {
-		TRIGGER = timing_info.blockStartBeat;
-	}
-	
-	// trigger can get stuck outside of cycle causing whole cycle loss of music
-	if ( timing_info.cycling && ( !TRIGGER || TRIGGER > timing_info.rightCycleBeat ) ) {
-		TRIGGER = ( timing_info.rightCycleBeat > timing_info.blockEndBeat ? timing_info.rightCycleBeat : timing_info.blockEndBeat ); 
-		// Assumes the cycle is on a whole number (quarter beat/bottom denominator in time sig);
-		if ( TRIGGER == timing_info.rightCycleBeat && Math.trunc(cursor) == timing_info.leftCycleBeat ) {
-			TRIGGER = timing_info.blockStartBeat;
-		}
-			
-	}
-
-	// cycling the playhead cretes buffers which need to be managed
-    // the buffers are the edges of the cycle
-    // process blocks do not line up with cycle bounds
-	// when cycling, find the beats that wrap around the last buffer
-	if ( timing_info.cycling && lookAheadEnd >= timing_info.rightCycleBeat ) {
-        // is the end of the process block past the end of the cycle?
-		if ( lookAheadEnd >= timing_info.rightCycleBeat ) {
-            // get the length of the process block
-			var cycleBeats = timing_info.rightCycleBeat - timing_info.leftCycleBeat;
-            // get the difference between the end of the process block and the cycle length
-            // this will be the relative shift back to the beginning of the cycle
-			var cycleEnd = lookAheadEnd - cycleBeats;
-		}
-	}
-
-// increment the cursor through the beats that fall within this cycle's buffers
-while ((cursor >= timing_info.blockStartBeat && cursor < lookAheadEnd)
-// including beats that wrap around the cycle point
-|| (timing_info.cycling && cursor < cycleEnd)) {
-    // adjust the cursor and the trigger for the cycle
-    if (timing_info.cycling && cursor >= timing_info.rightCycleBeat) {
-        cursor -= (timing_info.rightCycleBeat - timing_info.leftCycleBeat);
-        TRIGGER = cursor;
-    }
-
-		if ( cursor == TRIGGER ) {
-            // update the probability for this beat
-            // used in HandleMIDI
-            CURRENT_PROB = PROBS_ARR[ PROBS_INDEX ];
-            TRIGGER += DIVISION;
-            PROBS_INDEX += 1;
-            if ( PROBS_INDEX >= PATTERN_LENGTH ) {
-                PROBS_INDEX = 0;
-            }
-		}
+	if ( timing_info.playing ) {
 		
-		cursor += CURSOR_INCREMENT;
-		if ( TRIGGER < cursor ) {
-			TRIGGER = cursor;
-		}	
-	}
+        // init the values to calculate beats
+        var beatToSchedule = align_beat_to_bar_division( timing_info.blockStartBeat, TIME_SIG_DENOM_DIVISION );
+
+        if ( TRIGGER == RESET_VALUE ) {
+            TRIGGER = beatToSchedule;
+        }
+				
+        // loop through the beats that fall within this buffer
+        while ( beats_fall_within_buffer( beatToSchedule, timing_info ) ) {
+            // adjust for cycle
+            beatToSchedule = handle_beat_wraparound( beatToSchedule, timing_info );
+            // TRIGGER = handle_beat_wraparound( TRIGGER, timing_info );
+
+            // if ( beatToSchedule == TRIGGER ) {
+                // update the probability for this beat
+                // used in HandleMIDI
+                PROBS_INDEX = ( beatToSchedule * TIME_SIG_DENOM_DIVISION ) % PROBS_ARR.length;
+                Trace(JSON.stringify({beatToSchedule:beatToSchedule,PROBS_INDEX:PROBS_INDEX}));
+                CURRENT_PROB = PROBS_ARR[ PROBS_INDEX ];
+                 // advance the trigger
+                //  TRIGGER += DIVISION;
+		    // }
+
+               
+        }
+
+        // advance to next beat
+        beatToSchedule += CURSOR_INCREMENT;
+        beatToSchedule = align_beat_to_bar_division( beatToSchedule, TIME_SIG_DENOM_DIVISION );
+
+	} else {
+        // .playing == false; continuous loop with no way to stop
+
+        // ensure the trigger aligns with the playhead on the next play
+        // TRIGGER = RESET_VALUE;
+    }
+}
+
+// aligns any float value to the beats
+// ceiling used because all recordable beats are >= 1.000
+function align_beat_to_bar_division( value, division ) {
+    return Math.ceil( value * division ) / division;
+}
+
+// when the intended beat falls outside the cycle, wrap it proportionally 
+// from the cycle start
+function handle_beat_wraparound( value, timing_info ) {
+    if ( timing_info.cycling && value >= timing_info.rightCycleBeat ) {
+        value -= ( timing_info.rightCycleBeat - timing_info.leftCycleBeat );
+    }
+    return value;
+}
+
+// loop through the beats that fall within this buffer
+// including beats that wrap around the cycle point
+// return false by default
+function beats_fall_within_buffer ( beatToSchedule, timing_info ) {
+    let lookAheadEnd = timing_info.blockEndBeat;
+    let cycleBeats = timing_info.rightCycleBeat - timing_info.leftCycleBeat;
+    let cycleEnd = lookAheadEnd - cycleBeats;
+    if ( beatToSchedule >= timing_info.blockStartBeat && beatToSchedule < lookAheadEnd || (timing_info.cycling && beatToSchedule < cycleEnd)) {
+        return true;
+    }
+    return false;
 }
 
 function ParameterChanged( param , value ) {
