@@ -132,7 +132,7 @@ function HandleMIDI( event ) {
 		var notes = ACTIVE_NOTES[ pitch ];
 		if ( notes ) {
 			var note = notes.pop();
-        		ACTIVE_NOTES[ pitch ] = notes;
+        	ACTIVE_NOTES[ pitch ] = notes;
 		}
         event.send();
 	} else {
