@@ -405,9 +405,11 @@
                 calculate_live_preset_pitches();
             } else if ( event instanceof NoteOff ) {
                 var notes = ACTIVE_LIVE_NOTES[ pitch ];
-                var note = notes.pop();
-                ACTIVE_LIVE_NOTES[ pitch ] = notes;
-                calculate_live_preset_pitches();
+                if ( notes ) {
+                    var note = notes.pop();
+                    ACTIVE_LIVE_NOTES[ pitch ] = notes;
+                    calculate_live_preset_pitches();
+                }
             } else if ( event instanceof NoteOn == false && event instanceof NoteOff == false ) {
                 event.send();
             }
@@ -446,11 +448,12 @@
                         // Trace("NOTE_REST_RATIO_POOL: " + JSON.stringify( NOTE_REST_RATIO_POOL ));
                         // Trace("REST_LENGTH_SELECTIONS: " + JSON.stringify(REST_LENGTH_SELECTIONS)); 
                         Trace("REST_LENGTH_POOL: " +  JSON.stringify( REST_LENGTH_POOL ));
+
                     }
 
                     if ( note_rest_result == EVENT_IS_REST ) { 
 
-                        // if it's a rest, then simpply push the trigger out to the next playable beat
+                        // if it's a rest, then simply push the trigger out to the next playable beat
 
                         if ( OUTPUT_NOTES_TO_CONSOLE ) {
                             Trace( "Rest    " + "---" + "    " + event_length );
@@ -477,8 +480,14 @@
                         }
 
                     }
-                     // advance the trigger
-                     TRIGGER += event_length;
+                    // advance the trigger
+                    if ( VERBOSE ) {
+                        Trace("TRIGGER: " + TRIGGER);
+                    }
+                    TRIGGER += event_length;
+                    if ( VERBOSE ) {
+                        Trace("TRIGGER: " + TRIGGER);
+                    }
                 }
              // advance to next beat
              beatToSchedule += CURSOR_INCREMENT;
