@@ -170,18 +170,18 @@ function ProcessMIDI() {
                 //  TRIGGER += DIVISION;
 		    // }
 
+            // advance to next beat
+            beatToSchedule += CURSOR_INCREMENT;
+            beatToSchedule = align_beat_to_bar_division( beatToSchedule, TIME_SIG_DENOM_DIVISION );
                
         }
 
-        // advance to next beat
-        beatToSchedule += CURSOR_INCREMENT;
-        beatToSchedule = align_beat_to_bar_division( beatToSchedule, TIME_SIG_DENOM_DIVISION );
 
 	} else {
         // .playing == false; continuous loop with no way to stop
 
         // ensure the trigger aligns with the playhead on the next play
-        // TRIGGER = RESET_VALUE;
+        TRIGGER = RESET_VALUE;
     }
 }
 
