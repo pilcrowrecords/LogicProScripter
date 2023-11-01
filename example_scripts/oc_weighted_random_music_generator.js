@@ -481,11 +481,17 @@
                         
                         handle_beat_wraparound(note_off_beat, timing_info);
 
+                        if ( VERBOSE ) {
+                            if ( note_off_beat < beatToSchedule ) {
+                                Trace( (beatToSchedule + event_length) + "\t" + note_off_beat)
+                            }
+                        }
+
                         note_off.sendAtBeat( note_off_beat );
 
-                        if ( VERBOSE ) {
-                            Trace("NOTE_LENGTH_POOL: " +  JSON.stringify( NOTE_LENGTH_POOL ));
-                        }
+                        // if ( VERBOSE ) {
+                        //     Trace("NOTE_LENGTH_POOL: " +  JSON.stringify( NOTE_LENGTH_POOL ));
+                        // }
 
                         if ( OUTPUT_NOTES_TO_CONSOLE ) {
                             Trace( "Note    " + event_pitch + "    " + event_length );
@@ -744,9 +750,9 @@
 
         let chord_template = CHORD_TEMPLATES_LIB[ CHORD_PULLDOWN_LABELS[ chord_type ] ];
 
-        if ( VERBOSE ) {
-            Trace("chord template pre qual: " + JSON.stringify( chord_template ));
-        }
+        // if ( VERBOSE ) {
+        //     Trace("chord template pre qual: " + JSON.stringify( chord_template ));
+        // }
         // get the qualities and modify
 
         var ext7 = GetParameter("7ths");
@@ -785,9 +791,9 @@
             chord_template[6] = null;
         }
 
-        if ( VERBOSE ) {
-            Trace("chord template postqual: " + JSON.stringify( chord_template ));
-        }
+        // if ( VERBOSE ) {
+        //     Trace("chord template postqual: " + JSON.stringify( chord_template ));
+        // }
 
         // calculate the chord pitches
         let voices = {};
