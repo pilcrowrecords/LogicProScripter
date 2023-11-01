@@ -407,6 +407,9 @@
                 var notes = ACTIVE_LIVE_NOTES[ pitch ];
                 if ( notes ) {
                     var note = notes.pop();
+                    if (note) {
+                        // do nothing
+                    }
                     ACTIVE_LIVE_NOTES[ pitch ] = notes;
                     calculate_live_preset_pitches();
                 }
@@ -432,7 +435,9 @@
                 // adjust for cycle
                 beatToSchedule = handle_beat_wraparound( beatToSchedule, timing_info );
                 TRIGGER = handle_beat_wraparound( TRIGGER, timing_info );
-                Trace(JSON.stringify({beatToSchedule:beatToSchedule,TRIGGER:TRIGGER}));
+                // if ( VERBOSE ) {
+                //     Trace(JSON.stringify({beatToSchedule:beatToSchedule,TRIGGER:TRIGGER}));
+                // }
             
                 // the cursor has come to the trigger
                 if ( beatToSchedule == TRIGGER && NOTE_PITCH_POOL[POOL_TOTAL_KEY] != 0 ) {
@@ -440,16 +445,19 @@
                     var event_pitch = ( TARGET_OCTAVE * 12 ) + parseInt(getRandomValueFromWeightPool( NOTE_PITCH_POOL ));
                     note_length_index = getRandomValueFromWeightPool( NOTE_LENGTH_POOL );
                     event_length = getLengthByIndexFromEventLengthLib( note_length_index );
+                    // if ( VERBOSE ) {
+                    //     Trace(JSON.stringify({note_length_index:note_length_index,event_length:event_length}));
+                    // }
 
                     // is this going to be a played note or a rest?
                     var note_rest_result = getRandomValueFromWeightPool( NOTE_REST_RATIO_POOL );
 
-                    if ( VERBOSE ) {
-                        // Trace("NOTE_REST_RATIO_POOL: " + JSON.stringify( NOTE_REST_RATIO_POOL ));
-                        // Trace("REST_LENGTH_SELECTIONS: " + JSON.stringify(REST_LENGTH_SELECTIONS)); 
-                        Trace("REST_LENGTH_POOL: " +  JSON.stringify( REST_LENGTH_POOL ));
+                    // if ( VERBOSE ) {
+                    //     // Trace("NOTE_REST_RATIO_POOL: " + JSON.stringify( NOTE_REST_RATIO_POOL ));
+                    //     // Trace("REST_LENGTH_SELECTIONS: " + JSON.stringify(REST_LENGTH_SELECTIONS)); 
+                    //     Trace("REST_LENGTH_POOL: " +  JSON.stringify( REST_LENGTH_POOL ));
 
-                    }
+                    // }
 
                     if ( note_rest_result == EVENT_IS_REST ) { 
 
@@ -475,19 +483,26 @@
 
                         note_off.sendAtBeat( note_off_beat );
 
+                        if ( VERBOSE ) {
+                            Trace("NOTE_LENGTH_POOL: " +  JSON.stringify( NOTE_LENGTH_POOL ));
+                        }
+
                         if ( OUTPUT_NOTES_TO_CONSOLE ) {
                             Trace( "Note    " + event_pitch + "    " + event_length );
                         }
 
                     }
+                    if ( VERBOSE ) {
+                        Trace(JSON.stringify({beatToSchedule:beatToSchedule,TRIGGER:TRIGGER,event_length:event_length,note_off_beat:note_off_beat}));
+                    }
                     // advance the trigger
-                    if ( VERBOSE ) {
-                        Trace("TRIGGER: " + TRIGGER);
-                    }
+                    // if ( VERBOSE ) {
+                    //     Trace("TRIGGER: " + TRIGGER);
+                    // }
                     TRIGGER += event_length;
-                    if ( VERBOSE ) {
-                        Trace("TRIGGER: " + TRIGGER);
-                    }
+                    // if ( VERBOSE ) {
+                    //     Trace("TRIGGER: " + TRIGGER);
+                    // }
                 }
              // advance to next beat
              beatToSchedule += CURSOR_INCREMENT;
@@ -1032,9 +1047,18 @@
 
         weights.pop();
         var last_weight = total;
+        // if ( VERBOSE ) {
+        //     Trace("weights\t" + JSON.stringify(weights));
+        // }
         for ( let index = weights.length - 1 ; index > -1 ; index-- ) {
             const weight = parseInt(weights[index]);
+            // if ( VERBOSE ) {
+            //     Trace("r > weight?\t" + r + " > " + weight);
+            // }
             if ( r > weight ) {
+                // if ( VERBOSE ) {
+                //     Trace("\tr > weight\t" + r + " > " + weight);
+                // }
                 return weightPool[last_weight];
             }
             last_weight = weight;
