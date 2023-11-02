@@ -335,8 +335,8 @@
 
     // Manage note length selections and pool
     var NOTE_LENGTH_SELECTIONS = [];
-    var lengths = Object.keys(NOTE_LENGTHS_LIB);
-    lengths.forEach( function ( l ) {
+    var note_lengths = Object.keys(NOTE_LENGTHS_LIB);
+    note_lengths.forEach( function ( l ) {
         NOTE_LENGTH_SELECTIONS.push(NOTE_PROB_CHROMATIC);
     });
     // weighted selection store,  built from values in store
@@ -344,8 +344,8 @@
 
     // Manage rest length selections and pool
     var REST_LENGTH_SELECTIONS = [];
-    var lengths = Object.keys(NOTE_LENGTHS_LIB);
-    lengths.forEach( function ( l ) {
+    var rest_lengths = Object.keys(NOTE_LENGTHS_LIB);
+    rest_lengths.forEach( function ( l ) {
         REST_LENGTH_SELECTIONS.push(NOTE_PROB_CHROMATIC);
     });
     // weighted selection store,  built from values in store
@@ -364,7 +364,7 @@
     var UPDATING_CONTROLS = false;
     const PITCH_CONTROL_OFFSET = 11;
     const LENGTH_CONTROL_OFFSET = 24;
-    const REST_CONTROL_OFFSET = 47;
+    const REST_CONTROL_OFFSET = 48;
 
     // Used by beatToSchedule and TRIGGER to align musically
     // determines how many notes are in the time siqnature denominator
@@ -452,12 +452,13 @@
                     // is this going to be a played note or a rest?
                     var note_rest_result = getRandomValueFromWeightPool( NOTE_REST_RATIO_POOL );
 
-                    // if ( VERBOSE ) {
-                    //     // Trace("NOTE_REST_RATIO_POOL: " + JSON.stringify( NOTE_REST_RATIO_POOL ));
-                    //     // Trace("REST_LENGTH_SELECTIONS: " + JSON.stringify(REST_LENGTH_SELECTIONS)); 
-                    //     Trace("REST_LENGTH_POOL: " +  JSON.stringify( REST_LENGTH_POOL ));
-
-                    // }
+                    if ( VERBOSE ) {
+                        Trace("NOTE_REST_RATIO_POOL: " + JSON.stringify( NOTE_REST_RATIO_POOL ));
+                        Trace("REST_LENGTH_SELECTIONS: " + JSON.stringify(REST_LENGTH_SELECTIONS)); 
+                        Trace("REST_LENGTH_POOL: " +  JSON.stringify( REST_LENGTH_POOL ));
+                        Trace("NOTE_LENGTH_SELECTIONS: " + JSON.stringify(NOTE_LENGTH_SELECTIONS)); 
+                        Trace("NOTE_LENGTH_POOL: " +  JSON.stringify( NOTE_LENGTH_POOL ));
+                    }
 
                     if ( note_rest_result == EVENT_IS_REST ) { 
 
@@ -482,8 +483,8 @@
                         handle_beat_wraparound(note_off_beat, timing_info);
 
                         if ( VERBOSE ) {
-                            if ( note_off_beat < beatToSchedule ) {
-                                Trace( (beatToSchedule + event_length) + "\t" + note_off_beat)
+                            if ( note_off_beat != (beatToSchedule + event_length) ) {
+                                Trace( "note_off_beat != beatToSchedule\t" + (beatToSchedule + event_length) + "\t" + note_off_beat)
                             }
                         }
 
