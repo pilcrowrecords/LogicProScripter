@@ -435,9 +435,6 @@
                 // adjust for cycle
                 beatToSchedule = handle_beat_wraparound( beatToSchedule, timing_info );
                 TRIGGER = handle_beat_wraparound( TRIGGER, timing_info );
-                // if ( VERBOSE ) {
-                //     Trace(JSON.stringify({beatToSchedule:beatToSchedule,TRIGGER:TRIGGER}));
-                // }
             
                 // the cursor has come to the trigger
                 if ( beatToSchedule == TRIGGER && NOTE_PITCH_POOL[POOL_TOTAL_KEY] != 0 ) {
@@ -445,20 +442,17 @@
                     var event_pitch = ( TARGET_OCTAVE * 12 ) + parseInt(getRandomValueFromWeightPool( NOTE_PITCH_POOL ));
                     note_length_index = getRandomValueFromWeightPool( NOTE_LENGTH_POOL );
                     event_length = getLengthByIndexFromEventLengthLib( note_length_index );
-                    // if ( VERBOSE ) {
-                    //     Trace(JSON.stringify({note_length_index:note_length_index,event_length:event_length}));
-                    // }
-
+ 
                     // is this going to be a played note or a rest?
                     var note_rest_result = getRandomValueFromWeightPool( NOTE_REST_RATIO_POOL );
 
-                    if ( VERBOSE ) {
-                        Trace("NOTE_REST_RATIO_POOL: " + JSON.stringify( NOTE_REST_RATIO_POOL ));
-                        Trace("REST_LENGTH_SELECTIONS: " + JSON.stringify(REST_LENGTH_SELECTIONS)); 
-                        Trace("REST_LENGTH_POOL: " +  JSON.stringify( REST_LENGTH_POOL ));
-                        Trace("NOTE_LENGTH_SELECTIONS: " + JSON.stringify(NOTE_LENGTH_SELECTIONS)); 
-                        Trace("NOTE_LENGTH_POOL: " +  JSON.stringify( NOTE_LENGTH_POOL ));
-                    }
+                    // if ( VERBOSE ) {
+                    //     Trace("NOTE_REST_RATIO_POOL: " + JSON.stringify( NOTE_REST_RATIO_POOL ));
+                    //     Trace("REST_LENGTH_SELECTIONS: " + JSON.stringify(REST_LENGTH_SELECTIONS)); 
+                    //     Trace("REST_LENGTH_POOL: " +  JSON.stringify( REST_LENGTH_POOL ));
+                    //     Trace("NOTE_LENGTH_SELECTIONS: " + JSON.stringify(NOTE_LENGTH_SELECTIONS)); 
+                    //     Trace("NOTE_LENGTH_POOL: " +  JSON.stringify( NOTE_LENGTH_POOL ));
+                    // }
 
                     if ( note_rest_result == EVENT_IS_REST ) { 
 
@@ -480,11 +474,16 @@
                         var note_off = new NoteOff( note_on );
                         var note_off_beat = beatToSchedule + event_length;
                         
-                        handle_beat_wraparound(note_off_beat, timing_info);
+                        note_off_beat = handle_beat_wraparound(note_off_beat, timing_info);
 
                         if ( VERBOSE ) {
-                            if ( note_off_beat != (beatToSchedule + event_length) ) {
-                                Trace( "note_off_beat != beatToSchedule\t" + (beatToSchedule + event_length) + "\t" + note_off_beat)
+                            if ( note_off_beat != (beatToSchedule + event_length) || note_off_beat < (beatToSchedule + event_length) ) {
+                                if ( note_off_beat < (beatToSchedule + event_length) ) {
+                                    Trace( "note_off_beat < beatToSchedule\t" + (beatToSchedule + event_length) + "\t" + note_off_beat);
+                                } else {
+                                    Trace( "note_off_beat != beatToSchedule\t" + (beatToSchedule + event_length) + "\t" + note_off_beat);
+                                }
+                                Trace(JSON.stringify(timing_info));
                             }
                         }
 
@@ -495,7 +494,7 @@
                         // }
 
                         if ( OUTPUT_NOTES_TO_CONSOLE ) {
-                            Trace( "Note    " + event_pitch + "    " + event_length );
+                            Trace( "Note\t" + event_pitch + "\t" + event_length + "\t" + beatToSchedule + "\t" + note_off_beat);
                         }
 
                     }
@@ -535,10 +534,12 @@
     // when the intended beat falls outside the cycle, wrap it proportionally 
     // from the cycle start
     function handle_beat_wraparound( value, timing_info ) {
+        let cache = value;
         if ( timing_info.cycling && value >= timing_info.rightCycleBeat ) {
-            value -= ( timing_info.rightCycleBeat - timing_info.leftCycleBeat );
+            cache = cache - ( timing_info.rightCycleBeat - timing_info.leftCycleBeat );
         }
-        return value;
+        
+        return cache;
     }
 
     // loop through the beats that fall within this buffer
