@@ -1,5 +1,5 @@
 /******************************************************************************
-Name: Guided Random Generation 2
+Name: Weighted Random Chord Progression Generation
 Author(s): Philip Regan
 
 Purpose: 

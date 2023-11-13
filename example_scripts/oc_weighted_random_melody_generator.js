@@ -1,5 +1,5 @@
     /******************************************************************************
-    Name: Random Melody Generator 
+    Name: Weighted Random Melody Generator 
     Author(s): Philip Regan
     Purpose: 
     * Creates random melodies based on weighted selections of pitches, note and 
