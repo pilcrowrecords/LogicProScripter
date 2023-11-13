@@ -1,5 +1,5 @@
 /******************************************************************************
-Name: Runtime Chord Generator
+Name: Live Chord Generator
 Author(s): Philip Regan
 Purpose: 
 * Creates diatonic chords based on a single root note within a particular scale 
