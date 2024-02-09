@@ -93,13 +93,13 @@ function calculate_transposition( orig_pitch ) {
     }
 
     if ( orig_pitch > HIGH_FULCRUM_PITCH ) {
-        while ( cache_pitch > HIGH_FULCRUM_PITCH && orig_pitch >= LOW_FULCRUM_PITCH ) {
+        while ( cache_pitch > HIGH_FULCRUM_PITCH && cache_pitch >= LOW_FULCRUM_PITCH ) {
             cache_pitch -= 12;
         }   
     } 
 
     if ( orig_pitch < LOW_FULCRUM_PITCH ) {
-        while ( cache_pitch <= HIGH_FULCRUM_PITCH && orig_pitch < LOW_FULCRUM_PITCH ) {
+        while ( cache_pitch <= HIGH_FULCRUM_PITCH && cache_pitch < LOW_FULCRUM_PITCH ) {
             cache_pitch += 12;
         }   
     }
