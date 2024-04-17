@@ -131,7 +131,7 @@ const CHORD_VOICE_OPTIONS = {
 	"Drop 2+4 (1324)" : [1, 1, 1, 1, 0, 0, 0],
 	"Rootless (3, 5, 7, 9)" :  [0, 1, 1, 1, 1, 0, 0],
 	"Rootless V7 (3, 7, 9, 13)" :  [0, 1, 0, 1, 1, 0, 1],
-	"Shell (3, 7)" :  [0, 1, 0, 1, 0, 0, 0]
+	"Shell (1, 3, 7)" :  [1, 1, 0, 1, 0, 0, 0]
 };
 
 const CHORD_VOICE_OPTIONS_KEYS = Object.keys( CHORD_VOICE_OPTIONS );
