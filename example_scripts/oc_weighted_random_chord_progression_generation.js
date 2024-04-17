@@ -440,6 +440,9 @@ const MAP_LYDIAN_7 				= {"START":"I7","I7":{"1":"I7","3":"iii7","6":"V7","9":"v
 const MAP_MIXOLYDIAN_7 			= {"START":"I7","I7":{"1":"I7","4":"iii˚7","7":"v7","10":"VII7","total":10,"weight":4},"ii7":{"1":"ii7","3":"IV7","5":"vi7","9":"I7","total":9,"weight":2},"iii˚7":{"1":"iii˚7","4":"v7","7":"VII7","9":"ii7","total":9,"weight":3},"IV7":{"1":"IV7","3":"vi7","7":"I7","10":"iii˚7","total":10,"weight":2},"v7":{"1":"v7","4":"VII7","6":"ii7","8":"IV7","total":8,"weight":3},"vi7":{"1":"vi7","5":"I7","8":"iii˚7","11":"v7","total":11,"weight":2},"VII7":{"1":"VII7","3":"ii7","5":"IV7","7":"vi7","total":7,"weight":3}}
 const MAP_AEOLIAN_7 			= {"START":"i7","i7":{"1":"i7","4":"III7","7":"v7","9":"VII7","total":9,"weight":4},"ii˚7":{"1":"ii˚7","3":"iv7","6":"VI7","10":"i7","total":10,"weight":2},"III7":{"1":"III7","4":"v7","6":"VII7","8":"ii˚7","total":8,"weight":3},"iv7":{"1":"iv7","4":"VI7","8":"i7","11":"III7","total":11,"weight":2},"v7":{"1":"v7","3":"VII7","5":"ii˚7","7":"iv7","total":7,"weight":3},"VI7":{"1":"VI7","5":"i7","8":"III7","11":"v7","total":11,"weight":3},"VII7":{"1":"VII7","3":"ii˚7","5":"iv7","8":"VI7","total":8,"weight":2}}
 const MAP_LOCRIAN_7 			= {"START":"i˚7","i˚7":{"1":"i˚7","4":"iii7","7":"V7","9":"vii7","total":9,"weight":4},"II7":{"1":"II7","3":"iv7","6":"VI7","10":"i˚7","total":10,"weight":2},"iii7":{"1":"iii7","4":"V7","6":"vii7","8":"II7","total":8,"weight":3},"iv7":{"1":"iv7","4":"VI7","8":"i˚7","11":"iii7","total":11,"weight":2},"V7":{"1":"V7","3":"vii7","5":"II7","7":"iv7","total":7,"weight":3},"VI7":{"1":"VI7","5":"i˚7","8":"iii7","11":"V7","total":11,"weight":3},"vii7":{"1":"vii7","3":"II7","5":"iv7","8":"VI7","total":8,"weight":2}}
+const MAP_RO8_MAJOR				= {"START":"I","I":{"3":"IVadd6","7":"V","8":"vii˚add6","total":8,"weight":4},"iiadd4add6":{"4":"V","total":4,"weight":2},"iiiadd6":{"3":"IVadd6","5":"viadd6","total":5,"weight":3},"IVadd6":{"2":"iiadd4add6","total":2,"weight":3},"V":{"4":"I","7":"iiiadd6","9":"viadd6","10":"vii˚add6","total":10,"weight":4},"viadd6":{"2":"iiadd4add6","5":"IVadd6","total":5,"weight":2},"vii˚add6":{"3":"iiiadd6","total":3,"weight":1}}
+const MAP_RO8_MINOR				= {"START":"i","i":{"3":"ivadd6","7":"v","8":"VIIadd6","total":8,"weight":4},"ii˚add4add6":{"4":"v","total":4,"weight":2},"IIIadd6":{"3":"ivadd6","5":"VIadd6","total":5,"weight":3},"ivadd6":{"2":"ii˚add4add6","total":2,"weight":3},"v":{"4":"i","7":"IIIadd6","9":"VIadd6","10":"VIIadd6","total":10,"weight":4},"VIadd6":{"2":"ii˚add4add6","5":"ivadd6","total":5,"weight":2},"VIIadd6":{"3":"IIIadd6","total":3,"weight":1}}
+
 const PROGRESSION_MAPS = {
   "Major Full" : MAP_MAJOR_FULL,
   "Ionian [ I, ii, iii, IV, V, vi, vii˚ ]" : MAP_IONIAN_TRIAD,
@@ -455,7 +458,9 @@ const PROGRESSION_MAPS = {
   "Lydian 7 [ I7, II7, iii7, iv˚7, V7, vi7, vii7 ]" : MAP_LYDIAN_7,
   "Mixolydian 7 [ I7, ii7, iii˚7, IV7, v7, vi7, VII7 ]" : MAP_MIXOLYDIAN_7,
   "Aeolian 7 [ i7, ii˚7,III7, iv7, v7, VI7, VII7 ]" : MAP_AEOLIAN_7,
-  "Locrian 7 [ i˚7, II7, iii7, iv7, V7, VI7, vii7 ]" : MAP_LOCRIAN_7
+  "Locrian 7 [ i˚7, II7, iii7, iv7, V7, VI7, vii7 ]" : MAP_LOCRIAN_7,
+  "Rule of Octave Major" : MAP_RO8_MAJOR,
+  "Rule of Octave Minor" : MAP_RO8_MINOR
 };
 
 const PROGRESSION_MAP_KEYS = Object.keys( PROGRESSION_MAPS );
