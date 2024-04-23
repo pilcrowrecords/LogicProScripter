@@ -258,6 +258,7 @@ Items in brackets [] are optional
     * voice: arabic numbers 9-13
     * `add'
     * Accidentals
+	* Omit specific voices with `o' (lowercase `o' for `omit`)
 * alt bass: arabic numbers 1-7
     * accidentals supported
 
@@ -400,6 +401,7 @@ const TOKEN_CHORD_SUS = "sus";
 const TOKEN_CHORD_EXT_ADD = "add";
 const TOKEN_CHORD_EXT_ADD_FRAGMENT = "d";
 const TOKEN_CHORD_ALT_BASS = "/";
+const TOKEN_QUALITY_OMIT = "o" // `o` for omit
 
 const TOKEN_SCALE_DEGREE_MAJOR_1 = "I";
 const TOKEN_SCALE_DEGREE_MAJOR_2 = "II";
@@ -440,8 +442,8 @@ const MAP_LYDIAN_7 				= {"START":"I7","I7":{"1":"I7","3":"iii7","6":"V7","9":"v
 const MAP_MIXOLYDIAN_7 			= {"START":"I7","I7":{"1":"I7","4":"iii˚7","7":"v7","10":"VII7","total":10,"weight":4},"ii7":{"1":"ii7","3":"IV7","5":"vi7","9":"I7","total":9,"weight":2},"iii˚7":{"1":"iii˚7","4":"v7","7":"VII7","9":"ii7","total":9,"weight":3},"IV7":{"1":"IV7","3":"vi7","7":"I7","10":"iii˚7","total":10,"weight":2},"v7":{"1":"v7","4":"VII7","6":"ii7","8":"IV7","total":8,"weight":3},"vi7":{"1":"vi7","5":"I7","8":"iii˚7","11":"v7","total":11,"weight":2},"VII7":{"1":"VII7","3":"ii7","5":"IV7","7":"vi7","total":7,"weight":3}}
 const MAP_AEOLIAN_7 			= {"START":"i7","i7":{"1":"i7","4":"III7","7":"v7","9":"VII7","total":9,"weight":4},"ii˚7":{"1":"ii˚7","3":"iv7","6":"VI7","10":"i7","total":10,"weight":2},"III7":{"1":"III7","4":"v7","6":"VII7","8":"ii˚7","total":8,"weight":3},"iv7":{"1":"iv7","4":"VI7","8":"i7","11":"III7","total":11,"weight":2},"v7":{"1":"v7","3":"VII7","5":"ii˚7","7":"iv7","total":7,"weight":3},"VI7":{"1":"VI7","5":"i7","8":"III7","11":"v7","total":11,"weight":3},"VII7":{"1":"VII7","3":"ii˚7","5":"iv7","8":"VI7","total":8,"weight":2}}
 const MAP_LOCRIAN_7 			= {"START":"i˚7","i˚7":{"1":"i˚7","4":"iii7","7":"V7","9":"vii7","total":9,"weight":4},"II7":{"1":"II7","3":"iv7","6":"VI7","10":"i˚7","total":10,"weight":2},"iii7":{"1":"iii7","4":"V7","6":"vii7","8":"II7","total":8,"weight":3},"iv7":{"1":"iv7","4":"VI7","8":"i˚7","11":"iii7","total":11,"weight":2},"V7":{"1":"V7","3":"vii7","5":"II7","7":"iv7","total":7,"weight":3},"VI7":{"1":"VI7","5":"i˚7","8":"iii7","11":"V7","total":11,"weight":3},"vii7":{"1":"vii7","3":"II7","5":"iv7","8":"VI7","total":8,"weight":2}}
-const MAP_RO8_MAJOR				= {"START":"I","I":{"3":"IVadd6","7":"V","8":"vii˚add6","total":8,"weight":4},"iiadd4add6":{"4":"V","total":4,"weight":2},"iiiadd6":{"3":"IVadd6","5":"viadd6","total":5,"weight":3},"IVadd6":{"2":"iiadd4add6","total":2,"weight":3},"V":{"4":"I","7":"iiiadd6","9":"viadd6","10":"vii˚add6","total":10,"weight":4},"viadd6":{"2":"iiadd4add6","5":"IVadd6","total":5,"weight":2},"vii˚add6":{"3":"iiiadd6","total":3,"weight":1}}
-const MAP_RO8_MINOR				= {"START":"i","i":{"3":"ivadd6","7":"v","8":"VIIadd6","total":8,"weight":4},"ii˚add4add6":{"4":"v","total":4,"weight":2},"IIIadd6":{"3":"ivadd6","5":"VIadd6","total":5,"weight":3},"ivadd6":{"2":"ii˚add4add6","total":2,"weight":3},"v":{"4":"i","7":"IIIadd6","9":"VIadd6","10":"VIIadd6","total":10,"weight":4},"VIadd6":{"2":"ii˚add4add6","5":"ivadd6","total":5,"weight":2},"VIIadd6":{"3":"IIIadd6","total":3,"weight":1}}
+const MAP_RO8_MAJOR				= {"START":"I","I":{"3":"IVadd6","7":"V","8":"vii˚add6","total":8,"weight":4},"iiadd4o5add6":{"4":"V","total":4,"weight":2},"iiio5add6":{"3":"IVadd6","5":"viadd6","total":5,"weight":3},"IVadd6":{"2":"iiadd4o5add6","total":2,"weight":3},"V":{"4":"I","7":"iiio5add6","9":"viadd6","10":"vii˚add6","total":10,"weight":4},"viadd6":{"2":"iiadd4o5add6","5":"IVadd6","total":5,"weight":2},"vii˚add6":{"3":"iiio5add6","total":3,"weight":1}}
+const MAP_RO8_MINOR				= {"START":"i","i":{"3":"ivadd6","7":"v","8":"VIIadd6","total":8,"weight":4},"ii˚add4o5add6":{"4":"v","total":4,"weight":2},"IIIo5add6":{"3":"ivadd6","5":"VIo5add6","total":5,"weight":3},"ivadd6":{"2":"ii˚add4o5add6","total":2,"weight":3},"v":{"4":"i","7":"IIIo5add6","9":"VIo5add6","10":"VIIadd6","total":10,"weight":4},"VIo5add6":{"2":"ii˚add4o5add6","5":"ivadd6","total":5,"weight":2},"VIIadd6":{"3":"IIIo5add6","total":3,"weight":1}}
 
 const PROGRESSION_MAPS = {
   "Major Full" : MAP_MAJOR_FULL,
@@ -1373,6 +1375,8 @@ function create_chord_from_spelling( str, scale, tonic ) {
 	handle_all_as_add = true;
   }
 
+  let omissions = [];
+
   extensions.forEach( function ( extension ) {
       let cursor = chord_spelling.indexOf( extension );
       let mod = "";
@@ -1384,6 +1388,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
                   let add13 = false;
 				  // capture the mod, in position just before the cursor
                   mod = chord_spelling.charAt( cursor - 1 );
+				  if ( mod == TOKEN_QUALITY_OMIT ) {
+					omissions.push(TOKEN_QUALITY_THIRTEENTH);
+				  }
 				  let pitch_13 = get_chord_voice_from_scale( 13, scale, chord_root.pitch );
                   switch ( mod ) {
                       case TOKEN_SHARP_MUSIC:
@@ -1401,6 +1408,7 @@ function create_chord_from_spelling( str, scale, tonic ) {
 						// do nothing
                         break;
                   }
+				  
 				  pitches["13"] = pitch_13;
 				  if ( !add13 && !handle_all_as_add ) {
 					console.log( " add13 11, 9, 7 ");
@@ -1420,6 +1428,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 					let add12 = false;
 					// capture the mod, in position just before the cursor
 					mod = chord_spelling.charAt( cursor - 1 );
+					if ( mod == TOKEN_QUALITY_OMIT ) {
+						omissions.push(TOKEN_QUALITY_TWELVTH);
+					  }
 					let pitch_12 = get_chord_voice_from_scale( 12, scale, chord_root.pitch );
 					switch ( mod ) {
 						case TOKEN_SHARP_MUSIC:
@@ -1456,6 +1467,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 					let add11 = false;
 					// capture the mod, in position just before the cursor
 					mod = chord_spelling.charAt( cursor - 1 );
+					if ( mod == TOKEN_QUALITY_OMIT ) {
+						omissions.push(TOKEN_QUALITY_ELEVENTH);
+					  }
 					let pitch_11 = get_chord_voice_from_scale( 11, scale, chord_root.pitch );
 					switch ( mod ) {
 						case TOKEN_SHARP_MUSIC:
@@ -1489,6 +1503,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 					let add10 = false;
 					// capture the mod, in position just before the cursor
 					mod = chord_spelling.charAt( cursor - 1 );
+					if ( mod == TOKEN_QUALITY_OMIT ) {
+						omissions.push(TOKEN_QUALITY_TENTH);
+					  }
 					let pitch_10 = get_chord_voice_from_scale( 10, scale, chord_root.pitch );
 					switch ( mod ) {
 						case TOKEN_SHARP_MUSIC:
@@ -1522,6 +1539,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 						let add9 = false;
 						// capture the mod, in position just before the cursor
 						mod = chord_spelling.charAt( cursor - 1 );
+						if ( mod == TOKEN_QUALITY_OMIT ) {
+							omissions.push(TOKEN_QUALITY_NINTH);
+						  }
 						let pitch_9 = get_chord_voice_from_scale( 9, scale, chord_root.pitch );
 						switch ( mod ) {
 							case TOKEN_SHARP_MUSIC:
@@ -1553,6 +1573,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 						let add8 = false;
 						// capture the mod, in position just before the cursor
 						mod = chord_spelling.charAt( cursor - 1 );
+						if ( mod == TOKEN_QUALITY_OMIT ) {
+							omissions.push(TOKEN_QUALITY_EIGHTH);
+						  }
 						let pitch_8 = get_chord_voice_from_scale( 8, scale, chord_root.pitch );
 						switch ( mod ) {
 							case TOKEN_SHARP_MUSIC:
@@ -1582,6 +1605,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 					case TOKEN_QUALITY_SEVENTH:
 						// capture the mod, in position just before the cursor
 						mod = chord_spelling.charAt( cursor - 1 );
+						if ( mod == TOKEN_QUALITY_OMIT ) {
+							omissions.push(TOKEN_QUALITY_SEVENTH);
+						  }
 						let pitch_7 = get_chord_voice_from_scale( 7, scale, chord_root.pitch );
 						switch ( mod ) {
 							case TOKEN_SHARP_MUSIC:
@@ -1603,6 +1629,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 				  case TOKEN_QUALITY_SIXTH:
 						// capture the mod, in position just before the cursor
 						mod = chord_spelling.charAt( cursor - 1 );
+						if ( mod == TOKEN_QUALITY_OMIT ) {
+							omissions.push(TOKEN_QUALITY_SIXTH);
+						  }
 						let pitch_6 = get_chord_voice_from_scale( 6, scale, chord_root.pitch );
 						switch ( mod ) {
 							case TOKEN_SHARP_MUSIC:
@@ -1621,6 +1650,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 				  break;
 				  case TOKEN_QUALITY_FIFTH:
 					mod = chord_spelling.charAt( cursor - 1 );
+					if ( mod == TOKEN_QUALITY_OMIT ) {
+						omissions.push(TOKEN_QUALITY_FIFTH);
+					  }
 					let pitch_5 = pitches["5"];
 					switch ( mod ) {
 						case TOKEN_SHARP_MUSIC:
@@ -1639,6 +1671,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 					break;
 				case TOKEN_QUALITY_FOURTH:
 					mod = chord_spelling.charAt( cursor - 1 );
+					if ( mod == TOKEN_QUALITY_OMIT ) {
+						omissions.push(TOKEN_QUALITY_FOURTH);
+					  }
 					let pitch_4 = pitches["4"];
 					switch ( mod ) {
 						case TOKEN_SHARP_MUSIC:
@@ -1657,6 +1692,9 @@ function create_chord_from_spelling( str, scale, tonic ) {
 					break;
 				case TOKEN_QUALITY_SECOND:
 					mod = chord_spelling.charAt( cursor - 1 );
+					if ( mod == TOKEN_QUALITY_OMIT ) {
+						omissions.push(TOKEN_QUALITY_SECOND);
+					  }
 					let pitch_2 = pitches["2"];
 					switch ( mod ) {
 						case TOKEN_SHARP_MUSIC:
@@ -1679,6 +1717,12 @@ function create_chord_from_spelling( str, scale, tonic ) {
           }
       }
   });
+
+  if ( omissions.length > 0 ) {
+	omissions.forEach( function( quality ) {
+		delete pitches[quality];
+	});
+  }
 
   return pitches;
 }
