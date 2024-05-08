@@ -18,7 +18,7 @@ Most are self-explanatory or just pulled from other scripts.
 * Cycles to random Melody: 0 is immediate, the last value is never.
 
 Roadmap:
-* capture pressed keys during cycling.
+X capture pressed keys during cycling.
 * process melody
     * transpose
 		* target octave
@@ -446,22 +446,31 @@ var LOG_NOTES = true;
 function HandleMIDI( event ) {
 
 	var timing_info = GetTimingInfo();
+	let beatToSchedule = align_beat_to_bar_division( timing_info.blockStartBeat, TIME_SIG_DENOM_DIVISION );
+	let note_off_beat = beatToSchedule + PARAM_MELODY_PLAY_LENGTH;
+	note_off_beat = handle_beat_wraparound(note_off_beat, timing_info);
 
 	if ( timing_info.playing ) { 
-	
+		if ( event instanceof NoteOn ) {
+			event.sendAtBeat( beatToSchedule ); 
+			let note_off = new NoteOff( event );
+			note_off.sendAtBeat( note_off_beat );
+			ACTIVE_MELODY_NOTES = add_pitch_to_active_notes( ACTIVE_MELODY_NOTES, beatToSchedule, event.pitch, event.velocity);
+		} else if ( event instanceof NoteOff ) {
+			// do nothing
+		}
 	} else {
 		event.send();
 	}
-
 }
 
 function ProcessMIDI() {
-	var timing_info = GetTimingInfo();
+	let timing_info = GetTimingInfo();
 
 	// when the transport stops, stop any playing notes and track the cursor and trigger so play can begin uninterrupted
 	if ( timing_info.playing ){
 		// init the values to calculate beats
-		var beatToSchedule = align_beat_to_bar_division( timing_info.blockStartBeat, TIME_SIG_DENOM_DIVISION );
+		let beatToSchedule = align_beat_to_bar_division( timing_info.blockStartBeat, TIME_SIG_DENOM_DIVISION );
 		if ( CHORD_TRIGGER == RESET_VALUE ) {
 			CHORD_TRIGGER = beatToSchedule;
 		}
@@ -499,13 +508,6 @@ function ProcessMIDI() {
 				if ( PARAM_PLAY_MELODY ) {
 					// see if there is a note to play within this process beat
 					// sourced from ProcessMIDI()
-	
-					if ( LOG_VERBOSE ) {
-						Trace(JSON.stringify({
-							CYCLE_COUNT:CYCLE_COUNT,
-							PARAM_MELODY_CYCLES_TO_RGEN:PARAM_MELODY_CYCLES_TO_RGEN
-						}));
-					}	
 
 					// play tracked melody notes
 					let notes = get_pitches_from_active_notes( ACTIVE_MELODY_NOTES, beatToSchedule );
