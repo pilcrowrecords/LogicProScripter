@@ -145,7 +145,8 @@ const SCALE_TEMPLATES = {
 	"Altered Dominant"		: [1, 2, 0, 3, 4, 0, 5, 0, 6, 0, 7, 0],
 	"Major Pentatonic"		: [1, 0, 2, 0, 3, 0, 0, 4, 0, 5, 0, 0],
 	"Minor Pentatonic"		: [1, 0, 0, 2, 0, 3, 0, 4, 0, 0, 5, 0],
-	"Neutral Pentatonic"	: [1, 0, 2, 0, 0, 3, 0, 4, 0, 5, 0, 0]
+	"Neutral Pentatonic"	: [1, 0, 2, 0, 0, 3, 0, 4, 0, 5, 0, 0],
+	"Whole Tone"			: [1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0]
 
 }
 const SCALE_KEYS = Object.keys(SCALE_TEMPLATES);
