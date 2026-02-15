@@ -734,78 +734,78 @@ function Sequencer(label, count, opts) {
   // MATCHES Controls.add(spec, fn):
   // Build all N controls for this lane AND set the lane-wide processor in one call.
   // When building steps:
-this.add = function(spec, onStep /* lane-wide processor */) {
-  if (!spec || typeof spec !== "object") throw new Error("Sequencer.add: spec required.");
-  if (typeof onStep === "function") this._proc = onStep;
+  this.add = function(spec, onStep /* lane-wide processor */) {
+    if (!spec || typeof spec !== "object") throw new Error("Sequencer.add: spec required.");
+    if (typeof onStep === "function") this._proc = onStep;
 
-  this._ensureStepMenu();
-  this._ensureCycleControls();
+    this._ensureStepMenu();
+    this._ensureCycleControls();
 
-  var self = this;
-  for (var i = 1; i <= self.count; i++) {
-    (function(iLocal){
-      var stepSpec = Object.assign({}, spec, { name: self.nameOf(iLocal) });
-      Controls.add(
-        stepSpec,
-        function(value, meta) {
-          if (self._proc) self._proc(value, self._meta(iLocal, meta, "change"));
-        },
-        self.group
-      );
-    })(i);
-  }
-};
-
-
-  // --- Raw read/write (default get() → current cursor) ---
-  this.get = function(i) {
-    i = (i == null ? this.cursor : i|0);
-    if (i < 1 || i > this.count) throw new Error("Step out of range: " + i);
-    return Controls.get(this.nameOf(i));
-  };
-
-  this.set = function(i, value) {
-    i = (i|0);
-    if (i < 1 || i > this.count) throw new Error("Step out of range: " + i);
-    Controls.set(this.nameOf(i), value);
-  };
-
-  // --- Cursor helpers ---
-  this.setCursor = function(i) {
-    i = i|0;
-    if (i < 1 || i > this.count) throw new Error("Cursor out of range: " + i);
-    this.cursor = i;
-    return this.cursor;
-  };
-
-  this.resetCursor = function() { this.cursor = 1; };
-
-  // Peek the processed value you'd get after advancing by n (does not move cursor)
-  this.peekAdvance = function(n) {
-    n = (n == null ? 1 : n|0);
-    var m = ((n % this.count) + this.count) % this.count;           // normalize
-    var next = ((this.cursor - 1 + m) % this.count) + 1;            // 1..count
-    var v = this.get(next);
-    return this._proc ? this._proc(v, this._meta(next, null, "eval")) : v;
-  };
-
-  // Advance by n steps and return the processed value at the resulting cursor.
-  // Supports n = 0, large n, and negative n.
-  this.advance = function(n) {
-    n = (n == null ? 1 : n|0);
-    if (n !== 0) {
-      var m = ((n % this.count) + this.count) % this.count;         // 0..count-1
-      this.cursor = ((this.cursor - 1 + m) % this.count) + 1;        // 1..count
+    var self = this;
+    for (var i = 1; i <= self.count; i++) {
+      (function(iLocal){
+        var stepSpec = Object.assign({}, spec, { name: self.nameOf(iLocal) });
+        Controls.add(
+          stepSpec,
+          function(value, meta) {
+            if (self._proc) self._proc(value, self._meta(iLocal, meta, "change"));
+          },
+          self.group
+        );
+      })(i);
     }
-    var v = this.get(this.cursor);
-    return this._proc ? this._proc(v, this._meta(this.cursor, null, "advance")) : v;
   };
 
-  // Evaluate processed value at step i (or current cursor if omitted)
-  // When reading/evaluating:
-this.eval = function(i) {
-  i = (i == null ? this.cursor : i|0);
-  var v = this.get(i);
-  return this._proc ? this._proc(v, this._meta(i, null, "eval")) : v;
-};
+
+    // --- Raw read/write (default get() → current cursor) ---
+    this.get = function(i) {
+      i = (i == null ? this.cursor : i|0);
+      if (i < 1 || i > this.count) throw new Error("Step out of range: " + i);
+      return Controls.get(this.nameOf(i));
+    };
+
+    this.set = function(i, value) {
+      i = (i|0);
+      if (i < 1 || i > this.count) throw new Error("Step out of range: " + i);
+      Controls.set(this.nameOf(i), value);
+    };
+
+    // --- Cursor helpers ---
+    this.setCursor = function(i) {
+      i = i|0;
+      if (i < 1 || i > this.count) throw new Error("Cursor out of range: " + i);
+      this.cursor = i;
+      return this.cursor;
+    };
+
+    this.resetCursor = function() { this.cursor = 1; };
+
+    // Peek the processed value you'd get after advancing by n (does not move cursor)
+    this.peekAdvance = function(n) {
+      n = (n == null ? 1 : n|0);
+      var m = ((n % this.count) + this.count) % this.count;           // normalize
+      var next = ((this.cursor - 1 + m) % this.count) + 1;            // 1..count
+      var v = this.get(next);
+      return this._proc ? this._proc(v, this._meta(next, null, "eval")) : v;
+    };
+
+    // Advance by n steps and return the processed value at the resulting cursor.
+    // Supports n = 0, large n, and negative n.
+    this.advance = function(n) {
+      n = (n == null ? 1 : n|0);
+      if (n !== 0) {
+        var m = ((n % this.count) + this.count) % this.count;         // 0..count-1
+        this.cursor = ((this.cursor - 1 + m) % this.count) + 1;        // 1..count
+      }
+      var v = this.get(this.cursor);
+      return this._proc ? this._proc(v, this._meta(this.cursor, null, "advance")) : v;
+    };
+
+    // Evaluate processed value at step i (or current cursor if omitted)
+    // When reading/evaluating:
+  this.eval = function(i) {
+    i = (i == null ? this.cursor : i|0);
+    var v = this.get(i);
+    return this._proc ? this._proc(v, this._meta(i, null, "eval")) : v;
+  };
 }
