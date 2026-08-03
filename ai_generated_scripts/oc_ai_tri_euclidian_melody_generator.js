@@ -1,6 +1,6 @@
 /******************************************************************************
 Name: Tri-Euclidean Melody Generator
-Author(s): Philip Regan
+Author(s): Philip Regan and OpenAI Claude
 Purpose: 
 * Generates up to 13 simultaneous lines of melody, each with its own Euclidean 
 rhythm and pitch variation parameters.

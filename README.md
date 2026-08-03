@@ -9,6 +9,10 @@ Files with the "oc" prefix are complete scripts which can...
 * expands upon the Logic Pro supplied scripts in Logic Pro
 * Leverages principle taught in [The Complete Guide to Logic Pro's Scripter by Philip Regan](http://books.apple.com/us/book/id1611546793) to show expanded musical possibilities with Scripter.
 
+Files with the "oc_ai" prefix are complete script made with generative AI. The idea here is to 
+show how AI can be used to develop scripts, whether it's a one-off effect idea or part of a much
+larger generative music project.
+
 If you used any of these scripts to make your music, please let me know! 
 
 Pull requests are welcome.

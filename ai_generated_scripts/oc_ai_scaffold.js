@@ -1,6 +1,6 @@
 /*
 Name: API Skeleton Template
-Author(s): 
+Author(s): Philip Regan and OpenAI Claude
 Purpose:
 * This template is provided to show 
 	* how Scripter's monolithic scripts can be best organized for easy 
@@ -72,6 +72,7 @@ var PluginParameters = [];
 /* 
 CUSTOM GLOBAL VARIABLES 
 */
+
 
 const CYCLE_LENGTH_LIB = {
     "1/128"		:	32.00000000,
